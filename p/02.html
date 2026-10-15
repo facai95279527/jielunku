@@ -1,33 +1,1183 @@
-<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2. 2026-10-15 断网提醒</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2. 2026-10-15 断网提醒</h1><div class="detail"><h3>聊天原文（按发送顺序，10-15 凌晨 3:51–4:06）</h3>
-<p>还没完全对齐。我理解你要两件事：</p>
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>7. 2026-10-14 黄金ETF境外联动手册</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>7. 2026-10-14 黄金ETF境外联动手册</h1><div class="detail"><h3>聊天原文（10-14 10:29–10:32）</h3>
+<p>（通话里）新任务对齐：实时拿 COMEX / 伦敦金，和国内黄金 ETF（518880、159934 等）做联动分析——行情方案、联动逻辑、落地步骤与工具，最后回报要点。对吗？确认后我就出方案。Clash 对比表继续在做。</p>
+<hr />
+<p>黄金 ETF 联动方案按你的要求加细了：具体数据源和接口、溢价折价公式、信号怎么定（没有历史数据支撑的会标明，不编）、监控脚本和预警。写完发文件。这不是投资建议。</p>
+<hr />
+<p>通话结束了。WorkBuddy 那份刚才已发在聊天里。</p>
+<p>黄金 ETF 海外联动的详细操作手册也写好了（约 3 万字：标的与时段、COMEX/现货数据源、折溢价粗算、告警流水线；不是投资建议）。文件在附件。</p>
+<hr />
+<p>黄金 ETF 海外联动操作手册已写好：<code>/workspace/trading/gold_etf_overseas_linkage.md</code>（约 724 行）。</p>
+<p>要点：外盘用 COMEX GC / XAUUSD（Yahoo GC=F 延迟约 30 分钟，适合隔夜方向）；国内 518880、159934 可用 AKShare 拿最新价、IOPV、折溢价；汇率取 USD/CNY 或 CNH。落地建议 Python + AKShare，分连通→轮询告警→回测参数→实时源四阶段。文件已附上，不是投资建议。</p>
+<p>下面是当时作为附件发给用户的手册，内容和附件一字不差。</p>
+<h3>原文件全文：<code>/workspace/trading/gold_etf_overseas_linkage.md</code></h3>
+<h5>国内黄金 ETF × 外盘黄金联动监控方案（操作手册）</h5>
+<blockquote>
+<p><strong>适用对象</strong>：国内黄金 ETF 交易员（关注 518880 华安、159934 易方达及同类）。<br />
+<strong>文档日期</strong>：2026-10-14（Asia/Shanghai）<br />
+<strong>性质</strong>：研究与工程落地说明，<strong>不是投资建议</strong>。任何阈值、阈值、告警阈值需自行回测校准后再用于实盘决策。</p>
+</blockquote>
+<hr />
+<h6>免责声明（请先读）</h6>
 <ol>
-<li><strong>手机弹窗提醒</strong>：Grok Bot 断网、掉线，或者正在做的任务中断时，手机立刻弹窗提醒你。</li>
-<li><strong>新词雷达</strong>：继续做到完，尤其是「有人付钱的产品」那块接好。</li>
+<li>本文只描述<strong>如何合法获取公开/付费行情</strong>、<strong>如何计算可复现的监控指标</strong>、<strong>如何搭告警流水线</strong>。  </li>
+<li>文中出现的「信号」「阈值」「溢价过大」等表述均为<strong>监控示例框架</strong>，不构成买入/卖出建议。  </li>
+<li><strong>禁止编造</strong>：凡未在公开文档核实的延迟分钟数、相关系数、历史溢价分位数，一律标「未查到」或「需自行回测」。  </li>
+<li>使用第三方 API、券商行情、Wind/同花顺等终端时，须遵守其服务条款与交易所行情许可；个人不得二次分发实时行情。  </li>
+<li>黄金与汇率波动剧烈，系统故障、延迟、错价均可能导致误判；请设置人工复核环节。</li>
 </ol>
-<p>手机提醒这边还差你拍板：弹窗走哪条通道？可选的是 <strong>Grok Bot App 推送</strong>（手机装了 App 的话）、<strong>微信</strong>、或 <strong>邮件</strong>。你回一句用哪个，我就按那个做。新词雷达我这边已经在继续跑了。</p>
 <hr />
-<p>好，断网提醒用邮箱 <code>236088068@qq.com</code> 和微信。我先查怎么接这两条通道，能接就马上做；新词雷达继续做到完。</p>
+<h6>0. 标的与市场时钟速查</h6>
+<h6># 0.1 国内黄金 ETF（示例）</h6>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>名称</th>
+<th>基准/持仓核心</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>518880</td>
+<td>华安黄金 ETF</td>
+<td>跟踪国内黄金现货（黄金9999 / Au99.99.SGE），主要持有上金所黄金现货合约</td>
+<td>产品资料概要：投资于黄金现货合约比例不低于基金资产 90%</td>
+</tr>
+<tr>
+<td>159934</td>
+<td>易方达黄金 ETF</td>
+<td>同类，跟踪国内黄金现货</td>
+<td>与 518880 高度相关，可交叉验证折溢价</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>518800 / 159937 / 518660 等</td>
+<td>同属国内黄金现货 ETF 族</td>
+<td>流动性差异大，监控时注意成交额</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关于「1 份 ETF = 多少克金」</strong>：不能简单按 1:1 换算。盘中应以<strong>基金管理人公布的申购赎回清单 + IOPV</strong>为准；若用现货近似估算，只能作为<strong>粗算参考</strong>（见 §2.2），并在招募说明书/清单更新后复核。</p>
+<h6># 0.2 外盘黄金</h6>
+<table>
+<thead>
+<tr>
+<th>品种</th>
+<th>常见代码</th>
+<th>计价</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COMEX 黄金期货</td>
+<td>GC（合约如 GCV6、GCZ6）</td>
+<td>USD/盎司</td>
+<td>CME Globex 近乎 23 小时交易；合约乘数 100 金衡盎司（公开规格）</td>
+</tr>
+<tr>
+<td>伦敦/现货金</td>
+<td>XAUUSD、LBMA 定盘</td>
+<td>USD/盎司</td>
+<td>现货/外汇报价；与 GC 高度相关但非同一合约</td>
+</tr>
+<tr>
+<td>上金所现货</td>
+<td>Au99.99</td>
+<td>CNY/克</td>
+<td>国内 ETF 真实跟踪标的；盘中与外盘通过汇率、升贴水联动</td>
+</tr>
+</tbody>
+</table>
+<h6># 0.3 交易时段对照（北京时间 CST = UTC+8）</h6>
+<p><strong>A 股（ETF）</strong><br />
+- 连续竞价：09:30–11:30、13:00–15:00<br />
+- 集合竞价：09:15–09:25（申报），09:25 产生开盘价  </p>
+<p><strong>COMEX GC（CME Globex，依据公开交易时段汇总；节假日以 CME 公告为准）</strong><br />
+- 芝加哥时间：周日 17:00 – 周五 16:00，每日 16:00–17:00 CT 维护休息<br />
+- 对应北京时间（冬令时大致）：约 <strong>07:00 开 → 次日 06:00 休</strong>；夏令时约 <strong>06:00 开 → 次日 05:00 休</strong><br />
+- <strong>含义</strong>：A 股收盘后至次日开盘前，外盘仍在交易 → 「隔夜涨跌」是开盘预期的核心输入  </p>
+<p><strong>伦敦/LBMA</strong>：定盘与现货报价时区为 GMT/BST；现货 XAUUSD 近乎连续，与 GC 同步性通常很高（具体相关度需自测，本文不编造 R²）。</p>
 <hr />
-<p>邮箱这边可以接：我会连上 Gmail，断线时发到你的 <code>236088068@qq.com</code>（手机 QQ 邮箱也会推送，相当于弹窗）。请先在弹出的登录卡上完成 Gmail 授权。</p>
+<h5>1. 实时行情获取方案</h5>
+<p>目标：同时拿到<br />
+1）外盘：COMEX GC 和/或 XAUUSD；<br />
+2）国内：518880 / 159934 最新价、IOPV、折溢价；<br />
+3）汇率：USD/CNY 或 USD/CNH（用于粗算公允价）。</p>
+<p>原则：<strong>能用官方/合规终端就用终端</strong>；免费 API 默认当<strong>延迟行情</strong>；写进生产前先用 curl/脚本核对字段与时间戳。</p>
 <hr />
-<p>好，只用 QQ 邮箱推送。我先连 Gmail，再做成定时检查断网就发邮件。</p>
+<h6>1.1 外盘：COMEX GC / XAUUSD 数据源对照表</h6>
+<h6># A. 免费 / 低成本（偏延迟，适合 MVP）</h6>
+<h6>## A1. Yahoo Finance（COMEX GC，已实测）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td><code>GC=F</code> 连续合约报价；图表 API 可取分钟线</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>官方帮助页标明 <strong>COMEX (.CMX) 延迟 30 分钟</strong>（ICE Data Services）</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>网页/公开 chart 接口，无需 key（易被限流；勿高频）</td>
+</tr>
+<tr>
+<td>限额</td>
+<td>未查到官方明确 QPS；实务上应 ≥60s 轮询，遇 429 退避</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://help.yahoo.com/kb/finance/SLN2310.html</td>
+</tr>
+<tr>
+<td>实测（2026-10-14）</td>
+<td><code>curl</code> 访问 <code>query1.finance.yahoo.com/v8/finance/chart/GC=F</code> 可返回 <code>regularMarketPrice</code> 等字段；本机抽样价约 4183.6（<strong>仅作连通性验证，勿当作交易依据</strong>）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例（Python / curl）</strong>：</p>
+<pre><code class="language-bash">curl -sL -A 'Mozilla/5.0' \
+  'https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&amp;range=1d' \
+  | python3 -c &quot;import sys,json; m=json.load(sys.stdin)['chart']['result'][0]['meta']; print(m['regularMarketPrice'], m.get('exchangeName'), m.get('timezone'))&quot;
+</code></pre>
+<pre><code class="language-python"># pip install yfinance  （可选封装；本环境未预装）
+# import yfinance as yf
+# print(yf.Ticker(&quot;GC=F&quot;).fast_info)
+</code></pre>
+<p><strong>注意</strong>：Yahoo 禁止再分发行情；仅供个人监控。字段时间戳需自行换算为 CST。</p>
+<h6>## A2. Stooq（GC.F）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>黄金期货日线/历史 CSV（<code>GC.F</code>）</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>偏 EOD/延迟；适合回测隔夜涨跌，不适合秒级监控</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>部分接口需 apikey（官网 CAPTCHA 申请）</td>
+</tr>
+<tr>
+<td>限额</td>
+<td>有日配额（以 Stooq 当前说明为准）</td>
+</tr>
+<tr>
+<td>文档/页面</td>
+<td>https://stooq.com/q/d/?s=gc.f</td>
+</tr>
+</tbody>
+</table>
+<h6>## A3. GoldAPI.io（XAUUSD 现货）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>XAU/XAG/XPT/XPD 现货价、bid/ask、涨跌</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>官网称 real-time spot；<strong>具体交易所延迟秒数未在公开页写死 → 标「未查到精确延迟秒数」</strong>，上线前用返回的 <code>timestamp</code>/<code>datetime</code> 与本机时钟对比</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>Header <code>x-access-token: YOUR_API_KEY</code></td>
+</tr>
+<tr>
+<td>限额</td>
+<td>Sandbox：<strong>约 100 次/月</strong>；Unlimited：<strong>约 $99/月、Unlimited 请求</strong>（以官网定价页为准）</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://www.goldapi.io/documentation ；https://www.goldapi.io/</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">curl -X GET 'https://www.goldapi.io/api/price/XAU/USD' \
+  -H 'x-access-token: YOUR_API_KEY'
+</code></pre>
+<h6>## A4. Metals-API（XAU 等）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td><code>/latest</code>、历史、timeseries、intraday、OHLC</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>公开定价页写 <strong>From 10-minute updates</strong>（入门档）；更高档位更新频率以官网为准</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>Query <code>access_key=</code></td>
+</tr>
+<tr>
+<td>限额</td>
+<td>Copper 档约 <strong>$19.99/月、2500 calls/月、60 req/min</strong>；更高档递增（Bronze/Silver/Gold…）</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://metals-api.com/documentation ；定价 https://metals-api.com/pricing</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">curl 'https://metals-api.com/api/latest?access_key=YOUR_KEY&amp;base=USD&amp;symbols=XAU'
+# 注意：部分金属 API 返回「1 USD 可兑多少盎司」，需取倒数得到 USD/盎司；以响应字段说明为准
+</code></pre>
+<h6>## A5. Twelve Data（XAU/USD + 商品）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td><code>XAU/USD</code> 等 commodities；REST + WebSocket</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>官网称 REST 可至分钟级；WebSocket 宣传平均延迟约 <strong>170ms</strong>（为其基础设施指标，<strong>不等于你本地观测延迟</strong>）</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td><code>apikey=</code></td>
+</tr>
+<tr>
+<td>限额</td>
+<td>Basic 免费：<strong>8 credits/min，800/天</strong>；商品数据通常从 <strong>Grow $29/月</strong> 起含 commodities（以 pricing 页为准）</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://twelvedata.com/docs ；https://twelvedata.com/commodities ；https://twelvedata.com/pricing</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">curl 'https://api.twelvedata.com/time_series?symbol=XAU/USD&amp;interval=1min&amp;outputsize=30&amp;apikey=YOUR_KEY'
+</code></pre>
+<h6>## A6. Oanor Front-Month Futures / Omkar commodity-price-api</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>连续近月期货板（含 GC 等短代码）</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>宣传 live/real-time；<strong>未独立核验延迟 → 「未查到经第三方审计的延迟」</strong></td>
+</tr>
+<tr>
+<td>限额</td>
+<td>Oanor 免费档宣传约 <strong>100 calls/月、1 req/s</strong>；Omkar 免费约 <strong>100/月</strong></td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://www.oanor.com/api/cmefutures-api ；https://github.com/omkarcloud/commodity-price-api</td>
+</tr>
+<tr>
+<td>建议</td>
+<td>仅作备用探针，生产前对比 Yahoo/IB/终端同一时刻价差</td>
+</tr>
+</tbody>
+</table>
+<h6>## A7. Kitco</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>网页展示金银价</td>
+</tr>
+<tr>
+<td>API</td>
+<td><strong>未查到面向开发者的自助 JSON API</strong>；不建议爬虫（ToS/稳定性风险）</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>人工核对参考价</td>
+</tr>
+</tbody>
+</table>
+<h6>## A8. TradingView</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>GC1!、XAUUSD 图表；可用警报（邮件/Webhook）</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>取决于你的 TV 数据套餐与经纪商接入</td>
+</tr>
+<tr>
+<td>API</td>
+<td>无完整公开「拉全市场实时价」的个人 REST；<strong>Webhook 告警</strong>适合 MVP 外盘异动通知</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>外盘大波动 → Webhook → 你的监控脚本</td>
+</tr>
+</tbody>
+</table>
+<h6>## A9. Tiingo</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>股票 EOD、FX、Crypto 等</td>
+</tr>
+<tr>
+<td>COMEX GC</td>
+<td><strong>未查到专用 COMEX 期货 API</strong>；文档中 <code>commodities</code> 多为 forex 端点别名</td>
+</tr>
+<tr>
+<td>结论</td>
+<td><strong>不作为 GC 主源</strong>；若只要 XAU 类外汇报价，再单独核对其 FX 符号是否含 XAUUSD</td>
+</tr>
+</tbody>
+</table>
+<h6>## A10. Alpha Vantage</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>部分 commodity / FX</td>
+</tr>
+<tr>
+<td>限额</td>
+<td>免费档极严（常见 25 req/day 量级，以官网为准）</td>
+</tr>
+<tr>
+<td>结论</td>
+<td>可作日频备份；<strong>不适合盘中联动</strong></td>
+</tr>
+</tbody>
+</table>
 <hr />
-<p>请点一下刚弹出的 Gmail 登录卡，授权完成后我会马上建好「断了就发邮件到 QQ」的检查。</p>
+<h6># B. 付费 / 机构级（偏真·实时，适合生产）</h6>
+<h6>## B1. Interactive Brokers（TWS / IB Gateway API）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>COMEX <code>GC</code> 期货 Level-1（及深度视订阅）；可切 delayed</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td><strong>COMEX 免费 delayed：约 10 分钟</strong>（IB 行情价目表）；真实时需订 <strong>COMEX Real-Time</strong></td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>IB 账户 + TWS/Gateway + API</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://interactivebrokers.github.io/tws-api/market_data_type.html ；行情价目 https://www.interactivebrokers.com/en/pricing/market-data-pricing.php</td>
+</tr>
+<tr>
+<td>注意</td>
+<td>中国居民开户/数据许可以 IB 当地规则为准；本文不指导开户</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python"># 伪代码结构（需 ib_insync 或官方 API）
+# app.reqMarketDataType(3)  # 3 = delayed
+# contract = Future(symbol='GC', exchange='COMEX', currency='USD')
+# app.reqMktData(reqId, contract, '', False, False, [])
+</code></pre>
+<h6>## B2. Massive（原 Polygon.io）Futures</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>COMEX <code>GC</code> 合约列表、aggregates、quotes；WebSocket</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td>Developer：<strong>约 10 分钟延迟</strong>；Advanced / Business COMEX：<strong>实时</strong>（以 Massive 计划表为准）</td>
+</tr>
+<tr>
+<td>价格（公开汇总）</td>
+<td>个人 Futures Developer 约 <strong>$79/月</strong>；Advanced 约 <strong>$199/月</strong>（第三方 2026 汇总，下单前以 https://massive.com/futures 为准）</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://massive.com/docs/rest/futures/aggregates ；WS https://massive.com/docs/websocket/futures/quotes</td>
+</tr>
+<tr>
+<td>端点示例</td>
+<td><code>GET https://api.massive.com/futures/v1/contracts?product_code=GC&amp;active=true</code></td>
+</tr>
+<tr>
+<td></td>
+<td><code>GET https://api.massive.com/futures/v1/aggs/{ticker}?resolution=1min&amp;...&amp;apiKey=</code></td>
+</tr>
+<tr>
+<td></td>
+<td>WS：<code>wss://delayed.massive.com/futures</code> 或 <code>wss://socket.massive.com/futures</code></td>
+</tr>
+</tbody>
+</table>
+<h6>## B3. CME Group 官方 Real-Time WebSocket API</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>Globex 源 TOB、成交、日统计；含 COMEX</td>
+</tr>
+<tr>
+<td>实时性</td>
+<td><strong>交易所源实时</strong>；TOB 合并约 <strong>500ms</strong></td>
+</tr>
+<tr>
+<td>成本</td>
+<td>宣传按用量低至约 <strong>$0.50/GB</strong> + ILA 等许可费；需认证/签约</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://www.cmegroup.com/market-data/real-time-futures-and-options-data-api.html ；Wiki：CME Market Data Over WebSocket</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>机构/专业分发；个人交易成本高</td>
+</tr>
+</tbody>
+</table>
+<h6>## B4. Wind / 同花顺 iFinD / 东方财富 Choice / Bloomberg / Refinitiv</h6>
+<table>
+<thead>
+<tr>
+<th>终端</th>
+<th>典型用途</th>
+<th>费用量级（公开/市场传闻，<strong>以销售报价为准</strong>）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wind</td>
+<td>机构级外盘+国内+汇率一体</td>
+<td>个人/机构年费通常很高（常见说法万元级起，<strong>未查到统一公开价目 → 询价</strong>）</td>
+</tr>
+<tr>
+<td>同花顺 iFinD</td>
+<td>研究终端、API</td>
+<td>询价</td>
+</tr>
+<tr>
+<td>东财 Choice</td>
+<td>研究+部分外盘</td>
+<td>询价</td>
+</tr>
+<tr>
+<td>Bloomberg / Refinitiv</td>
+<td>机构标准</td>
+<td>合同价</td>
+</tr>
+</tbody>
+</table>
+<p><strong>个人交易员实务建议</strong>：国内 ETF 用券商 Level-1 + 东财/同花顺；外盘用 <strong>IB delayed/实时</strong> 或 <strong>Massive/Twelve Data/GoldAPI</strong>，比直接上 Bloomberg 更划算。</p>
 <hr />
-<p>在手机上的 <strong>Grok Bot App</strong> 里点，不是小米系统设置。</p>
-<p>打开 Grok Bot → 进我们这个聊天 → 找到我刚发的 <strong>Gmail 连接卡片</strong> → 点授权 / 登录 → 用浏览器或 Google 账号完成登录。</p>
-<p>如果聊天里看不到卡片：下拉刷新一下，或切到电脑上的 Grok Bot 网页/桌面端点同一张卡。授权一次就行，之后断网提醒会发到你的 QQ 邮箱。</p>
+<h6>1.2 国内黄金 ETF + 汇率</h6>
+<h6># C1. AKShare（免费，依赖东财等上游）</h6>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ak.fund_etf_spot_em()</code></td>
+<td>全市场 ETF 快照：最新价、<strong>IOPV实时估值</strong>、<strong>基金折价率</strong>、买卖一、更新时间</td>
+</tr>
+<tr>
+<td><code>ak.spot_quotations_sge(symbol="Au99.99")</code></td>
+<td>上金所 Au99.99 走势（若上游可用）</td>
+</tr>
+<tr>
+<td><code>ak.forex_spot_em()</code> / <code>ak.fx_spot_quote()</code></td>
+<td>USD/CNY、USD/CNH 等</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">import akshare as ak
+
+etf = ak.fund_etf_spot_em()
+row = etf[etf[&quot;代码&quot;].isin([&quot;518880&quot;, &quot;159934&quot;])]
+# 关注列：最新价, IOPV实时估值, 基金折价率, 买一, 卖一, 更新时间
+
+fx = ak.forex_spot_em()
+# 筛选代码含 USDCNY / USDCNH
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实时性</td>
+<td>爬取东财等网页接口，接近 Level-1 快照；<strong>非交易所直连</strong>；高频易触发反爬</td>
+</tr>
+<tr>
+<td>建议轮询</td>
+<td>盘中 <strong>3–10 秒</strong> 可试，失败则拉长到 15–30 秒；加随机抖动</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>https://github.com/akfamily/akshare （<code>fund_etf_spot_em</code>）</td>
+</tr>
+</tbody>
+</table>
+<h6># C2. Tushare Pro</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>得到什么</td>
+<td>A 股/基金行情（权限与积分相关）</td>
+</tr>
+<tr>
+<td>实时</td>
+<td>实时接口通常需较高积分或付费</td>
+</tr>
+<tr>
+<td>建议</td>
+<td>历史回测主力；盘中实时优先 AKShare 或券商 API</td>
+</tr>
+</tbody>
+</table>
+<h6># C3. 券商 Level-1 / Level-2 + 同花顺 / 通达信 / 东财客户端</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Level-1</td>
+<td>多数券商免费或随账户；ETF 最新价、五档足够做折溢价监控</td>
+</tr>
+<tr>
+<td>Level-2</td>
+<td>东财/同花顺等个人 L2 公开宣传价约数百元/年量级（以软件内购买页为准）；对 ETF 溢价监控<strong>非必须</strong></td>
+</tr>
+<tr>
+<td>公式</td>
+<td>通达信/同花顺可写自定义指标：<code>(C - IOPV)/IOPV*100</code>（字段名因软件而异）</td>
+</tr>
+</tbody>
+</table>
+<h6># C4. 新浪 / 东财网页行情</h6>
+<p>可作为人工核对；自动化时优先走 AKShare 已封装接口，避免裸爬 HTML。</p>
 <hr />
-<p>Gmail 已经连上了。我现在建「断网就发邮件到 QQ」的检查。</p>
+<h6>1.3 延迟 vs 实时：怎么选</h6>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐组合</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MVP / 学习</td>
+<td>Yahoo GC=F（30min）+ GoldAPI/Metals 低频 + AKShare ETF</td>
+<td>成本 ≈ 0；只能做「方向与大幅隔夜」</td>
+</tr>
+<tr>
+<td>半专业盘中</td>
+<td>IB COMEX delayed(10min) 或 Massive Developer(10min) + AKShare/券商 L1</td>
+<td>开盘预期仍可用；盘中追击受限</td>
+</tr>
+<tr>
+<td>专业生产</td>
+<td>IB 实时 COMEX 或 Massive Advanced/Business 或 CME WS + 券商 L1 + 稳定 USD/CNY</td>
+<td>成本上升；需行情许可合规</td>
+</tr>
+<tr>
+<td>机构</td>
+<td>Wind/Bloomberg + 交易所授权</td>
+<td>一体化、审计友好</td>
+</tr>
+</tbody>
+</table>
+<p><strong>硬规则</strong>：免费源上的「实时」字样，一律用返回时间戳与本机 NTP 对齐实测；文档没写的延迟分钟数 → 写「未查到」。</p>
 <hr />
-<p>断网邮件提醒已经建好了：每天早 8 点到晚 11:45（上海时间），大约每 15 分钟检查一次；NucBox 掉线或任务异常中断时，会发邮件到 <code>236088068@qq.com</code>，正常就不打扰你。</p>
-<p>你睡吧。新词雷达我继续做完，结论会放进结论库。</p>
+<h6>1.4 轮询频率建议（尊重限额）</h6>
+<table>
+<thead>
+<tr>
+<th>源</th>
+<th>建议间隔</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Yahoo GC=F</td>
+<td>≥ 60–120 s</td>
+<td>无官方 QPS；易封</td>
+</tr>
+<tr>
+<td>GoldAPI Sandbox</td>
+<td>按 100 次/月倒推：一天最多约 3 次 → <strong>仅适合日检</strong>；付费后再 30–60 s</td>
+<td></td>
+</tr>
+<tr>
+<td>Metals-API Copper</td>
+<td>60 req/min 上限，但月包 2500 → 若 5s 一轮很快耗尽；建议 <strong>60–300 s</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>Twelve Data Grow</td>
+<td>按 credits/min 预算；1 分钟线监控可用 <strong>30–60 s</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>AKShare ETF</td>
+<td><strong>3–15 s</strong>（盘中），夜间停</td>
+<td></td>
+</tr>
+<tr>
+<td>IB / Massive WS</td>
+<td>推送为主，无需轮询</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <hr />
-<p>只影响需要用到你电脑的事，其他照常。</p>
-<p><strong>还能照常做的</strong><br />
-- 新词雷达、结论库、调研和写文件，这些都在我的电脑上做。<br />
-- 你在手机上照样能跟我聊天。<br />
-- 例行任务照常跑，提醒邮件照样会发到你的 QQ 邮箱。</p>
-<p><strong>会停下来的</strong><br />
-- 查 Clash 设置、往你的 NucBox 桌面放文件，以及用你电脑上的 Codex、Chrome。等 NucBox 开机并打开 Grok Bot 以后才能接着做。</p>
-<p>还有一点要注意：白天 8 点到 23:45 之间如果 NucBox 关着，断网提醒会把它当成掉线，每 15 分钟给你发一封邮件。如果你打算白天也经常关机，告诉我一声，我改成只提醒一次，或者只在你没主动关机时才提醒。</p></div></html>
+<h5>2. 外盘 → 国内 ETF 联动分析逻辑</h5>
+<h6>2.1 驱动链条（微观结构定性，无编造统计）</h6>
+<pre><code>COMEX GC / XAUUSD（美元计价）
+        ↓  汇率 USD/CNY（或 CNH）
+上金所 Au99.99（人民币/克）升贴水、库存、国内供需
+        ↓  基金持仓与申赎
+IOPV（盘中参考净值）
+        ↓  二级市场供需、套利资金、情绪
+ETF 成交价（518880 / 159934）
+</code></pre>
+<p><strong>定性经验（行业常识，非本文实证）</strong>：<br />
+- A 股开盘前，外盘隔夜涨跌常被定价进集合竞价；COMEX 往往对国内开盘有<strong>领先参考</strong>作用。<br />
+- 盘中若外盘急动而 ETF 流动性不足，折溢价可短期放大，随后申赎/做市收敛（能否套利取决于门槛与成本）。<br />
+- <strong>不要假设固定相关系数</strong>；应用你自己的历史样本估计（§2.5）。</p>
+<h6>2.2 可计算指标与公式</h6>
+<h6># （1）官方折溢价（优先用）</h6>
+<p>东财/AKShare 已给：</p>
+<p>[<br />
+\text{折溢价率}<em>{\text{官方}} = \frac{P</em>{\text{ETF}} - \text{IOPV}}{\text{IOPV}} \times 100\%<br />
+]</p>
+<p>（字段「基金折价率」符号约定以数据源为准：有的源「折价」为正，有的溢价为正——<strong>接入时打印样例核对符号</strong>。）</p>
+<h6># （2）IOPV 定义（概念）</h6>
+<p>招募/运作中，IOPV 通常由<strong>申购赎回清单</strong>中黄金现货合约数量 × 实时价 + 现金替代/差额，再除以最小申赎单位份额得到。<br />
+<strong>精确系数以当日清单 PDF/接口为准</strong>；本文<strong>未完整核验</strong>华安 2026 年每一日清单的克数映射 → 标「需按当日清单核实」。</p>
+<h6># （3）外盘粗算「公允参考价」（近似，非官方 IOPV）</h6>
+<p>目的：在只有 GC 与汇率时，估一个「外盘隐含的国内金价方向」，<strong>不能替代 IOPV</strong>。</p>
+<p><strong>假设（必须写进日志）</strong>：<br />
+- (G)：COMEX 近月或连续价，USD/盎司<br />
+- (FX)：USD/CNY（或 USDCNH）<br />
+- (31.1034768)：1 金衡盎司 ≈ 克（国际常用换算）<br />
+- (k)：升贴水与税费摩擦因子，<strong>初始可取 1.0，再用历史回归校准</strong><br />
+- (w)：ETF 单位净值与「元/克」之间的份额换算（来自清单或 <code>净值 / Au99.99</code> 滚动估计）</p>
+<p>粗算人民币金价（元/克）：</p>
+<p>[<br />
+\hat{S}_{\text{CNY/g}} = k \cdot \frac{G \times FX}{31.1034768}<br />
+]</p>
+<p>粗算 ETF 公允价：</p>
+<p>[<br />
+\hat{P} = w \cdot \hat{S}_{\text{CNY/g}}<br />
+]</p>
+<p>外盘隐含偏离：</p>
+<p>[<br />
+\text{外盘偏离}<em>t = \frac{P</em>{\text{ETF},t} - \hat{P}_t}{\hat{P}_t}<br />
+]</p>
+<p><strong>校准 (w)</strong>：用历史日频<br />
+<code>w_hat = NAV_t / Au99.99_t</code> 或 <code>w_hat = IOPV_t / S_CNY_g_t</code> 取中位数；<strong>禁止拍脑袋写死</strong>。</p>
+<h6># （4）隔夜外盘涨跌 → 开盘预期（监控用）</h6>
+<p>定义（示例）：</p>
+<ul>
+<li>(G_{\text{prev,close}})：上一 A 股交易日 15:00（CST）时刻对应的 GC 价（可用当时快照）  </li>
+<li>(G_{\text{preopen}})：当日 09:20–09:25 前最后一笔可用 GC（注意延迟源要向前对齐）  </li>
+</ul>
+<p>[<br />
+r_{\text{overnight}} = \frac{G_{\text{preopen}} - G_{\text{prev,close}}}{G_{\text{prev,close}}}<br />
+]</p>
+<p>[<br />
+r_{\text{ETF,open}} = \frac{P_{\text{open}} - P_{\text{prev,close}}}{P_{\text{prev,close}}}<br />
+]</p>
+<p>残差（开盘跳空未解释部分）：</p>
+<p>[<br />
+e_{\text{open}} = r_{\text{ETF,open}} - \beta \cdot r_{\text{overnight}}<br />
+]</p>
+<p>(\beta) <strong>必须用你自己的样本回归</strong>，本文不提供数值。</p>
+<h6># （5）汇率贡献拆解（可选）</h6>
+<p>[<br />
+\Delta \ln(\hat{S}) \approx \Delta \ln(G) + \Delta \ln(FX)<br />
+]</p>
+<p>可分开记录：外盘金价变动 vs 人民币汇率变动，避免把「美元跌」误当成「金价涨」。</p>
+<h6>2.3 时段策略映射</h6>
+<table>
+<thead>
+<tr>
+<th>时段（CST）</th>
+<th>外盘状态</th>
+<th>监控重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15:00–次日 09:15</td>
+<td>GC 大多仍交易</td>
+<td>记录隔夜高点/低点、重大数据前后波动；推送「隔夜幅度」</td>
+</tr>
+<tr>
+<td>09:15–09:25</td>
+<td>集合竞价</td>
+<td>对比 (r_{\text{overnight}}) 与竞价虚拟匹配价（若券商提供）</td>
+</tr>
+<tr>
+<td>09:30–11:30</td>
+<td>双开</td>
+<td>折溢价、IOPV 与外盘分钟变动同步性</td>
+</tr>
+<tr>
+<td>11:30–13:00</td>
+<td>A 股休市、外盘常开</td>
+<td>外盘剧变 → 午后开盘预警</td>
+</tr>
+<tr>
+<td>13:00–15:00</td>
+<td>双开</td>
+<td>尾盘折溢价、份额变化（若有）</td>
+</tr>
+</tbody>
+</table>
+<h6>2.4 信号框架（示例，非投资建议）</h6>
+<p>下列阈值中的 (X\%)、(Z) <strong>一律留空或参数化</strong>，上线前用回测填入。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>触发条件（示例）</th>
+<th>动作（监控）</th>
+<th>校准方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>(</td>
+<td>r_{\text{overnight}}</td>
+<td>&gt; X_1\%)</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>开盘 5 分钟内 (e_{\text{open}}) 超过历史 (Z) 倍标准差</td>
+<td>标记「开盘定价异常」</td>
+<td>滚动 60 日残差标准差</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>官方折溢价率绝对值 &gt; (X_3\%) 且持续 (N) 分钟</td>
+<td>提醒流动性/套利机会观察</td>
+<td>用历史折溢价分位 + 成本（佣金+冲击）</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>午休期间 (</td>
+<td>\Delta G</td>
+<td>&gt; X_4\%)</td>
+</tr>
+<tr>
+<td>S5</td>
+<td>518880 与 159934 折溢价差过大</td>
+<td>交叉验证数据源错误</td>
+<td>两标的历史价差分布</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公开学术「固定阈值」</strong>：本次检索<strong>未采用编造的论文系数</strong>；若你需要引用文献，请自行在知网/SSRN 检索「黄金 ETF 折溢价」「COMEX 与国内金价」并填入参考文献区。</p>
+<h6>2.5 如何自行回测（必须做）</h6>
+<p><strong>数据清单</strong>：<br />
+1. 日频：ETF 开高低收、IOPV 或净值、Au99.99、USD/CNY、GC 结算或 15:00 快照<br />
+2. 分钟频（有条件）：开盘前 30 分钟 GC + 开盘后 30 分钟 ETF  </p>
+<p><strong>步骤</strong>：<br />
+1. 对齐时区，剔除节假日错配<br />
+2. 估计 (\beta = \mathrm{Cov}(r_{\text{ETF,open}}, r_{\text{overnight}}) / \mathrm{Var}(r_{\text{overnight}}))<br />
+3. 画散点与滚动相关（20/60 日）<br />
+4. 对折溢价序列做分位数表（50/90/95/99）→ 作为 S3 初值<br />
+5. 计入交易成本后再谈「可交易性」  </p>
+<p>输出应保存到 <code>/workspace/trading/backtests/</code>（可自建），本文不预置假数字。</p>
+<hr />
+<h5>3. 可落地实现步骤与工具</h5>
+<h6>3.1 推荐技术栈</h6>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>推荐</th>
+<th>备选</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语言</td>
+<td>Python 3.11+</td>
+<td>—</td>
+</tr>
+<tr>
+<td>国内行情</td>
+<td>akshare + 券商行情</td>
+<td>tushare（历史）</td>
+</tr>
+<tr>
+<td>外盘 MVP</td>
+<td>Yahoo chart API +（可选）GoldAPI</td>
+<td>Twelve Data Grow</td>
+</tr>
+<tr>
+<td>外盘生产</td>
+<td>ib_insync / Massive WS</td>
+<td>CME 官方 WS</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>SQLite → PostgreSQL</td>
+<td>Parquet 日切</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>APScheduler / systemd timer</td>
+<td>cron</td>
+</tr>
+<tr>
+<td>看板</td>
+<td>Streamlit / Grafana</td>
+<td>通达信/同花顺公式</td>
+</tr>
+<tr>
+<td>告警</td>
+<td>Telegram Bot / 企业微信 / 邮件</td>
+<td>TradingView Webhook</td>
+</tr>
+</tbody>
+</table>
+<h6>3.2 目录结构建议</h6>
+<pre><code>/workspace/trading/
+  gold_etf_overseas_linkage.md    # 本手册
+  config.yaml                     # API key、标的、阈值（勿提交 git）
+  requirements.txt
+  src/
+    fetch_overseas.py
+    fetch_domestic.py
+    metrics.py
+    alerts.py
+    monitor.py
+  data/
+    ticks/  bars/  daily/
+  backtests/
+  logs/
+</code></pre>
+<h6>3.3 监控脚本骨架（可运行思路）</h6>
+<p>以下为<strong>结构完整的伪实现</strong>：外盘用已验证的 Yahoo 延迟接口；国内用 akshare（需自行 <code>pip install</code>）。<br />
+<strong>不自动下单。</strong></p>
+<pre><code class="language-python">#!/usr/bin/env python3
+&quot;&quot;&quot;gold_monitor_mvp.py — 延迟外盘 + 国内 ETF 折溢价监控骨架&quot;&quot;&quot;
+from __future__ import annotations
+
+import json
+import time
+import urllib.request
+from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
+from typing import Any
+
+CST = timezone(timedelta(hours=8))
+
+@dataclass
+class OverseasQuote:
+    symbol: str
+    price: float
+    source: str
+    delayed_note: str
+    fetched_at: datetime
+
+@dataclass
+class EtfSnapshot:
+    code: str
+    price: float
+    iopv: float | None
+    premium_pct: float | None  # (price-iopv)/iopv*100
+    fetched_at: datetime
+
+
+def fetch_gc_yahoo() -&gt; OverseasQuote:
+    url = &quot;https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&amp;range=1d&quot;
+    req = urllib.request.Request(url, headers={&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode())
+    meta = data[&quot;chart&quot;][&quot;result&quot;][0][&quot;meta&quot;]
+    return OverseasQuote(
+        symbol=&quot;GC=F&quot;,
+        price=float(meta[&quot;regularMarketPrice&quot;]),
+        source=&quot;yahoo&quot;,
+        delayed_note=&quot;Yahoo help: COMEX delay 30 min&quot;,
+        fetched_at=datetime.now(CST),
+    )
+
+
+def fetch_etf_akshare(codes=(&quot;518880&quot;, &quot;159934&quot;)) -&gt; list[EtfSnapshot]:
+    import akshare as ak  # pip install akshare
+
+    df = ak.fund_etf_spot_em()
+    out: list[EtfSnapshot] = []
+    now = datetime.now(CST)
+    for code in codes:
+        row = df[df[&quot;代码&quot;] == code].iloc[0]
+        price = float(row[&quot;最新价&quot;])
+        iopv = float(row[&quot;IOPV实时估值&quot;]) if row[&quot;IOPV实时估值&quot;] == row[&quot;IOPV实时估值&quot;] else None
+        prem = None
+        if iopv and iopv != 0:
+            prem = (price - iopv) / iopv * 100.0
+        out.append(EtfSnapshot(code, price, iopv, prem, now))
+    return out
+
+
+def approx_cny_per_gram(gc_usd: float, usdcny: float, k: float = 1.0) -&gt; float:
+    &quot;&quot;&quot;粗算：美元金价 * 汇率 / 盎司克重。k=升贴水因子，需自校准。&quot;&quot;&quot;
+    OZ_TO_G = 31.1034768
+    return k * (gc_usd * usdcny) / OZ_TO_G
+
+
+def should_alert_overnight(r_overn: float, x1: float) -&gt; bool:
+    &quot;&quot;&quot;示例：|隔夜涨跌| &gt; 参数 x1。x1 必须来自回测分位数。&quot;&quot;&quot;
+    return abs(r_overn) &gt;= x1
+
+
+def send_telegram(token: str, chat_id: str, text: str) -&gt; None:
+    url = f&quot;https://api.telegram.org/bot{token}/sendMessage&quot;
+    body = json.dumps({&quot;chat_id&quot;: chat_id, &quot;text&quot;: text}).encode()
+    req = urllib.request.Request(
+        url, data=body, headers={&quot;Content-Type&quot;: &quot;application/json&quot;}, method=&quot;POST&quot;
+    )
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        resp.read()
+
+
+def main_loop(poll_seconds: int = 120) -&gt; None:
+    # 参数文件读取省略：x1, premium_abs_threshold 等必须外部配置
+    x1 = None  # TODO: 回测后填入，例如分位数；未填则只记录不告警
+    while True:
+        try:
+            gc = fetch_gc_yahoo()
+            etfs = fetch_etf_akshare()
+            line = f&quot;[{gc.fetched_at:%H:%M:%S}] GC={gc.price} ({gc.delayed_note})&quot;
+            for e in etfs:
+                line += f&quot; | {e.code} P={e.price} IOPV={e.iopv} prem%={e.premium_pct}&quot;
+            print(line)
+            # if x1 is not None and should_alert_overnight(...): send_telegram(...)
+        except Exception as exc:
+            print(&quot;ERR&quot;, exc)
+        time.sleep(poll_seconds)
+
+
+if __name__ == &quot;__main__&quot;:
+    main_loop()
+</code></pre>
+<h6>3.4 告警通道：具体搭建步骤</h6>
+<h6># Telegram Bot</h6>
+<ol>
+<li>与 <code>@BotFather</code> 对话创建 bot，获得 <code>token</code>。  </li>
+<li>把自己账号 chat_id 查出来（可用 <code>@userinfobot</code> 或 getUpdates）。  </li>
+<li>环境变量：<code>TELEGRAM_BOT_TOKEN</code>、<code>TELEGRAM_CHAT_ID</code>。  </li>
+<li>调用 <code>https://api.telegram.org/bot&lt;token&gt;/sendMessage</code>。  </li>
+<li>注意：境内网络可能需自备合规网络路径；本文不讨论翻墙。</li>
+</ol>
+<h6># 企业微信群机器人</h6>
+<ol>
+<li>群设置 → 群机器人 → 添加 → 获取 Webhook URL。  </li>
+<li><code>POST</code> JSON：<code>{"msgtype":"text","text":{"content":"..."}}</code>。  </li>
+<li>适合团队值班；注意频率限制（企微有频率上限，以官方文档为准）。</li>
+</ol>
+<h6># 邮件</h6>
+<ol>
+<li>使用已有邮箱 SMTP（或企业邮）。  </li>
+<li>Python <code>smtplib</code> 发送；开盘预警类低频邮件更合适。  </li>
+<li><strong>不要</strong>把 API Key 写进邮件正文。</li>
+</ol>
+<h6># 桌面通知</h6>
+<ul>
+<li>Linux：<code>notify-send</code>  </li>
+<li>或接入 ntfy.sh / Bark（iOS）等自建推送  </li>
+</ul>
+<h6># TradingView Webhook</h6>
+<ol>
+<li>在 TV 上对 <code>COMEX:GC1!</code> 或 <code>XAUUSD</code> 设条件警报。  </li>
+<li>警报通知选 Webhook，指到你的 HTTPS 接收端。  </li>
+<li>接收端校验密钥后转发 Telegram/企微。</li>
+</ol>
+<h6>3.5 分阶段落地路径</h6>
+<h6># Phase 0（半天）— 连通性</h6>
+<ul>
+<li>[ ] curl 打通 Yahoo <code>GC=F</code>  </li>
+<li>[ ] <code>pip install akshare</code>，打印 518880/159934 的 IOPV 与折溢价  </li>
+<li>[ ] 确认折价率符号约定  </li>
+<li>[ ] 用 Excel 记 5 个交易日的「隔夜 GC% vs 开盘 ETF%」</li>
+</ul>
+<h6># Phase 1（2–3 天）— MVP 监控</h6>
+<ul>
+<li>[ ] 实现 <code>monitor.py</code>：120s 轮询，写 SQLite  </li>
+<li>[ ] Telegram 或企微：仅发送「隔夜 |Δ| &gt; 参数」且参数先人工设宽  </li>
+<li>[ ] 日志带 <code>source</code> 与 <code>delayed_note</code></li>
+</ul>
+<h6># Phase 2（1–2 周）— 回测填参</h6>
+<ul>
+<li>[ ] 拉取 ≥1 年日频，估计 β 与折溢价分位  </li>
+<li>[ ] 把 S1–S5 参数写入 <code>config.yaml</code>  </li>
+<li>[ ] 校准粗算 (w,k)，对比官方 IOPV 误差分布  </li>
+</ul>
+<h6># Phase 3 — 生产</h6>
+<ul>
+<li>[ ] 升级外盘至 IB 实时或 Massive Advanced（按预算）  </li>
+<li>[ ] WebSocket 推送 + 断线重连  </li>
+<li>[ ] 看板（Streamlit）：折溢价、隔夜贡献、汇率贡献  </li>
+<li>[ ] 运维：进程守护、磁盘、密钥轮换、行情许可合规检查  </li>
+</ul>
+<h6># Phase 4（可选）— 研究增强</h6>
+<ul>
+<li>[ ] 分钟级 lead-lag（外盘领先几分钟？用交叉相关，<strong>自己算</strong>）  </li>
+<li>[ ] 518880 vs 159934 相对定价  </li>
+<li>[ ] 重大宏观事件日历（非农、CPI、央行）叠加告警静默规则  </li>
+</ul>
+<h6>3.6 合规与运维清单</h6>
+<ul>
+<li>API Key 仅存环境变量或本地 <code>config.yaml</code>（chmod 600），不进 git。  </li>
+<li>遵守各源 ToS：Yahoo/东财结果勿二次商用分发。  </li>
+<li>夏令时切换周：GC 的 CST 映射可能差 1 小时，日历表要更新。  </li>
+<li>节假日：A 股休市而 COMEX 交易 → 只记外盘，不生成「开盘残差」。  </li>
+<li>错价熔断：单次涨跌超夸张阈值（如 10%）先人工确认是否坏数据。  </li>
+</ul>
+<h6>3.7 下一步可执行动作（按优先级）</h6>
+<ol>
+<li>本机运行 Yahoo + akshare 各一次，存样例 JSON 到 <code>data/</code>。  </li>
+<li>连续记录 10 个交易日隔夜样本，手算 β。  </li>
+<li>申请 GoldAPI Sandbox 或 Twelve Data Basic，对比 Yahoo 同时刻价差。  </li>
+<li>若隔夜监控不够用，评估 IB COMEX 实时订阅成本。  </li>
+<li>接企业微信/Telegram，先只推「系统心跳 + 大幅隔夜」。  </li>
+<li>阅读 518880/159934 最新《基金产品资料概要》与申购赎回清单，核实 IOPV 构成。  </li>
+</ol>
+<hr />
+<h6>附录 A. 数据源决策树</h6>
+<pre><code>只要隔夜方向？ → Yahoo GC=F（30min）足够 MVP
+要盘中分钟级外盘？ → 付费：IB / Massive / Twelve Data
+只要现货美元金？ → GoldAPI / Metals-API / Twelve XAU/USD
+只要国内折溢价？ → akshare fund_etf_spot_em 或券商行情
+要审计级一体？ → Wind / Bloomberg
+</code></pre>
+<h6>附录 B. 关键 ETF 代码（国内黄金现货类，便于扩展）</h6>
+<p>518880、159934、518800、159937、518660、518850、159812（以交易所最新列表为准）。</p>
+<h6>附录 C. 主要文档链接（撰写时已核对可达或检索存在）</h6>
+<ul>
+<li>Yahoo 延迟表：https://help.yahoo.com/kb/finance/SLN2310.html  </li>
+<li>CME Real-Time API 介绍：https://www.cmegroup.com/market-data/real-time-futures-and-options-data-api.html  </li>
+<li>IB 行情类型：https://interactivebrokers.github.io/tws-api/market_data_type.html  </li>
+<li>IB 延迟表：https://www.interactivebrokers.com/en/pricing/market-data-pricing.php  </li>
+<li>Massive Futures：https://massive.com/futures  </li>
+<li>Twelve Data：https://twelvedata.com/docs  </li>
+<li>GoldAPI：https://www.goldapi.io/documentation  </li>
+<li>Metals-API：https://metals-api.com/documentation  </li>
+<li>AKShare ETF：https://github.com/akfamily/akshare  </li>
+<li>GC 交易时段参考：https://futuresclock.com/en/contracts/comex-gc/  </li>
+<li>华安 518880 产品资料（上交所披露示例）：http://www.sse.com.cn/disclosure/fund/announcement/c/new/2026-03-17/518880_20260317_QR4M.pdf  </li>
+</ul>
+<hr />
+<p><em>文档结束。更新行情源或阈值时，请同步修改本文件日期与「未查到」条目。</em></p></div></html>
