@@ -498,6 +498,62 @@ broker:
     price_type: limit         # limit=限价(按最新价±offset) | latest
     limit_offset_ticks: 2
 </code></pre>
-<h3>当前进度（10-15 10:16）</h3>
-<p>不用任何付费 key 就能跑通：外盘用新浪纽约黄金 hf_GC（实测中位延迟约 2 秒，过期上限 20 秒，可用于实盘），518880 用腾讯（带 IOPV）和新浪，汇率用新浪离岸人民币。19 个测试全部通过，连通测试和两次 120 秒纸交易正常，没有下任何真单。Windows 一键安装包：<code>/workspace/trading/gold-linkage-auto.zip</code>（运行 setup.bat），还没在真 Windows 上跑过。</p>
-<p>还需要你做：告诉我券商并开通 QMT 权限；在 NucBox 装好 MiniQMT 极简模式并登录，填 userdata_mini 路径和资金账号；完成程序化交易报备；NucBox 开机后拷包运行 setup.bat，先纸交易 5–10 个交易日再小金额实盘。</p></div></html>
+<h3>当前进度（10-15 11:35）</h3>
+<p>券商已确认：<strong>光大证券</strong>，QMT 权限已开通。路径改为<strong>大QMT（金阳光QMT）内置 Python 策略</strong>，不再用 MiniQMT / xtquant。</p>
+<p>已交付：<br />
+- 单文件策略 <code>qmt_strategy/gold_linkage_qmt.py</code>（GBK，可直接导入迅投编辑器）；UTF-8 阅读副本 <code>gold_linkage_qmt.utf8.txt</code><br />
+- <code>tests/test_qmt_strategy.py</code>：box 上模拟 QMT 函数，4 个测试通过（paper 从不调 <code>passorder</code>；三道开关全开才下单）<br />
+- README 第 11 节：下载安装、导入模拟、价格源、实盘开关、程序化交易报备</p>
+<p>免费外盘路径（新浪 hf_GC 等）与纸交易脚手架仍在，但<strong>实盘下单以大QMT 策略为准</strong>。</p>
+<p>还需要你做（在 NucBox 上）：<br />
+1. 从光大官网装金阳光QMT，用光大资金账号登录（不要勾极简模式）<br />
+2. 把 <code>gold_linkage_qmt.py</code> 导入策略编辑器，在「模型交易」里用 <strong>模拟信号模式</strong> 跑 5–10 个交易日<br />
+3. 首次程序化交易前向光大报备（95525 / 客户经理）；报备确认前不要开实盘开关</p>
+<p>策略文件路径：<code>/workspace/trading/gold-linkage-auto/qmt_strategy/gold_linkage_qmt.py</code>（聊天附件里也有一份）。不是投资建议。</p>
+<h3>原文件续：README 第 11 节（光大 · 大QMT）</h3>
+<h6>11. 光大证券 · 金阳光QMT（大QMT 内置策略）— 2026-10-15 新增</h6>
+<p>用户券商：光大证券，QMT 权限已开通。改用<strong>大QMT 内置 Python</strong>（不用 MiniQMT/xtquant）。</p>
+<h6>11.1 文件</h6>
+<ul>
+<li><code>qmt_strategy/gold_linkage_qmt.py</code>：<strong>可直接导入的单文件策略，GBK 编码</strong>（首行 <code>#coding:gbk</code>，迅投要求）。信号、风控逻辑从 <code>src/signal/linkage.py</code>、<code>src/risk/guards.py</code> 原样移植。</li>
+<li><code>qmt_strategy/gold_linkage_qmt.utf8.txt</code>：同内容的 UTF-8 副本，只供阅读，不要导入。</li>
+<li><code>tests/test_qmt_strategy.py</code>：在 box 上模拟 QMT 函数做的测试，确认 paper 模式从不调用 <code>passorder</code>，三道开关全开时才调用，参数为 <code>passorder(23/24, 1101, 账号, '518880.SH', 11, 限价, 股数, 'gold_linkage', 2, 备注, C)</code>。</li>
+</ul>
+<h6>11.2 下载与安装</h6>
+<ul>
+<li>官方下载页：光大证券官网「软件下载 → 金阳光QMT」 http://www.ebscn.com/software/rjxq/32/ （2026-09-24 版本 2.1.29.0）。有问题打 95525。</li>
+<li>新版只从官网下，不用第三方安装包。</li>
+</ul>
+<h6>11.3 在 NucBox 上导入、运行（先模拟）</h6>
+<ol>
+<li>打开金阳光QMT，用光大资金账号登录（不要勾极简模式）。</li>
+<li>「我的 / 策略编辑器」→ 新建 Python 策略 → 把 <code>gold_linkage_qmt.py</code> 全文粘贴进去（或用导入），保存。编辑器里直接运行的下单不会产生委托（官方说明）。</li>
+<li>「模型交易」→ 新建策略交易 → 选这个策略；主图品种 <code>518880.SH</code>，周期 1 分钟；账号选光大股票资金账号。</li>
+<li>运行模式选 <strong>模拟信号模式</strong>，运行。日志里应出现 <code>启动 黄金联动 mode=paper ...</code> 和每 15 秒一次 <code>[心跳]</code>；出信号时打印 <code>[SIGNAL]</code>、<code>[PAPER] 模拟成交 ...（未下真单）</code>。</li>
+<li>先跑 5–10 个交易日，看心跳里期货合约、518880 价格、IOPV 是否正常。</li>
+</ol>
+<h6>11.4 领先价格源（重要）</h6>
+<ul>
+<li>默认 <code>OVERSEAS='shfe_au'</code>：用 QMT 内置的上期所黄金主力合约（<code>get_main_contract('au00.SF')</code>，拿不到时用 <code>SHFE_FALLBACK='au2612.SF'</code>，到期前要改）。<strong>不需要联网</strong>。上期所日盘 9:00–10:15、10:30–11:30、13:30–15:00；10:15–10:30、13:00–13:30 没有期货 tick，策略会自动断流熔断、不出信号，属正常。</li>
+<li>可选 <code>OVERSEAS='sina_gc'</code>：在策略里用标准库 <code>urllib</code> 拉新浪 COMEX <code>hf_GC</code>。券商有 Python 库白名单、或者关闭内置策略联网时会失败，并自动退回 <code>shfe_au</code>。</li>
+<li>注意：原来的阈值（30s 内 ±8bp、确认 3 tick）是按 COMEX 定的，没有回测过；换成上期所 au 后<strong>未验证</strong>，必须先 paper。</li>
+<li>518880 的 IOPV 用 QMT 的 <code>get_etf_iopv('518880.SH')</code>；取不到时跳过折溢价过滤并告警。</li>
+</ul>
+<h6>11.5 实盘开关（默认关）</h6>
+<p>同时满足才会调用 <code>passorder</code>：<code>CFG['MODE']='live'</code>、<code>CFG['ENABLE_LIVE']=True</code>、<code>CFG['LIVE_CONFIRM']='I_UNDERSTAND_REAL_MONEY'</code>，并且在模型交易界面选「实盘交易模式」。限价 = 最新价 ±0.002 元；有未回报委托时暂停后续报单，防止重复下单。实盘前还必须完成程序化交易报备（见 11.6）。</p>
+<h6>11.6 程序化交易报备（沪深交易所《程序化交易管理实施细则》，2025-07-07 起施行）</h6>
+<ul>
+<li>518880 是上交所品种。个人投资者属于「会员客户」，<strong>首次程序化交易前要向光大证券报告</strong>，光大核查确认后才能交易；光大在 5 个交易日内报上交所。</li>
+<li>报告内容：账户基本信息；资金规模及来源、杠杆资金及杠杆率；交易策略类型和主要内容、指令执行方式、最高申报速率、单日最高申报笔数；交易软件名称、版本号和开发主体（这里填金阳光QMT 及版本、自编策略）；联系人和联系方式。</li>
+<li>重大变更（资金规模明显变化、策略变更、软件变更、申报速率变更、停止程序化交易等）要在下一个自然月第 5 个交易日前补报。</li>
+<li>具体表格和提交入口问光大客户经理或 95525。</li>
+<li>出处：上交所细则 http://www.sse.com.cn/lawandrules/sselawsrules2025/trade/universal/c/c_20250612_10781696.shtml ，全文见 https://finance.sina.com.cn/stock/roll/2025-04-03/doc-inerwwiq8213118.shtml ；深交所细则 https://docs.static.szse.cn/www/lawrules/rule/trade/current/W020250403603802169453.pdf</li>
+</ul>
+<h6>11.7 接口出处（迅投知识库，内置 Python）</h6>
+<ul>
+<li>快速开始（init/handlebar、run_time、模拟信号/实盘模式、<code>#coding:gbk</code>）：https://dict.thinktrader.net/innerApi/start_now.html</li>
+<li>交易函数（passorder、get_trade_detail_data）：https://dict.thinktrader.net/innerApi/trading_function.html</li>
+<li>行情函数（get_full_tick、get_main_contract、get_etf_iopv）：https://dict.thinktrader.net/innerApi/data_function.html</li>
+<li>枚举（opType 23/24、prType 11）：https://dict.thinktrader.net/innerApi/enum_constants.html</li>
+<li>第三方库白名单（<code>ImportError: Forbidden</code>）：https://dict.thinktrader.net/innerApi/question_answer.html</li>
+</ul></div></html>
