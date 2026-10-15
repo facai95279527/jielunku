@@ -173,4 +173,138 @@ python -m src.main --config config.yaml --mode live
 <li>QMT 适配基于 xtquant 公开接口（<code>XtQuantTrader.order_stock</code> 等），未在真实 MiniQMT 上联调；首次 live 前请在券商模拟环境验证。</li>
 <li>云端→本地远程触发通道未内置。</li>
 </ul>
-<p>项目目录 <code>/workspace/trading/gold-linkage-auto/</code>，压缩包 <code>/workspace/trading/gold-linkage-auto.tar.gz</code>（当时作为附件发出）</p></div></html>
+<p>项目目录 <code>/workspace/trading/gold-linkage-auto/</code>，压缩包 <code>/workspace/trading/gold-linkage-auto.tar.gz</code>（当时作为附件发出）</p>
+<h3>附：信号逻辑源码 <code>src/signal/linkage.py</code>（公式与信号规则）</h3>
+<pre><code class="language-python">&quot;&quot;&quot;外盘方向 → 518880 买卖意图。
+
+流程（每个外盘 tick 调用 on_tick）：
+1. 延迟补偿：外盘 tick 时间戳 + latency_comp_sec（若两边存在已知固定时滞，可用来对齐；默认 0）。
+2. 短窗收益率：用 window_sec 内最早价格与当前价比较，单位 bp。
+3. 原始方向：ret &gt;= buy_threshold_bp → UP；&lt;= sell_threshold_bp → DOWN；否则 FLAT。
+4. 防抖动：同一方向连续 confirm_ticks 次才确认；方向中断即清零。
+5. 冷却：上一个信号发出后 cooldown_sec 内不再出信号。
+6. 折溢价过滤：UP 时若 518880 溢价率 &gt; max_premium_buy_pct 不追买；
+   DOWN 时若折价率 &lt; min_discount_sell_pct（已大幅折价）不杀跌卖出。IOPV 缺失时跳过过滤并标注。
+输出 Decision(action=BUY/SELL/FLAT, reason=...)。
+&quot;&quot;&quot;
+from collections import deque
+from dataclasses import dataclass
+from typing import Optional
+
+BUY, SELL, FLAT = &quot;BUY&quot;, &quot;SELL&quot;, &quot;FLAT&quot;
+
+@dataclass
+class Decision:
+    action: str
+    reason: str
+    ret_bp: float = 0.0
+
+class LinkageSignal:
+    def __init__(self, window_sec=30, buy_threshold_bp=8, sell_threshold_bp=-8, confirm_ticks=3,
+                 cooldown_sec=120, latency_comp_sec=0, max_premium_buy_pct=0.3,
+                 min_discount_sell_pct=-0.3, **_):
+        self.window = window_sec; self.buy_th = buy_threshold_bp; self.sell_th = sell_threshold_bp
+        self.confirm = max(1, int(confirm_ticks)); self.cooldown = cooldown_sec
+        self.lat = latency_comp_sec; self.max_prem = max_premium_buy_pct; self.min_disc = min_discount_sell_pct
+        self.hist = deque()          # (ts, price)
+        self._dir = FLAT; self._count = 0
+        self._last_sig_ts = None
+
+    def _ret_bp(self, ts, price):
+        self.hist.append((ts, price))
+        while self.hist and ts - self.hist[0][0] &gt; self.window:
+            self.hist.popleft()
+        base = self.hist[0][1]
+        return (price / base - 1) * 1e4 if base else 0.0
+
+    def on_tick(self, price: float, ts: float, premium_pct: Optional[float] = None) -&gt; Decision:
+        ts = ts + self.lat
+        ret = self._ret_bp(ts, price)
+        raw = &quot;UP&quot; if ret &gt;= self.buy_th else &quot;DOWN&quot; if ret &lt;= self.sell_th else FLAT
+        if raw == FLAT:
+            self._dir, self._count = FLAT, 0
+            return Decision(FLAT, &quot;无显著方向&quot;, ret)
+        self._count = self._count + 1 if raw == self._dir else 1
+        self._dir = raw
+        if self._count &lt; self.confirm:
+            return Decision(FLAT, f&quot;{raw} 确认中 {self._count}/{self.confirm}&quot;, ret)
+        if self._last_sig_ts is not None and ts - self._last_sig_ts &lt; self.cooldown:
+            return Decision(FLAT, f&quot;冷却中 {ts - self._last_sig_ts:.0f}/{self.cooldown}s&quot;, ret)
+        action = BUY if raw == &quot;UP&quot; else SELL
+        note = &quot;&quot;
+        if premium_pct is None:
+            note = &quot;（IOPV缺失，未做折溢价过滤）&quot;
+        elif action == BUY and premium_pct &gt; self.max_prem:
+            return Decision(FLAT, f&quot;溢价 {premium_pct:.2f}% &gt; {self.max_prem}%，不追买&quot;, ret)
+        elif action == SELL and premium_pct &lt; self.min_disc:
+            return Decision(FLAT, f&quot;折价 {premium_pct:.2f}% &lt; {self.min_disc}%，不杀跌&quot;, ret)
+        self._last_sig_ts = ts; self._count = 0
+        return Decision(action, f&quot;外盘 {self.window}s 收益 {ret:.1f}bp 已确认{note}&quot;, ret)
+</code></pre>
+<h3>附：配置模板 <code>config.example.yaml</code>（数据源、阈值、风控参数）</h3>
+<pre><code class="language-yaml"># 复制为 config.yaml 再修改。key 建议放 .env（${ENV_NAME} 会被替换）
+mode: paper                 # connectivity | paper | live
+enable_live: false          # live 第一道开关
+live_confirm: &quot;&quot;            # live 第二道开关：必须填 &quot;I_UNDERSTAND_REAL_MONEY&quot;
+loop_interval_sec: 1.0      # 主循环节拍
+use_mock_feeds: false       # true=全部用离线模拟行情（无网/演示）
+
+overseas:
+  # 按顺序尝试，前一个失败/断流自动切下一个；yahoo 仅作 fallback（约延迟，不得作实盘主源）
+  sources: [twelvedata, goldapi, yahoo]
+  twelvedata:
+    api_key: ${TWELVEDATA_API_KEY}
+    symbol: XAU/USD
+    use_websocket: true       # WebSocket 推送；否则 REST 短轮询
+    poll_interval_sec: 2
+  goldapi:
+    api_key: ${GOLDAPI_KEY}
+    poll_interval_sec: 5      # 注意免费额度很小
+  polygon:
+    api_key: ${POLYGON_API_KEY}
+    ticker: C:XAUUSD
+    poll_interval_sec: 2
+  yahoo:
+    symbol: GC=F
+    poll_interval_sec: 15
+  stale_after_sec: 20         # 超过即视为断流
+
+domestic:
+  symbol: &quot;518880&quot;
+  poll_interval_sec: 3        # AKShare 为网页接口，勿过快
+fx:
+  pair: USDCNH                # USDCNY | USDCNH
+  poll_interval_sec: 60
+
+signal:
+  window_sec: 30              # 外盘短窗
+  buy_threshold_bp: 8         # 短窗收益率 &gt;= +8bp 视为上行
+  sell_threshold_bp: -8
+  confirm_ticks: 3            # 连续 N 个 tick 同向才确认
+  cooldown_sec: 120           # 两次信号最小间隔
+  latency_comp_sec: 0         # 延迟补偿：把外盘时间戳前推（秒），0=不补偿
+  max_premium_buy_pct: 0.30   # 溢价率高于此不追买
+  min_discount_sell_pct: -0.30 # 折价率低于此不杀跌卖出
+
+risk:
+  max_order_value_cny: 5000   # 单笔金额上限
+  max_position_shares: 5000
+  lot_shares: 100
+  max_trades_per_day: 6
+  feed_stale_halt_sec: 30     # 任一行情断流超时即熔断
+  trading_sessions: [&quot;09:30-11:30&quot;, &quot;13:00-14:57&quot;]
+
+broker:
+  paper:
+    initial_cash: 100000
+    slippage_bp: 2
+    fee_rate: 0.0001
+  qmt:
+    userdata_path: 'D:\国金QMT交易端模拟\userdata_mini'   # MiniQMT userdata_mini 路径（示例）
+    account_id: ${QMT_ACCOUNT_ID}
+    session_id: 123456
+    price_type: limit         # limit=限价(按最新价±offset) | latest
+    limit_offset_ticks: 2
+</code></pre>
+<h3>当前进度（10-15）</h3>
+<p>正在接入新浪财经免费行情（COMEX 金价、518880、美元兑人民币），延迟以实测为准；同时在写 Windows 一键部署脚本，并用真实行情跑纸交易。QMT 实盘还需要：券商名称和 QMT 权限、在 NucBox 上装好并登录 MiniQMT、向券商做程序化交易报备。</p></div></html>
