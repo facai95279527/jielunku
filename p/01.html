@@ -1,1 +1,138 @@
-<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2026-10-15 新词雷达（new-term-radar）</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;white-space:pre-wrap;word-break:break-word;line-height:1.7}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2026-10-15 新词雷达（new-term-radar）</h1><div class="detail">已装在 /workspace/new-term-radar（中文报告），每天约早 8 点自动跑 run_daily.sh，报告在 reports/。首次运行只建快照，0 条线索，属正常；GitHub 爆发信号这次超时。「付钱产品」已改成免密钥：无 TRUSTMRR_API_KEY 时默认用 Revmrr 公开 MRR 列表 + Product Hunt；有 key 仍走 TrustMRR。试跑 reports/revenue-free-2026-10-15.md。诚实限制：免费路径多为自报/兴趣，不等于支付渠道核验收入。用户无需再提供密钥。AIsa key 可选。TrustMRR 数据只供自用，不对外转载。</div></html>
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2026-10-15 新词雷达（new-term-radar）</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2026-10-15 新词雷达（new-term-radar）</h1><div class="detail"><h3>聊天原文 · 仓库分析（10-15 凌晨 3:0x）</h3>
+<p><a href="https://github.com/zhuyansen/new-term-radar">new-term-radar</a>（新词雷达）是个每天出报告的工具：在 AI 圈的新模型、新产品、新仓库刚冒头的时候就把名字抓出来，比 Google Trends、关键词工具早几天到几周。我读了它的中文说明，代码还没跑。</p>
+<p><strong>怎么抓</strong><br />
+- 它盯的是新名字最早出现的地方：X 上关注的账号、Hugging Face 热门榜、GitHub 上星数暴涨的新仓库、竞品导航站新加的页面、刚注册的新站，还有你自己站的 Search Console 新词。<br />
+- 抓到名字后，它会找出背后大家真正会搜的通用词。比如 SynthID Detector 背后是「ai image detector」，大约每天 2,500 次搜索。然后估算搜索量、看 Google 首页还有没有位置，最后给出「优先、观察、跳过」三种决策。<br />
+- 每周还会读 Reddit 上「有没有 AI 工具能…」这类求助帖，和 TrustMRR 上已经有人付钱的产品（TrustMRR 是一个核验产品收入的网站），用来找真实需求。<br />
+- 每条线索 14 天后会回头对一遍 Google Trends，统计自己报得准不准、提前了几天。</p>
+<p><strong>成本</strong>：本体是纯 Python，只用标准库。免费的数据源（Hugging Face、GitHub、竞品站点地图）不要钱也能跑。完整用的话需要 AIsa 的 key，按示例配置大约每月 15 美元，另一个 GoAnyAPI 的 key 可选。</p>
+<p><strong>适合谁</strong>：做 AI 工具导航站、做 SEO、写 Newsletter，或者想抢在新词刚出现时就做页面、做产品的人。核心价值是<strong>信息差抢先</strong>。</p>
+<p><strong>局限</strong><br />
+- 作者自己也说，对纯模型发布效果差，对只做一件事的产品和仓库效果好。<br />
+- 通用词会不会跟着新名字涨，还缺 14 天复盘的数据来证明。<br />
+- GoAnyAPI 是 2026 年 8 月才上线的服务，作者测试时每次调用要 20 到 55 秒，大约十次失败一次。<br />
+- 偏海外、偏英文搜索，对国内百度或微信的流量帮助不大。<br />
+- 说明里的 AIsa 和 GoAnyAPI 注册链接是作者的推荐链接。</p>
+<p><strong>对你的用处</strong>：跟你之前想做的每日新闻摘要、找信息差的方向很合。如果你想做 AI 工具内容或者站点赚流量，可以直接拿来用：先只跑免费的 GitHub 和 Hugging Face 信号，零成本，每天早上把新词发给你。要的话我可以在我电脑上搭起来，再做成每天自动跑的任务。</p>
+<h3>聊天原文 · 开始搭建（10-15 3:21）</h3>
+<p>好，我在我电脑上把新词雷达搭起来。先跑免费的信号，再把「有人付钱的产品」那部分接好，做成每天自动出报告。付钱产品那部分要用 TrustMRR 的 key，到那一步我再找你要。结论库的一键打开文件我也会同时做好。</p>
+<h3>语音通话原文（10-15 早上，装好后汇报）</h3>
+<p>结论库已经收好了，一共十六条结论，包括断网提醒。文件在我电脑上的结论库文件夹里，网页版和 Markdown 都有。还差把这个文件同步到你电脑桌面，以及补上新词雷达那条结论，新词雷达本身已经装好了，就差你提供 TrustMRR 的密钥。</p>
+<p>补充一下：新词雷达每天早上八点会自动出日报。要看付钱产品，还需要你醒来后给一个 TrustMRR 密钥，免费的。早上八点我查过，你电脑当时离线，已经发过一封邮件到 QQ 邮箱。</p>
+<h3>聊天原文（改成免密钥后）</h3>
+<p>新词雷达的「有人付钱产品」已经改成免密钥方案了：没 TrustMRR key 时，默认用公开 MRR 列表（Revmrr）加 Product Hunt；有 key 仍走原来的核验路径。试跑报告在 <code>reports/revenue-free-2026-10-15.md</code>。免费数据多半是自报，不是支付渠道核验。</p>
+<p>说明：10-15 凌晨 4:37 装好时没有单独发聊天消息给用户（只发给了结论库），用户听到的装好汇报就是上面的语音原文。</p>
+<h3>原文件全文：<code>/workspace/new-term-radar/FREE_REVENUE.md</code></h3>
+<h5>免费「有人付钱」路径（无 TRUSTMRR_API_KEY）</h5>
+<h6>它是什么</h6>
+<p>没有 <code>TRUSTMRR_API_KEY</code> 时，信号 ⑥ <strong>不会再关掉</strong>，而是自动走免费路径：</p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>要不要 key</th>
+<th>给什么</th>
+<th>是不是核验过的收入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Revmrr</strong> Open Data API</td>
+<td>否（每月每 IP 约 100 条）</td>
+<td>AI 品类、MRR 在门槛以上且低于 <code>max_mrr_usd</code> 的产品</td>
+<td><strong>多为自报</strong>；<code>revenue.verified</code> 只在「单条详情」接口里，免费额度不够我们逐条打</td>
+</tr>
+<tr>
+<td><strong>Product Hunt</strong> Atom（AI 分类）</td>
+<td>否</td>
+<td>新上架的产品名 + 一句话介绍</td>
+<td><strong>不是收入</strong>，只是上架/兴趣代理</td>
+</tr>
+<tr>
+<td><strong>VerifyArr</strong> 公开 API</td>
+<td>否</td>
+<td>声称已核验的 MRR 列表</td>
+<td>声称核验；目前库很小，经常几乎为空</td>
+</tr>
+</tbody>
+</table>
+<p>有 <code>TRUSTMRR_API_KEY</code> 时，<strong>仍走原来的 TrustMRR 路径</strong>，免费路径不会掺进去。</p>
+<h6>它不是什么</h6>
+<ul>
+<li><strong>不是</strong> TrustMRR 那种「从 Stripe / LemonSqueezy 等支付渠道读出来的 30 天收入」。</li>
+<li>Revmrr 列表里的 MRR <strong>不能当成已核验</strong>；大厂和自报数字都会出现。我们用 <code>max_mrr_usd</code>（默认 10 万）把超级大盘公司滤掉一些，方便看独立产品。</li>
+<li>Product Hunt 只说明「有人在追这个发布」，<strong>不能说明有人付了钱</strong>。</li>
+</ul>
+<p>若你要「支付渠道核验过的收入」，仍需自己去 <a href="https://trustmrr.com/dashboard-dev">TrustMRR 开发者后台</a> 生成免费 key（<code>tmrr_</code> 前缀）。本仓库不会替你申请或编造 key。</p>
+<h6>怎么跑</h6>
+<pre><code class="language-bash">cd /workspace/new-term-radar
+# 不要设置 TRUSTMRR_API_KEY
+./run_daily.sh
+# 或任意一天强制 ⑥：
+python3 -m radar daily --revenue \
+  --skip x,newsites,gsc,review,judge,usecases,asks,tutorials \
+  --out reports/revenue-free-$(date +%Y-%m-%d).md
+</code></pre>
+<ul>
+<li>默认仍只在 <code>revenue.weekday</code>（0=周一）跑，以省 Revmrr 免费额度。</li>
+<li><code>./run_daily.sh</code> <strong>只有</strong>在有 TrustMRR key 时才会每天强制 <code>--revenue</code>；无 key 时按星期几。</li>
+<li>快照存在 <code>state/revenue_free.json.gz</code>（与 TrustMRR 的 <code>revenue.json.gz</code> 分开）。</li>
+</ul>
+<h6>配置（<code>config.json</code> → <code>revenue.free</code>）</h6>
+<pre><code class="language-json">&quot;free&quot;: {
+  &quot;revmrr_category&quot;: &quot;Artificial Intelligence&quot;,
+  &quot;max_mrr_usd&quot;: 100000,
+  &quot;revmrr_limit&quot;: 10,
+  &quot;producthunt_category&quot;: &quot;artificial-intelligence&quot;,
+  &quot;producthunt_max&quot;: 15,
+  &quot;use_revmrr&quot;: true,
+  &quot;use_producthunt&quot;: true,
+  &quot;use_verifyarr&quot;: true
+}
+</code></pre>
+<h6>原有免费信号（对照）</h6>
+<p>雷达里本来就有、且多数不要钱的信号：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>Key</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HF models / Spaces</td>
+<td>无</td>
+<td>新进热门榜</td>
+</tr>
+<tr>
+<td>GitHub breakout</td>
+<td>可选 <code>GITHUB_TOKEN</code></td>
+<td>星数爆发仓库</td>
+</tr>
+<tr>
+<td>竞品 sitemap</td>
+<td>无</td>
+<td>导航站新页面</td>
+</tr>
+<tr>
+<td>X / 新站 / 判断 / Reddit asks</td>
+<td><code>AISA_API_KEY</code></td>
+<td>要钱或额度</td>
+</tr>
+<tr>
+<td>TrustMRR ⑥</td>
+<td><code>TRUSTMRR_API_KEY</code></td>
+<td>核验收入（key 本身免费）</td>
+</tr>
+</tbody>
+</table>
+<p>免费路径补的是：<strong>在没有 TrustMRR key 时，⑥ 仍能给出「列出收入 / 上架兴趣」线索</strong>，而不是用 HF/GitHub 硬冒充付钱。</p>
+<h6>署名与条款</h6>
+<ul>
+<li>Revmr：展示数据时注明 <code>Data: Revmrr</code>，并链到产品页；勿把自报当成已核验转卖。</li>
+<li>Product Hunt：公开 Atom，合理使用。</li>
+<li>TrustMRR：若用其 API，禁止转载数据做公开 SEO 页（原 README）。</li>
+</ul>
+<p>详细报告：<code>/workspace/new-term-radar/reports/revenue-free-2026-10-15.md</code>、<code>/workspace/new-term-radar/reports/2026-10-15.md</code>；安装说明 <code>/workspace/new-term-radar/SETUP_NOTES.md</code></p></div></html>

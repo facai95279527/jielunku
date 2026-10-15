@@ -1,1 +1,176 @@
-<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2026-10-14 黄金ETF境外联动手册</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;white-space:pre-wrap;word-break:break-word;line-height:1.7}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2026-10-14 黄金ETF境外联动手册</h1><div class="detail">/workspace/trading/gold_etf_overseas_linkage.md</div></html>
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2026-10-14 黄金ETF(518880)境外联动自动交易系统</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2026-10-14 黄金ETF(518880)境外联动自动交易系统</h1><div class="detail"><h3>聊天原文 · 需求更新（10-14 14:00）</h3>
+<p>部署方式已更新：<strong>腾讯云服务器或你的本地电脑都可以</strong>，按实际情况选；其余需求不变。仍差 <strong>QNT 是哪家券商</strong>（以及若走本地，是不是 NucBox）。你说清或点下面选项后我再开始搭。</p>
+<hr />
+<p>明白，是 <strong>QMT</strong>。我按「行情+信号先打通，QMT 下单可配置接入」开始搭，部署支持腾讯云或你本地电脑。</p>
+<h3>聊天原文 · 交付（10-14 14:10）</h3>
+<p>黄金联动自动交易系统搭好了，代码在我电脑的 <code>/workspace/trading/gold-linkage-auto/</code>，打包文件附在下面。8 个单测全部通过；纸交易用模拟行情空跑正常；实盘要在配置里打开两道开关才会启动。</p>
+<p>目前的实际情况：<br />
+- <strong>秒级外盘行情要付费 key。</strong> TwelveData、GoldAPI、Polygon 的接入都写好了，但还没填 key，也没实测。Yahoo 实测大约晚 10 分钟，程序只拿它做对照，实盘会自动把它排除。<br />
+- <strong>AKShare 和汇率这两个接口</strong>从我电脑访问失败（东方财富返回 502，汇率接口超时），要在国内网络下再测一次。<br />
+- <strong>QMT 下单</strong>是按 xtquant 的公开接口写的，只能在已登录 MiniQMT 的 Windows 上运行，还没和真实账户联调过，建议先用券商的模拟环境试。<br />
+- <strong>部署建议在本地 Windows 跑整条链路</strong>。腾讯云目前只能跑信号和纸交易，「云端出信号、本地下单」的远程通道还没做。</p>
+<p>启动方式、配置说明、三阶段验收清单和风险提示都写在 README 里（延迟不等于能套利，还有滑点、T+1、程序化交易报备等）。</p>
+<h3>原文件全文：<code>/workspace/trading/gold-linkage-auto/README.md</code></h3>
+<h5>外盘黄金 → 国内 518880 联动自动交易系统</h5>
+<blockquote>
+<p><strong>不是投资建议。</strong> 本项目是工程脚手架，用于验证「外盘金价短时方向 → 黄金 ETF 518880 买卖」的流程。是否有效、能否覆盖成本，必须由你自己用 paper 和小资金验证。文中未给出任何实测延迟或相关系数。</p>
+</blockquote>
+<h6>1. 架构</h6>
+<pre><code>           ┌────────────── 外盘行情（多源 failover）──────────────┐
+           │ TwelveData WS/REST │ GoldAPI │ Polygon(Massive) │ Yahoo(延迟,仅fallback) │
+           └──────────────┬──────────────────────────────────────┘
+                          ▼
+ AKShare 518880 价/IOPV/折溢价 ──► 信号 LinkageSignal ◄── AKShare 汇率 USD/CNY(CNH)
+                          │  短窗收益率 + 确认N tick + 冷却 + 延迟补偿 + 折溢价过滤
+                          ▼
+                    风控 RiskGuard（时段/单笔/持仓/次数/断流熔断/T+1）
+                          ▼
+             Broker：PaperBroker(data/*.csv|jsonl)  或  QmtBroker(xtquant → MiniQMT)
+</code></pre>
+<h6># 部署建议（二选一）</h6>
+<pre><code class="language-mermaid">flowchart LR
+  subgraph A[方案A 推荐：本地全链路]
+    W[Windows 本机] --&gt; F1[行情+信号] --&gt; Q[MiniQMT xtquant 下单]
+  end
+  subgraph B[方案B：云跑信号，本地只下单]
+    C[腾讯云 Linux: 行情+信号+paper] --&gt;|data/signals.jsonl 或自建推送| L[本地 Windows: 人工/自建接收器 → MiniQMT]
+  end
+</code></pre>
+<ul>
+<li><strong>MiniQMT/xtquant 只能跑在 Windows 且需客户端已登录</strong>，所以 live 下单必须在本地电脑（或 Windows 云主机）。</li>
+<li>腾讯云 Linux 适合 7×24 跑信号与 paper 验证（<code>systemd</code> 守护）。若要云端信号远程触发本地下单，需要自建可靠通道（鉴权、去重、过期丢弃），本版本<strong>未内置</strong>该通道，只把信号写入 <code>data/signals.jsonl</code>；推荐直接用方案 A，少一跳延迟和故障点。</li>
+</ul>
+<h6>2. 目录</h6>
+<pre><code>src/main.py            入口（connectivity/paper/live）
+src/feeds/overseas.py  外盘多源 + FailoverFeed
+src/feeds/domestic.py  AKShare 518880（fund_etf_spot_em）
+src/feeds/fx.py        AKShare 汇率（fx_spot_quote，CFETS USD/CNY）
+src/feeds/mock.py      离线模拟行情（仅演示）
+src/signal/linkage.py  信号逻辑（中文注释）
+src/risk/guards.py     风控
+src/broker/paper.py    纸交易（状态持久化，重启恢复）
+src/broker/qmt_broker.py  xtquant 适配（延迟导入）
+scripts/run_connectivity.py / run_paper.py
+deploy/                systemd / supervisor / Windows NSSM
+tests/test_signal.py   离线单测
+</code></pre>
+<h6>3. 安装</h6>
+<pre><code class="language-bash">python -m venv .venv
+.venv/bin/pip install -r requirements.txt        # Windows: .venv\Scripts\pip ...
+cp config.example.yaml config.yaml
+cp .env.example .env                              # 填 key，不要提交
+</code></pre>
+<p>Windows live 另需：<code>pip install xtquant</code>（或用券商 QMT 自带包），并登录 MiniQMT 极简模式。</p>
+<h6>4. 配置要点（config.yaml）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td><code>connectivity</code> / <code>paper</code> / <code>live</code>，默认 paper</td>
+</tr>
+<tr>
+<td><code>enable_live</code> + <code>live_confirm</code></td>
+<td>live 双开关：<code>true</code> 且 <code>"I_UNDERSTAND_REAL_MONEY"</code>，缺一拒绝启动</td>
+</tr>
+<tr>
+<td><code>overseas.sources</code></td>
+<td>尝试顺序；live 模式自动剔除 yahoo</td>
+</tr>
+<tr>
+<td><code>overseas.stale_after_sec</code></td>
+<td>非 Yahoo 源超过该秒数视为过期并切源</td>
+</tr>
+<tr>
+<td><code>signal.window_sec / buy_threshold_bp / sell_threshold_bp</code></td>
+<td>短窗收益率阈值（bp）</td>
+</tr>
+<tr>
+<td><code>signal.confirm_ticks / cooldown_sec</code></td>
+<td>防抖动：连续 N 个新 tick 同向才出信号；信号间冷却</td>
+</tr>
+<tr>
+<td><code>signal.latency_comp_sec</code></td>
+<td>延迟补偿（秒），默认 0；只有实测出稳定时滞再调</td>
+</tr>
+<tr>
+<td><code>signal.max_premium_buy_pct / min_discount_sell_pct</code></td>
+<td>溢价过高不追买、折价过深不杀跌</td>
+</tr>
+<tr>
+<td><code>risk.*</code></td>
+<td>单笔金额、持仓上限、日内次数、断流熔断秒数、交易时段</td>
+</tr>
+<tr>
+<td><code>broker.qmt.userdata_path / account_id</code></td>
+<td>MiniQMT 的 <code>userdata_mini</code> 目录与资金账号</td>
+</tr>
+</tbody>
+</table>
+<h6># 外盘源延迟档位</h6>
+<p><strong>均以供应商文档与你购买的套餐为准，本项目未实测，需自备 key 实测：</strong><br />
+- TwelveData：XAU/USD，WebSocket 推送需对应套餐；REST <code>/price</code> 可短轮询（受积分/频率限制）。<br />
+- GoldAPI.io：现货 REST，免费额度小，适合低频对照。<br />
+- Polygon（现 Massive）：<code>C:XAUUSD</code> 报价，需外汇/贵金属套餐（已实现 REST，未实测）。<br />
+- Yahoo <code>GC=F</code>：有延迟，<strong>只作 fallback/对照</strong>，live 下禁用。<br />
+- 更低延迟（CME 直连、券商期货行情、彭博/路透等）需另购并自行实现 <code>Feed</code> 子类（实现 <code>latest()</code> 返回 <code>Quote</code> 即可）。</p>
+<h6>5. 三阶段与验收清单</h6>
+<h6># 阶段1 连通 <code>python scripts/run_connectivity.py</code></h6>
+<ul>
+<li>[ ] 至少一个<strong>非 Yahoo</strong> 外盘源 <code>[OK]</code>，且 age 在你预期内（记录实际值）</li>
+<li>[ ] 518880 有最新价，IOPV/折溢价非空（为空会警告，过滤失效）</li>
+<li>[ ] 汇率 <code>[OK]</code></li>
+<li>[ ] （Windows）QMT <code>[OK]</code> 显示资金/持仓<br />
+无 key/无网时会逐项给出失败原因，退出码非 0，不崩溃。</li>
+</ul>
+<h6># 阶段2 纸交易 <code>python scripts/run_paper.py</code>（无网演示：<code>--mock --max-seconds 60</code>）</h6>
+<ul>
+<li>[ ] 至少连续 5–10 个交易日稳定运行，无未捕获异常</li>
+<li>[ ] 检查 <code>data/signals.jsonl</code>（含被风控拦截的原因）与 <code>data/paper_trades.csv</code></li>
+<li>[ ] 统计扣除滑点/费用后的结果；调参不要只在同一段数据上反复拟合</li>
+<li>[ ] 人为断网/杀进程，确认熔断与重启恢复（<code>data/paper_state.json</code>）</li>
+</ul>
+<h6># 阶段3 小资金实盘（仅 Windows + MiniQMT）</h6>
+<pre><code class="language-bash"># config.yaml: mode: live, enable_live: true, live_confirm: I_UNDERSTAND_REAL_MONEY
+#              risk.max_order_value_cny 调小（如 1000~2000），max_trades_per_day 调小
+python -m src.main --config config.yaml --mode live
+</code></pre>
+<ul>
+<li>[ ] 先在券商 QMT 模拟账户跑（若券商提供）</li>
+<li>[ ] 第一周每笔人工核对 MiniQMT 委托/成交回报与日志</li>
+<li>[ ] 确认券商对程序化交易的报备要求已完成</li>
+</ul>
+<h6>6. 守护与异常恢复</h6>
+<ul>
+<li>进程级：Linux <code>systemd</code>/<code>supervisor</code>，Windows NSSM 或任务计划（见 <code>deploy/</code>）。</li>
+<li>程序内：单次行情失败只告警；主循环异常指数退避（1→60s）；任一行情过期超 <code>feed_stale_halt_sec</code> 熔断不下单；TwelveData WS 自动重连并在断开时退回 REST；MiniQMT 断开后下单前重连 3 次；Ctrl+C / SIGTERM 优雅退出。</li>
+</ul>
+<h6>7. 风险提示（请逐条读）</h6>
+<ol>
+<li><strong>延迟 ≠ 可套利。</strong> 外盘先动、518880 后跟的现象即便存在，也可能被做市商/其他程序在你之前吃掉；行情源延迟、AKShare 网页接口延迟（数秒级、不稳定）、下单链路延迟叠加后，优势可能为零或为负。</li>
+<li><strong>滑点与成本</strong>：ETF 买卖价差、佣金、冲击成本；频繁交易会迅速吞噬收益。</li>
+<li><strong>时段错配</strong>：外盘近 24 小时交易，518880 仅 A 股时段交易；隔夜/午休的外盘变动在开盘时一次性体现，系统不在非交易时段下单。</li>
+<li><strong>T+1</strong>：518880 当日买入次日才能卖（系统按券商可用持仓判断）。</li>
+<li><strong>IOPV 偏差</strong>：IOPV 本身由行情商估算、有更新频率，折溢价过滤只是参考。</li>
+<li><strong>监管与券商规则</strong>：程序化交易须遵守交易所程序化交易管理规定与券商要求（如报备、申报频率、撤单比例、异常交易监控）。QMT/MiniQMT 需在合法券商正规开户并开通权限，策略须合规；<strong>不要</strong>用高频报撤单、对倒、虚假申报等任何可能被认定为异常交易的方式。</li>
+<li><strong>数据源合规</strong>：AKShare 抓取公开网页数据，稳定性与使用条款以数据方为准；付费行情商的授权范围（个人/非展示用途）自行确认。</li>
+<li><strong>软件风险</strong>：代码可能有 bug；live 前务必读懂 <code>signal/linkage.py</code>、<code>risk/guards.py</code>，并从极小金额开始。</li>
+</ol>
+<h6>8. 测试</h6>
+<pre><code class="language-bash">python -m pytest tests/ -q
+</code></pre>
+<p>覆盖：确认 tick 防抖、方向翻转清零、冷却、溢价不追买、折价不杀跌、IOPV 缺失、风控、纸交易 T+1。</p>
+<h6>9. 已知限制</h6>
+<ul>
+<li>秒级外盘行情需付费 key，未在本环境实测任何延迟数值。</li>
+<li>AKShare 接口字段/地址可能随版本变化；接口失败时明确报错不造数。CNH 目前用 CFETS USD/CNY 近似（日志 extra.proxy 标注），需真 CNH 请接离岸行情源。</li>
+<li>未内置 A 股节假日日历（周末已排除）；节假日 AKShare 无新数据会触发断流熔断，不会下单。</li>
+<li>QMT 适配基于 xtquant 公开接口（<code>XtQuantTrader.order_stock</code> 等），未在真实 MiniQMT 上联调；首次 live 前请在券商模拟环境验证。</li>
+<li>云端→本地远程触发通道未内置。</li>
+</ul>
+<p>项目目录 <code>/workspace/trading/gold-linkage-auto/</code>，压缩包 <code>/workspace/trading/gold-linkage-auto.tar.gz</code>（当时作为附件发出）</p></div></html>

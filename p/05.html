@@ -1,1 +1,56 @@
-<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2026-10-14 黄金ETF(518880)境外联动自动交易系统</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;white-space:pre-wrap;word-break:break-word;line-height:1.7}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2026-10-14 黄金ETF(518880)境外联动自动交易系统</h1><div class="detail">已建成，项目 /workspace/trading/gold-linkage-auto/（压缩包 /workspace/trading/gold-linkage-auto.tar.gz），券商接口 QMT/MiniQMT(xtquant)，可部署腾讯云或本机；默认纸面交易，实盘需显式开关。待办：付费实时行情 key、Windows 上实测 QMT、国内网络测 AKShare。</div></html>
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>2026-10-14 Clash Verge 连接 bot 老掉线</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>2026-10-14 Clash Verge 连接 bot 老掉线</h1><div class="detail"><h3>聊天原文（按发送顺序，10-14 14:16 起）</h3>
+<p>查完了。Clash Verge 本身没坏，是几项设置叠在一起，长连接很容易断。我这个 bot 要一直挂着一条连接收发消息，所以最先出问题。</p>
+<p><strong>找到的原因</strong><br />
+1. <strong>TUN 模式和系统代理同时开着。</strong> 流量要过两层，TUN 一重启或重置，走系统代理的连接也跟着断。开一种就够了。<br />
+2. <strong>开了"自动关闭连接"。</strong> Clash 每次换节点，都会立刻切断所有现有连接，bot 也一起掉线。<br />
+3. <strong>订阅里有自动测速组和故障转移组。</strong> 延迟一变它们就自己换节点，加上第 2 条，bot 就会隔一阵断一次。<br />
+4. <strong>bot 的域名没有单独规则。</strong> 它们落到兜底规则，走飞鸟节点。节点不稳，bot 就不稳。<br />
+5. <strong>DNS 是 fake-ip 模式，TUN 用的是 gvisor 网络栈。</strong> 有些应用在这个组合下长连接保持得不好，也更容易断。</p>
+<p><strong>推荐的解决办法，按重要程度排</strong><br />
+1. <strong>固定用一个节点，别让它自动切换。</strong> 在飞鸟组里手动选一个稳定的节点，香港、日本或新加坡优先。<br />
+2. <strong>在 Clash Verge 设置里关掉"自动关闭连接"。</strong><br />
+3. <strong>只留一种代理方式。</strong> 如果你平时只用浏览器和这个 App，留系统代理就够了，把 TUN 关掉。如果一定要用 TUN，就把网络栈改成 <code>mixed</code> 或 <code>system</code>。<br />
+4. <strong>加一条规则，让 Cursor 和 bot 的域名固定走同一个节点。</strong> 把 <code>cursor.com</code>、<code>cursor.sh</code>、<code>x.ai</code>、<code>grok.com</code> 指向那个固定节点。<br />
+5. <strong>更新订阅，挑丢包少的节点。</strong> 如果飞鸟节点晚高峰还是老掉，根子在机场，那就得换个更稳的套餐。</p>
+<p>我还没动任何东西。要不要我在 NucBox 上帮你改第 2、3、4 条？我会先备份配置，你只需要点批准。</p>
+<hr />
+<p>就在你截图这页改：</p>
+<ol>
+<li><strong>关 TUN：</strong> 把左上角"虚拟网卡模式"右边的开关关掉，只留"系统代理"开着。</li>
+<li><strong>关自动关闭连接：</strong> 点右边"Verge 基础设置"里的 <strong>杂项设置</strong>，找到"自动关闭连接"，把开关关掉，然后保存。</li>
+</ol>
+<p>改完以后，到"代理"页手动选一个稳定的节点，别用自动测速或故障转移组。</p>
+<hr />
+<p>稳定节点就看这几条：</p>
+<ol>
+<li><strong>延迟低且稳：</strong> 测速后延迟大致在 80–150ms，几次测差不多，别选一下 50、一下 300 的。</li>
+<li><strong>丢包少：</strong> 能看丢包率就选接近 0% 的；经常超时的别用。</li>
+<li><strong>线路：</strong> 优先香港、日本、新加坡；晚高峰也别掉线的那种。</li>
+<li><strong>别用自动组：</strong> 不要选"自动测速"或"故障转移"，在代理页点进具体节点列表，手动点一个固定节点。</li>
+</ol>
+<p>操作：打开 Clash Verge → <strong>代理</strong> → 打开飞鸟那一组 → 选一个延迟低又稳的节点，点一下固定住。换完再跟我说一声，我帮你看连接是否还掉。</p>
+<hr />
+<p>没有单独的"固定"按钮。操作就是：</p>
+<p>打开 <strong>代理</strong> → 点开飞鸟那一组 → 在节点列表里<strong>点一下</strong>你要的那个节点（名字会高亮或打勾）。</p>
+<p>点完就相当于固定了。别再点上面的"自动测速"或"故障转移"，否则它还会自己换。</p>
+<hr />
+<p>可以。新加坡05aws，104ms，已经手动选中了，就先用这个。</p>
+<p>记得确认两件事：虚拟网卡模式已关、杂项里的自动关闭连接已关。都关好的话，和我这边的连接会稳很多。</p>
+<hr />
+<p>好。这会儿就先正常用，要是还断线跟我说一声，我再帮你查。</p>
+<hr />
+<p>好，已经安排好了。工作日大约上午 10 点和下午 4 点（上海时间）我会在 NucBox 上只读检查一遍：TUN 有没有又开、自动关闭连接有没有又开、节点是不是还固定着。一切正常就不打扰你；有回退或异常才跟你说。</p>
+<p>你这边如果突然又断线，直接跟我说也行。</p>
+<hr />
+<p>现在整体是稳的。</p>
+<p><strong>设置还在（没回退）</strong><br />
+- TUN / 虚拟网卡：关着<br />
+- 系统代理：开着（<code>127.0.0.1:7897</code>）<br />
+- 自动关闭连接：关着<br />
+- Clash Verge 进程正常在跑<br />
+- 没有 Meta TUN 网卡（说明没再开虚拟网卡）</p>
+<p><strong>连通性</strong><br />
+- 有线网卡在线<br />
+-  ping <code>1.1.1.1</code> 约 32ms<br />
+- DNS 正常，外网探测返回 204，说明代理通路通着</p>
+<p>本地 Clash 控制口没开，所以这次读不到当前是不是还固定在「新加坡05aws」，你在代理页瞄一眼就行。整体看，按我们改过的配置，现在网络是稳定的。</p></div></html>
