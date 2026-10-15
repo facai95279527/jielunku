@@ -1,0 +1,93 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>18. 2026-10-15 COMEX 与上期所黄金联动策略可行性分析</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>18. 2026-10-15 COMEX 与上期所黄金联动策略可行性分析</h1><div class="detail"><p>一句话结论：散户做真正内外盘套利（多沪金空 COMEX）和秒级外盘抢跑都有硬伤；唯一有条件可行的是报备后低频做 518880（QMT 内置行情出信号、T+0 日内），但无公开回测证明盈利，需先模拟再回测。</p>
+<h3>原文件全文：<code>/workspace/trading/comex_shfe_linkage_feasibility.md</code></h3>
+<h5>COMEX 与上期所黄金联动策略：国内调研与可行性分析（2026-10-15）</h5>
+<blockquote>
+<p>只用已打开核实过的出处；没查到的标「未查到」；不是投资建议。</p>
+</blockquote>
+<h6>一、有没有人在做（公开资料）</h6>
+<ul>
+<li><strong>机构在做内外价差交易</strong>：中信期货每周出《中国商品期货跨境套利周报》，2026-08-19 那期推荐“区间内逢低做多黄金内外价差”（多 SHFE、空 COMEX），风险提示是汇率预期和美联储政策。[1]</li>
+<li><strong>国泰君安 2026-08-16 金银周报</strong>：AU2610 较外盘远期贴水 1.77 元/克，“进口窗口暂未打开”。[2]</li>
+<li><strong>中信建投期货 2024-05</strong>：跨市套利“仅存在于少数机构交易者的策略池中”，原因是需要交易通道，以及外汇收支要靠收益互换等方式解决。内外比价 90% 以上可以用汇率解释，其中离岸汇率解释力最高，达 96% 以上。剔除汇率后的残差 Δ 均值约 2.29 元/克，2008–2024 年最长偏离 92 天，作者认为统计套利有可行性。[3]</li>
+<li><strong>浙商国际 2023-11</strong>：讲了价差偏离阈值和 1 手 COMEX ≈ 3 手 AU 的配比。[4]（摘要页，正文未能完整打开）</li>
+<li><strong>散户层面</strong>：没查到可核实的“外盘驱动 518880/沪金”实盘业绩或公开回测，只有零散的帖子说隔夜外盘会影响开盘。<strong>未查到可靠收益数据。</strong></li>
+</ul>
+<h6>二、领先-滞后的证据</h6>
+<ul>
+<li><strong>早期证据</strong>：COMEX 单向领先。上期所刊物（连续交易推出后的 5 分钟数据）：COMEX→SHFE 的格兰杰检验 p≈3e-15，SHFE→COMEX 的 p=0.25。[5] 2012–2016 年日度数据结论相同。[6]</li>
+<li><strong>近年证据</strong>：领先优势在缩小。一篇学位论文用 1 分钟数据，结论是 SHFE 与 COMEX 双向引导，COMEX 信息份额 68.15%。[7] 《国际金融研究》2025 年第 12 期用 2021-03 至 2024-03 的 1 分钟数据，结论是<strong>国内黄金期货定价效率略高于 COMEX</strong>，晚盘时段国内贡献更大，2022 年以来汇率的作用明显增强。[8]</li>
+<li><strong>含义</strong>：如果还剩可利用的滞后，量级多半在秒级以下。我们的新浪 hf_GC 实测数据年龄中位约 2.2 秒、p90 7.6 秒、最大 24.6 秒，靠它“抢跑”内盘基本没有优势。</li>
+</ul>
+<h6>三、监管</h6>
+<ul>
+<li><strong>股票侧（518880）</strong>：上交所《程序化交易管理实施细则》2025-07-07 起施行。首次程序化交易前要向券商报告，报告内容包括资金规模及来源、策略类型、最高申报速率、单日最高笔数、软件名称和版本；券商核查确认后才能交易。高频认定线是单账户每秒申报加撤单 ≥300 笔，或单日 ≥20000 笔。[9]</li>
+<li><strong>期货侧（沪金）</strong>：证监会《期货市场程序化交易管理规定（试行）》[10] 和《上期所程序化交易管理办法》（2025-10-09 起施行）[11]。客户先向期货公司报告，期货公司 5 个交易日内报交易所，交易所 5 个交易日内反馈，客户收到确认后才能开始。<strong>期货没有采用 300/2 万这条标准</strong>，高频标准由交易所另定（具体数值未查到）。[11][12]</li>
+</ul>
+<h6>四、账户</h6>
+<ul>
+<li><strong>518880</strong>：普通 A 股账户就能交易，光大账户已具备。</li>
+<li><strong>沪金 AU</strong>：需要另开<strong>期货账户</strong>，证券账户里的大 QMT 不能下期货单。上期所适当性制度针对期权和“特定品种”：知识测试 80 分，加 10 个交易日 20 笔仿真或近 3 年 10 笔实盘，加连续 5 日可用资金达标（金额由交易所另定，指引原文没写具体数字）。[13] 黄金期货是不是不需要单独开权限，交易所文件未查到明确表述。光大金阳光QMT 能不能接期货柜台，<strong>未查到</strong>。</li>
+<li><strong>COMEX 对冲</strong>：个人购汇便利化额度“不得用于……证券投资等尚未开放的资本项目”[14]，散户自己开境外期货户做对冲，有外汇合规硬伤。黄金进出口实行人民银行准许证，申请方须是具备法人资格的金交所会员或矿企等[15]，个人做不了实物进出口套利。QDII 基金能投海外黄金，但不能当作 COMEX 期货对冲腿。</li>
+</ul>
+<h6>五、数据</h6>
+<ul>
+<li><strong>新浪 hf_GC</strong>：非官方接口，没有文档和 SLA；2022 年曾突然加 Referer 校验，导致大量脚本 403。[16] 只能轮询。我们只测了 10 分钟，样本不足。</li>
+<li><strong>QMT</strong>：多家渠道转述某券商通知，内置 Python 策略约在 10-23 起禁止文件读写和一切外部网络连接，只用内置接口的策略不受影响。[17] 光大是否跟进<strong>未确认</strong>，需要问 95525。一旦禁网，策略里的新浪源就失效，只能用内置的 au00.SF、get_etf_iopv。迅投投研端有“外盘数据站点（美股/港股/美期）”[18]，但光大券商版 QMT 有没有、要不要另付费，<strong>未查到</strong>。</li>
+</ul>
+<h6>六、成本</h6>
+<ul>
+<li><strong>AU</strong>：1000 克/手，最小变动 0.02 元/克（即 20 元/手）。[19] 交易所手续费：6 月、12 月合约 20 元/手，其他月份 10 元/手，多数合约平今免收（以期货公司加收后的为准）。[20] 一般持仓保证金 16%（2026-07 起），节前曾临时提到 18%。[21][22] 按约 920 元/克估算，1 手名义价值约 92 万元，保证金约 15 万元起（估算）。</li>
+<li><strong>518880</strong>：T+0（2013 年起），一手 100 份，最小报价单位 0.001 元，没有印花税。[23][24] 佣金按光大实际费率；常见是万三、最低 5 元（第三方说法）。[25] 实时溢价和折价的历史统计<strong>未查到</strong>。</li>
+</ul>
+<h6>七、交易时段错配</h6>
+<ul>
+<li><strong>上期所黄金</strong>：夜盘 21:00–02:30；日盘 9:00–10:15、10:30–11:30、13:30–15:00，法定节假日前不开夜盘。[19][26]</li>
+<li><strong>COMEX</strong>：Globex 周日至周五 18:00–17:00（美东），每天休市 60 分钟，覆盖上期所的全部时段。[3] 11 月美国冬令时后，北京时间要顺延 1 小时。</li>
+<li><strong>518880</strong>：只在 9:30–11:30、13:00–15:00 交易。[24] 夜里外盘的波动只能在第二天集合竞价里一次性兑现，很难吃到。</li>
+</ul>
+<h6>八、政策和汇率风险</h6>
+<ul>
+<li>内外价差主要由汇率驱动，央行管理汇率预期时价差会快速收敛。[3]</li>
+<li>进口受准许证限制，价差可能长期偏离，不会很快回归。[3][15]</li>
+<li>交易所会临时调整保证金和涨跌停（节假日前尤其常见）。[22]</li>
+<li>券商可能进一步收紧 QMT 沙箱。[17]</li>
+</ul>
+<h6>九、结论</h6>
+<ul>
+<li><strong>硬伤，不建议做</strong>：</li>
+<li>真正的内外盘套利（多沪金、空 COMEX）：散户没有合规的境外腿，还有外汇和进口许可限制，这是机构做的事。</li>
+<li>秒级“外盘领先”抢跑：学术证据显示领先优势已经减弱甚至双向；新浪源延迟以秒计、非官方，可能被 QMT 禁网切断；还有报备约束。</li>
+<li><strong>可行，但有条件</strong>：</li>
+<li>低频联动，在分钟到小时级别做 518880：报备后，用 QMT 内置的 au00.SF 和 IOPV 做信号与折溢价过滤，T+0 日内进出。但没有公开回测证明有超额收益，要先模拟 5–10 个交易日，再用历史数据回测。</li>
+<li>内外价差（Δ）只当作“内盘相对贵还是便宜”的过滤指标，不当套利腿用。</li>
+<li>沪金期货夜盘能覆盖美盘主时段，但要另开期货户、另做期货报备，杠杆风险高，而且大 QMT 证券端不能直接下期货单。</li>
+</ul>
+<h6>出处</h6>
+<ol>
+<li>中信期货 跨境套利周报 260819 http://www.microbell.com/repinfodetail_5337839.html</li>
+<li>国泰君安 金银周报 2026-08-16 https://www.fxbaogao.com/detail/5606553</li>
+<li>中信建投期货《跨市交易初探：黄金的内外波动》 https://cfc108.com/zxjtqh/attachDir/2024/05/2024050911154186974.pdf</li>
+<li>浙商国际《黄金价差以及套利策略浅析》 https://www.fxbaogao.com/detail/4034668</li>
+<li>上期所《连续交易对我国黄金期货价格影响的实证研究》 https://www.shfe.com.cn/upload/20150521/1432197305172.pdf</li>
+<li>新浪财经 国际间商品价格传导 https://finance.sina.com.cn/review/2017-02-20/doc-ifyarref6047243.shtml</li>
+<li>基于高频数据的中国黄金期货市场价格发现功能研究 https://www.ppdoc.com/degree/909a8fdb42a13197ed698901f4bd071a.html</li>
+<li>明雷等《基于高频数据的上海黄金市场国际定价效率研究》 https://www.pbcsf.tsinghua.edu.cn/__local/2/ED/0F/126899B614E15B2C14383932E39_85600C2F_170A70.pdf</li>
+<li>上交所程序化交易管理实施细则全文 https://finance.sina.com.cn/stock/roll/2025-04-03/doc-inerwwiq8213118.shtml</li>
+<li>期货市场程序化交易管理规定（试行） https://www.gov.cn/gongbao/2025/issue_12226/202508/content_7036966.html</li>
+<li>上期所程序化交易管理办法 https://www.shfe.com.cn/regulation/exchangerules/otherrules/202508/t20250814_828665.html</li>
+<li>Lexology 中国期货市场高频交易监管观察 https://www.lexology.com/library/detail.aspx?g=028f2939-594b-4668-9809-f5de8e0786fd</li>
+<li>上期所适当性制度操作指引 https://www.shfe.com.cn/services/trading/appropriate_system/</li>
+<li>个人购汇申请书 https://www.gov.cn/zhengce/zhengceku/2021-04/02/5597577/files/847d2f95d3154f2e9f807d491b1e2c8c.pdf</li>
+<li>黄金及黄金制品进出口管理办法 https://www.gov.cn/gongbao/content/2015/content_2864063.htm</li>
+<li>Infoway 新浪财经 API 详解 https://blog.infoway.io/sina-financial-data-api-guide/</li>
+<li>QMT 内置策略文件读写与网络连接将关闭 https://invest.wtsolutions.cn/posts/qmt-file-network-restriction/</li>
+<li>迅投研新手指南 https://dict.thinktrader.net/freshman/ty_rookie.html</li>
+<li>上期所交易时间 https://www.shfe.com.cn/services/calenderandholidays/tradinghours/ ；黄金期货业务细则 https://www.shfe.com.cn/regulation/exchangerules/productrules/202512/t20251231_829960.html</li>
+<li>上期所黄金手续费通知 https://www.shfe.com.cn/publicnotice/notice/202505/t20250514_827756.html</li>
+<li>上期所 2026-06-30 保证金通知 https://www.shfe.com.cn/publicnotice/notice/202606/t20260630_832357.html</li>
+<li>金投网 双节风控安排 https://www.cngold.org/jysgg/2026-09-22/c10774320.html</li>
+<li>华安基金 T+0 公告 https://www.huaan.com.cn/news/2013-07-29/175178_1.shtml</li>
+<li>上证报 黄金ETF交易制度 https://paper.cnstock.com/html/2013-07/03/content_317745.htm</li>
+<li>叩富网 518880 买卖规则 https://licai.cofool.com/ask/vipqa_6726797_40663143.html</li>
+<li>上期所连续交易专题 https://www.shfe.com.cn/content/lxjy/f18-3.html</li>
+</ol></div></html>
