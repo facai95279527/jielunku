@@ -1,16 +1,503 @@
-<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11. 2026-10-14 Clash/VPN 能否躲避警方检测</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>11. 2026-10-14 Clash/VPN 能否躲避警方检测</h1><div class="detail"><h3>聊天原文（10-14 10:32 通话结束后，按发送顺序）</h3>
-<p>通话结束了。你问了两块：一是咳嗽一个多月、体检抽血没事怎么看；二是 Clash 和其他 VPN 能不能防国内对翻墙的追踪、警方常用什么办法。我按公开资料写清楚，带出处，马上发。</p>
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>6. 2026-10-14 黄金ETF(518880)境外联动自动交易系统</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>6. 2026-10-14 黄金ETF(518880)境外联动自动交易系统</h1><div class="detail"><h3>聊天原文 · 需求更新（10-14 14:00）</h3>
+<p>部署方式已更新：<strong>腾讯云服务器或你的本地电脑都可以</strong>，按实际情况选；其余需求不变。仍差 <strong>QNT 是哪家券商</strong>（以及若走本地，是不是 NucBox）。你说清或点下面选项后我再开始搭。</p>
 <hr />
-<p>再说 Clash / 其它 VPN 和「防不被发现翻墙」。</p>
-<p><strong>结论（先讲清楚）</strong>：Clash、ExpressVPN、Astrill、Proton、WARP 这类<strong>都不能保证</strong>运营商或执法侧「完全看不到你在用加密隧道/翻墙工具」。VPN 加密的是<strong>隧道里访问了什么</strong>；它通常<strong>藏不住</strong>「你的设备在某个时间连向某个境外 VPN/代理 IP、连了多久、流量大概多大」。想靠换某一个消费级 VPN「防止被警察追踪是否翻墙」——公开技术与监管材料都不支持这种承诺。我也不会提供规避执法检测的操作步骤。</p>
-<p><strong>公开材料里常见的技术手段（网络侧，不是「读你聊天内容」）</strong><br />
-1. <strong>元数据</strong>：运营商能看到你连到哪个 IP、端口、时段、流量体积。多家 VPN 厂商自己也写：ISP 看得见你在连 VPN，看不见隧道内具体网站。出处：<a href="https://nordvpn.com/blog/can-isp-see-vpn/">NordVPN 说明</a>、<a href="https://www.expressvpn.com/blog/vpn-vs-isp-who-can-you-trust/">ExpressVPN 说明</a>。<br />
-2. <strong>已知 VPN/节点 IP 名单与封锁</strong>：对已知服务商 IP 限速、阻断或干扰。Freedom House《Freedom on the Net 2023》写：2017 年起工信部要求未获批 VPN 不得经营，非法 VPN 服务被关闭或封锁，重大活动前封锁常升级。出处：<a href="https://freedomhouse.org/country/china/freedom-net/2023">Freedom House 中国报告</a>。<br />
-3. <strong>深度包检测（DPI）与协议指纹</strong>：识别 OpenVPN、Shadowsocks、VMess、混淆流量等特征；可被动识别再主动探测确认。学术出处：USENIX Security 2023《How the Great Firewall of China Detects and Blocks Fully Encrypted Traffic》；OpenVPN 指纹研究见 <a href="https://cacm.acm.org/research/openvpn-is-open-to-vpn-fingerprinting/">CACM 综述</a>。<br />
-4. <strong>设备与账号侧</strong>：手机/电脑上的客户端、配置文件、支付记录、登录日志，以及 VPN 服务商若留存日志，在跨境协作或配合调查时可能被调取。公开报道如《卫报》写河北承德对程序员使用未授权通道出境联网并工作的行政处罚案例（以当地处罚决定书报道为准）。出处：<a href="https://www.theguardian.com/world/2023/oct/09/chinese-programmer-ordered-to-pay-1m-yuan-for-using-virtual-private-network">The Guardian, 2023-10-09</a>。</p>
-<p><strong>和你之前问的那些产品的关系</strong><br />
-- <strong>Clash</strong>：是代理客户端，不是「防追踪品牌」；安全性取决于你接的节点协议、是否泄露 DNS/WebRTC、以及节点是否已被识别。<br />
-- <strong>ExpressVPN / Astrill</strong>：商业加密隧道，同上——藏内容，不藏「在用 VPN」这一事实。<br />
-- <strong>Proton / WARP</strong>：同样改变的是可见内容与出口位置，不是对本地运营商隐身。</p>
-<p><strong>法律与边界（公开信息，非法律意见）</strong>：境内跨境联网信道有审批要求；个人用未授权商业翻墙工具在实践中风险因情形而异，媒体与 Freedom House 都记录过针对未授权 VPN 的整治与个案处罚。我能说明的是公开技术能力与监管框架；<strong>不能</strong>帮你设计「怎么躲过警察发现」。若你关心的是手机 Clash 掉线、耗电、自启，那是另一类排障，可以另说。</p>
-<p>说明：只说明公开检测方式，不提供规避步骤；原文如上。</p></div></html>
+<p>明白，是 <strong>QMT</strong>。我按「行情+信号先打通，QMT 下单可配置接入」开始搭，部署支持腾讯云或你本地电脑。</p>
+<h3>聊天原文 · 交付（10-14 14:10）</h3>
+<p>黄金联动自动交易系统搭好了，代码在我电脑的 <code>/workspace/trading/gold-linkage-auto/</code>，打包文件附在下面。8 个单测全部通过；纸交易用模拟行情空跑正常；实盘要在配置里打开两道开关才会启动。</p>
+<p>目前的实际情况：<br />
+- <strong>秒级外盘行情要付费 key。</strong> TwelveData、GoldAPI、Polygon 的接入都写好了，但还没填 key，也没实测。Yahoo 实测大约晚 10 分钟，程序只拿它做对照，实盘会自动把它排除。<br />
+- <strong>AKShare 和汇率这两个接口</strong>从我电脑访问失败（东方财富返回 502，汇率接口超时），要在国内网络下再测一次。<br />
+- <strong>QMT 下单</strong>是按 xtquant 的公开接口写的，只能在已登录 MiniQMT 的 Windows 上运行，还没和真实账户联调过，建议先用券商的模拟环境试。<br />
+- <strong>部署建议在本地 Windows 跑整条链路</strong>。腾讯云目前只能跑信号和纸交易，「云端出信号、本地下单」的远程通道还没做。</p>
+<p>启动方式、配置说明、三阶段验收清单和风险提示都写在 README 里（延迟不等于能套利，还有滑点、T+1、程序化交易报备等）。</p>
+<h3>原文件全文：<code>/workspace/trading/gold-linkage-auto/README.md</code>（10-15 更新版）</h3>
+<h5>外盘黄金 → 国内 518880 联动自动交易系统</h5>
+<blockquote>
+<p><strong>不是投资建议。</strong> 本项目是工程脚手架，用于验证「外盘金价短时方向 → 黄金 ETF 518880 买卖」的流程。是否有效、能否覆盖成本，必须由你自己用 paper 和小资金验证。除第 1.5 节注明的免费源实测外，文中没有任何延迟或相关系数数字。</p>
+</blockquote>
+<h6>1. 架构</h6>
+<pre><code>           ┌────────────── 外盘行情（多源 failover）──────────────┐
+           │ TwelveData │ GoldAPI │ Polygon │ 新浪 hf_GC(免费) │ Yahoo(延迟,仅fallback) │
+           └──────────────┬──────────────────────────────────────┘
+                          ▼
+ 518880：AKShare → 腾讯(含IOPV) → 新浪(仅价) ──► 信号 LinkageSignal ◄── 汇率：新浪 CNH → AKShare
+                          │  短窗收益率 + 确认N tick + 冷却 + 延迟补偿 + 折溢价过滤
+                          ▼
+                    风控 RiskGuard（时段/单笔/持仓/次数/断流熔断/T+1）
+                          ▼
+             Broker：PaperBroker(data/*.csv|jsonl)  或  QmtBroker(xtquant → MiniQMT)
+</code></pre>
+<h6>部署建议（二选一）</h6>
+<pre><code class="language-mermaid">flowchart LR
+  subgraph A[方案A 推荐：本地全链路]
+    W[Windows 本机] --&gt; F1[行情+信号] --&gt; Q[MiniQMT xtquant 下单]
+  end
+  subgraph B[方案B：云跑信号，本地只下单]
+    C[腾讯云 Linux: 行情+信号+paper] --&gt;|data/signals.jsonl 或自建推送| L[本地 Windows: 人工/自建接收器 → MiniQMT]
+  end
+</code></pre>
+<ul>
+<li><strong>MiniQMT/xtquant 只能跑在 Windows 且需客户端已登录</strong>，所以 live 下单必须在本地电脑（或 Windows 云主机）。</li>
+<li>腾讯云 Linux 适合 7×24 跑信号与 paper 验证（<code>systemd</code> 守护）。若要云端信号远程触发本地下单，需要自建可靠通道（鉴权、去重、过期丢弃），本版本<strong>未内置</strong>该通道，只把信号写入 <code>data/signals.jsonl</code>；推荐直接用方案 A，少一跳延迟和故障点。</li>
+</ul>
+<h6>1.5 免费数据路径（不需要任何付费 key）— 2026-10-15 新增</h6>
+<p>不填任何 key，默认配置就会走下面这条全免费链路：</p>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>主用</th>
+<th>备用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>外盘金价（信号）</td>
+<td>新浪 <code>hf_GC</code> 纽约 COMEX 黄金</td>
+<td>Yahoo <code>GC=F</code>（延迟，paper 里会被断流熔断挡住，live 禁用）</td>
+<td>需要请求头 <code>Referer: https://finance.sina.com.cn</code></td>
+</tr>
+<tr>
+<td>外盘对照</td>
+<td>新浪 <code>hf_XAU</code> 伦敦金现货</td>
+<td>—</td>
+<td>时间戳只到分钟，<strong>只在连通测试里打印，不进信号</strong></td>
+</tr>
+<tr>
+<td>518880 价格 + IOPV</td>
+<td>AKShare（东财）</td>
+<td>腾讯 <code>qt.gtimg.cn</code> 含 IOPV → 新浪 <code>sh518880</code> 仅价格</td>
+<td>前一个源没 IOPV 会继续找带 IOPV 的；都没有就只用价格，并每 5 分钟告警「折溢价过滤已降级」</td>
+</tr>
+<tr>
+<td>汇率</td>
+<td>新浪 <code>fx_susdcnh</code> 离岸人民币</td>
+<td>AKShare CFETS USD/CNY</td>
+<td>选 USDCNY 时自动换 <code>fx_susdcny</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>过期检测一律用<strong>行情串里自带的日期+时间</strong>算 age，不拿本机时间冒充。</li>
+<li>外盘源一旦切换（如期货 GC 切到别的源），信号短窗会清空，避免期货/现货价差被当成涨跌。</li>
+<li>AKShare 加了 10s 强制超时，失败后按 60s→120s→…最长 15 分钟退避，不再拖住主循环。</li>
+<li>腾讯 IOPV 字段（第 78 位）与溢价率（第 77 位）是<strong>推断</strong>的（非官方文档）：每次都校验「77 ≈ (最新价/78 − 1)×100」，对不上就当 IOPV 缺失处理。</li>
+<li>这些都是网页公开接口，<strong>没有 SLA</strong>，字段可能变，也可能限频；轮询别快于 1 秒。</li>
+</ul>
+<h6>免费数据源实测（box，2026-10-15 10:00–10:11 北京时间，A 股上午盘中）</h6>
+<p>方法：每秒请求一次，age = 收到响应时刻 − 行情串自带时间戳（本机时钟与服务器 Date 头比对误差 &lt;1s）。原始数据与脚本在 <code>docs/measure/</code>。<strong>只测了约 10 分钟、一个时段（亚洲上午，COMEX 相对清淡），不代表全天；到 NucBox 上请再跑连通测试复测。</strong></p>
+<table>
+<thead>
+<tr>
+<th>源</th>
+<th>样本</th>
+<th>age 中位</th>
+<th>age p90</th>
+<th>age 最大</th>
+<th>自带时间戳更新间隔（中位/最大）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新浪 hf_GC</td>
+<td>504</td>
+<td>2.2s</td>
+<td>7.6s</td>
+<td>24.6s</td>
+<td>2.0s / 23.7s</td>
+</tr>
+<tr>
+<td>新浪 hf_XAU</td>
+<td>504</td>
+<td>40.8s</td>
+<td>65.6s</td>
+<td>74.0s</td>
+<td>59.3s / 72.4s（时间只到分钟；价格本身约 11s 变一次）</td>
+</tr>
+<tr>
+<td>新浪 sh518880</td>
+<td>504</td>
+<td>3.2s</td>
+<td>4.6s</td>
+<td>7.5s</td>
+<td>3.0s / 6.5s</td>
+</tr>
+<tr>
+<td>腾讯 sh518880</td>
+<td>593</td>
+<td>3.9s</td>
+<td>5.2s</td>
+<td>6.7s</td>
+<td>3.0s / 5.0s；IOPV 数值变化间隔中位 13.0s、最大 67.2s；IOPV 校验失败 0/593</td>
+</tr>
+<tr>
+<td>新浪 fx_susdcnh</td>
+<td>504</td>
+<td>10.2s</td>
+<td>13.2s</td>
+<td>23.6s</td>
+<td>5.3s / 15.0s</td>
+</tr>
+<tr>
+<td>新浪 fx_susdcny</td>
+<td>504</td>
+<td>59.3s</td>
+<td>90.8s</td>
+<td>123.9s</td>
+<td>54.8s / 96.6s</td>
+</tr>
+<tr>
+<td>Yahoo GC=F</td>
+<td>2 次单点</td>
+<td>603.7s、619.6s</td>
+<td>—</td>
+<td>—</td>
+<td>约 10 分钟延迟，只能对照</td>
+</tr>
+<tr>
+<td>AKShare 东财 518880 / 汇率</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>box 上失败（502 / 超过 10s 超时）</td>
+</tr>
+</tbody>
+</table>
+<p>新浪 hf_GC age 超阈值占比：&gt;5s 99/504，&gt;10s 25/504，&gt;15s 11/504，&gt;20s 4/504。请求本身往返中位 0.98s、最大 4.4s（box 网络，已计入 age）。</p>
+<p>注意：age 只能说明「新浪给的时间戳」离现在多久，<strong>测不出新浪相对 CME 交易所本身的延迟</strong>；时间戳间隔大也可能只是那段时间没成交。</p>
+<h6>新浪 hf_GC 能否用于 live？</h6>
+<p>结论：<strong>允许（<code>sina_gc.allow_live: true</code>），但有条件</strong>。<br />
+- 理由：实测 age 中位约 2s、p90 约 8s，对 30 秒短窗 + 8bp 阈值 + 3 tick 确认的信号够用；没有它，无 key 时 live 就完全没有外盘源。<br />
+- 保护：<code>sina_gc.stale_after_sec: 20</code>（按自带时间戳），再加全局 <code>risk.feed_stale_halt_sec: 30</code> 断流熔断，过期就不下单。实测 10 分钟里约 0.8%（4/504）的时刻会超过 20s。<br />
+- 不足：非官方接口、无 SLA、可能限频或改字段；交易所真实延迟未知。<strong>上 live 前请在 NucBox 上开盘时段再测</strong>；不放心就把 <code>allow_live</code> 改成 <code>false</code>，或者买 TwelveData 等付费源排在前面。<br />
+- <code>hf_XAU</code>：时间戳只到分钟，<code>allow_live: false</code>，只作对照。Yahoo 在 live 里始终禁用。</p>
+<h6>实盘前 120 秒纸交易结果（真实免费数据）</h6>
+<ul>
+<li>第 1 次（10:07:52–10:09:52，hf_GC 阈值 15s）：正常退出；外盘用 sina_gc，518880 用腾讯（AKShare 10s 超时后切换），汇率用新浪 CNH。10:09:26 起 hf_GC 约 10 秒超过 15s 阈值，切到 Yahoo（延迟源被断流熔断挡住，不下单），10:09:37 自动切回。</li>
+<li>第 2 次（10:12:13–10:14:13，阈值 20s）：正常退出，全程 sina_gc，无切源。</li>
+<li>两次都没有信号、没有下单（30 秒内外盘涨跌没到 ±8bp，心跳全是「无显著方向」），没有未捕获异常。日志在 <code>docs/measure/</code>。</li>
+</ul>
+<h6>2. 目录</h6>
+<pre><code>src/main.py            入口（connectivity/paper/live）
+src/feeds/overseas.py  外盘多源 + FailoverFeed
+src/feeds/sina.py      免费源：新浪 hf_GC/hf_XAU、sh518880、fx_susdcnh/cny；腾讯 518880(IOPV)
+src/feeds/domestic.py  AKShare 518880（fund_etf_spot_em）
+src/feeds/fx.py        AKShare 汇率（fx_spot_quote，CFETS USD/CNY）
+src/feeds/mock.py      离线模拟行情（仅演示）
+src/signal/linkage.py  信号逻辑（中文注释）
+src/risk/guards.py     风控
+src/broker/paper.py    纸交易（状态持久化，重启恢复）
+src/broker/qmt_broker.py  xtquant 适配（延迟导入）
+scripts/run_connectivity.py / run_paper.py
+deploy/windows/        Windows 一键：setup.bat(→setup.ps1) / run_connectivity.bat / run_paper.bat / run_live.bat
+deploy/                systemd / supervisor / Windows NSSM
+docs/measure/          免费源实测原始数据、统计脚本、连通测试与纸交易日志
+tests/test_signal.py   离线单测（信号/风控/纸交易）
+tests/test_feeds_free.py  免费源解析/过期/切源/IOPV 降级（mock 响应，离线）
+</code></pre>
+<h6>3. 安装</h6>
+<h6>Windows（NucBox）一键步骤</h6>
+<ol>
+<li>装 Python 3.11 64 位（安装时勾 “Add python.exe to PATH”）。xtquant 对 Python 版本有要求，以券商说明为准。</li>
+<li>把 <code>gold-linkage-auto.tar.gz</code> 解压到如 <code>C:\gold-linkage-auto</code>（路径尽量不含中文和空格）。</li>
+<li>双击 <code>deploy\windows\setup.bat</code>：自动建 <code>.venv</code>、装依赖（失败自动换清华镜像）、尝试装 xtquant、生成 <code>config.yaml</code>/<code>.env</code>（已有不覆盖）、跑单测和连通测试。</li>
+<li>双击 <code>deploy\windows\run_paper.bat</code> 开纸交易（不下真单）。只想看行情通不通：<code>run_connectivity.bat</code>。</li>
+<li>实盘：<code>run_live.bat</code>。它会要求手动输入 YES，再跑一遍连通测试；程序本身仍要求 <code>config.yaml</code> 里 <code>enable_live: true</code> <strong>且</strong> <code>live_confirm: "I_UNDERSTAND_REAL_MONEY"</code>，缺一拒绝启动。</li>
+</ol>
+<h6>通用（Linux / 手动）</h6>
+<pre><code class="language-bash">python -m venv .venv
+.venv/bin/pip install -r requirements.txt        # Windows: .venv\Scripts\pip ...
+cp config.example.yaml config.yaml
+cp .env.example .env                              # 填 key，不要提交
+</code></pre>
+<p>Windows live 另需：<code>pip install xtquant</code>（或用券商 QMT 自带包），并登录 MiniQMT 极简模式。</p>
+<h6>4. 配置要点（config.yaml）</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mode</code></td>
+<td><code>connectivity</code> / <code>paper</code> / <code>live</code>，默认 paper</td>
+</tr>
+<tr>
+<td><code>enable_live</code> + <code>live_confirm</code></td>
+<td>live 双开关：<code>true</code> 且 <code>"I_UNDERSTAND_REAL_MONEY"</code>，缺一拒绝启动</td>
+</tr>
+<tr>
+<td><code>overseas.sources</code></td>
+<td>尝试顺序；live 模式自动剔除 yahoo</td>
+</tr>
+<tr>
+<td><code>overseas.stale_after_sec</code></td>
+<td>非 Yahoo 源超过该秒数视为过期并切源（各源可用自己的 <code>stale_after_sec</code> 覆盖）</td>
+</tr>
+<tr>
+<td><code>overseas.sina_gc.allow_live</code></td>
+<td>新浪免费源是否允许在 live 当信号源（默认 true，见 1.5 节）</td>
+</tr>
+<tr>
+<td><code>domestic.sources</code> / <code>fx.sources</code></td>
+<td>518880 和汇率的源顺序（默认 akshare→tencent→sina / sina→akshare）</td>
+</tr>
+<tr>
+<td><code>signal.window_sec / buy_threshold_bp / sell_threshold_bp</code></td>
+<td>短窗收益率阈值（bp）</td>
+</tr>
+<tr>
+<td><code>signal.confirm_ticks / cooldown_sec</code></td>
+<td>防抖动：连续 N 个新 tick 同向才出信号；信号间冷却</td>
+</tr>
+<tr>
+<td><code>signal.latency_comp_sec</code></td>
+<td>延迟补偿（秒），默认 0；只有实测出稳定时滞再调</td>
+</tr>
+<tr>
+<td><code>signal.max_premium_buy_pct / min_discount_sell_pct</code></td>
+<td>溢价过高不追买、折价过深不杀跌</td>
+</tr>
+<tr>
+<td><code>risk.*</code></td>
+<td>单笔金额、持仓上限、日内次数、断流熔断秒数、交易时段</td>
+</tr>
+<tr>
+<td><code>broker.qmt.userdata_path / account_id</code></td>
+<td>MiniQMT 的 <code>userdata_mini</code> 目录与资金账号</td>
+</tr>
+</tbody>
+</table>
+<h6>外盘源延迟档位</h6>
+<p><strong>均以供应商文档与你购买的套餐为准，本项目未实测，需自备 key 实测：</strong><br />
+- TwelveData：XAU/USD，WebSocket 推送需对应套餐；REST <code>/price</code> 可短轮询（受积分/频率限制）。<br />
+- GoldAPI.io：现货 REST，免费额度小，适合低频对照。<br />
+- Polygon（现 Massive）：<code>C:XAUUSD</code> 报价，需外汇/贵金属套餐（已实现 REST，未实测）。<br />
+- 新浪 <code>hf_GC</code>：免费，实测见 1.5 节（age 中位约 2s）。<br />
+- Yahoo <code>GC=F</code>：有延迟（box 上两次单点实测约 600s），<strong>只作 fallback/对照</strong>，live 下禁用。<br />
+- 更低延迟（CME 直连、券商期货行情、彭博/路透等）需另购并自行实现 <code>Feed</code> 子类（实现 <code>latest()</code> 返回 <code>Quote</code> 即可）。</p>
+<h6>5. 三阶段与验收清单</h6>
+<h6>阶段1 连通 <code>python scripts/run_connectivity.py</code></h6>
+<ul>
+<li>[ ] 至少一个<strong>非 Yahoo</strong> 外盘源 <code>[OK]</code>，且 age 在你预期内（记录实际值；无 key 时应是 <code>sina_gc</code>）</li>
+<li>[ ] 518880 有最新价，IOPV/折溢价非空（为空会警告，过滤失效）</li>
+<li>[ ] 汇率 <code>[OK]</code></li>
+<li>[ ] （Windows）QMT <code>[OK]</code> 显示资金/持仓<br />
+无 key/无网时会逐项给出失败原因，退出码非 0，不崩溃。</li>
+</ul>
+<h6>阶段2 纸交易 <code>python scripts/run_paper.py</code>（无网演示：<code>--mock --max-seconds 60</code>）</h6>
+<ul>
+<li>[ ] 至少连续 5–10 个交易日稳定运行，无未捕获异常</li>
+<li>[ ] 检查 <code>data/signals.jsonl</code>（含被风控拦截的原因）与 <code>data/paper_trades.csv</code></li>
+<li>[ ] 统计扣除滑点/费用后的结果；调参不要只在同一段数据上反复拟合</li>
+<li>[ ] 人为断网/杀进程，确认熔断与重启恢复（<code>data/paper_state.json</code>）</li>
+</ul>
+<h6>阶段3 小资金实盘（仅 Windows + MiniQMT）</h6>
+<pre><code class="language-bash">##### config.yaml: mode: live, enable_live: true, live_confirm: I_UNDERSTAND_REAL_MONEY
+#####              risk.max_order_value_cny 调小（如 1000~2000），max_trades_per_day 调小
+python -m src.main --config config.yaml --mode live
+</code></pre>
+<ul>
+<li>[ ] 先在券商 QMT 模拟账户跑（若券商提供）</li>
+<li>[ ] 第一周每笔人工核对 MiniQMT 委托/成交回报与日志</li>
+<li>[ ] 确认券商对程序化交易的报备要求已完成</li>
+</ul>
+<h6>6. 守护与异常恢复</h6>
+<ul>
+<li>进程级：Linux <code>systemd</code>/<code>supervisor</code>，Windows NSSM 或任务计划（见 <code>deploy/</code>）。</li>
+<li>程序内：单次行情失败只告警；主循环异常指数退避（1→60s）；任一行情过期超 <code>feed_stale_halt_sec</code> 熔断不下单；TwelveData WS 自动重连并在断开时退回 REST；MiniQMT 断开后下单前重连 3 次；Ctrl+C / SIGTERM 优雅退出。</li>
+</ul>
+<h6>7. 风险提示（请逐条读）</h6>
+<ol>
+<li><strong>延迟 ≠ 可套利。</strong> 外盘先动、518880 后跟的现象即便存在，也可能被做市商/其他程序在你之前吃掉；行情源延迟、AKShare 网页接口延迟（数秒级、不稳定）、下单链路延迟叠加后，优势可能为零或为负。</li>
+<li><strong>滑点与成本</strong>：ETF 买卖价差、佣金、冲击成本；频繁交易会迅速吞噬收益。</li>
+<li><strong>时段错配</strong>：外盘近 24 小时交易，518880 仅 A 股时段交易；隔夜/午休的外盘变动在开盘时一次性体现，系统不在非交易时段下单。</li>
+<li><strong>T+1</strong>：518880 当日买入次日才能卖（系统按券商可用持仓判断）。</li>
+<li><strong>IOPV 偏差</strong>：IOPV 本身由行情商估算、有更新频率，折溢价过滤只是参考。</li>
+<li><strong>监管与券商规则</strong>：程序化交易须遵守交易所程序化交易管理规定与券商要求（如报备、申报频率、撤单比例、异常交易监控）。QMT/MiniQMT 需在合法券商正规开户并开通权限，策略须合规；<strong>不要</strong>用高频报撤单、对倒、虚假申报等任何可能被认定为异常交易的方式。</li>
+<li><strong>数据源合规</strong>：AKShare 抓取公开网页数据，稳定性与使用条款以数据方为准；付费行情商的授权范围（个人/非展示用途）自行确认。</li>
+<li><strong>软件风险</strong>：代码可能有 bug；live 前务必读懂 <code>signal/linkage.py</code>、<code>risk/guards.py</code>，并从极小金额开始。</li>
+</ol>
+<h6>8. 测试</h6>
+<pre><code class="language-bash">python -m pytest tests/ -q
+</code></pre>
+<p>共 19 个：原 8 个（确认 tick 防抖、方向翻转清零、冷却、溢价不追买、折价不杀跌、IOPV 缺失、风控、纸交易 T+1）+ 新增 11 个免费源测试（新浪 GC 解析与 Referer、按自带时间戳过期并切源、空数据/403/零价、新浪 ETF 无 IOPV、腾讯 IOPV 校验通过/拒绝、新浪 CNH、IOPV 优先与降级、失败源退避、切源清空信号窗、live 剔除不允许的源），全部用 mock 响应离线运行。</p>
+<h6>9. 已知限制</h6>
+<ul>
+<li>付费源（TwelveData/GoldAPI/Polygon）没有 key，未实测；免费源实测见第 0 节（只有约 10 分钟样本）。</li>
+<li>新浪/腾讯是网页公开接口，无 SLA，可能限频、改字段或要求新的请求头。</li>
+<li>AKShare 超时后后台线程会被放弃但可能仍在跑完它的请求（不影响主循环）。</li>
+<li>AKShare 接口字段/地址可能随版本变化；接口失败时明确报错不造数。AKShare 汇率只有 CFETS USD/CNY（CNH 时为近似）；默认已改用新浪 <code>fx_susdcnh</code> 真离岸价，AKShare 为备用。</li>
+<li>未内置 A 股节假日日历（周末已排除）；节假日 AKShare 无新数据会触发断流熔断，不会下单。</li>
+<li>QMT 适配基于 xtquant 公开接口（<code>XtQuantTrader.order_stock</code> 等），未在真实 MiniQMT 上联调；首次 live 前请在券商模拟环境验证。</li>
+<li>云端→本地远程触发通道未内置。</li>
+</ul>
+<h6>10. 上实盘前还需要你本人完成的事</h6>
+<ol>
+<li><strong>券商与权限</strong>：确认开户券商支持 QMT/MiniQMT（极简模式），并开通 QMT 权限（不少券商有资产门槛，以券商为准）。告诉我券商名字，我按它的安装包改 <code>userdata_mini</code> 路径示例。</li>
+<li><strong>在 NucBox 上安装并登录 MiniQMT</strong>（勾选极简模式），保持登录；找到 <code>userdata_mini</code> 目录，填进 <code>config.yaml</code> 的 <code>broker.qmt.userdata_path</code>。</li>
+<li><strong>资金账号</strong>：填到 <code>.env</code> 的 <code>QMT_ACCOUNT_ID</code>（只存在本机，不要发给别人或提交到 git）。</li>
+<li><strong>程序化交易报备</strong>：按交易所程序化交易管理规定和券商要求完成报备/登记（具体材料由券商告知）。</li>
+<li>NucBox 开机后跑 <code>setup.bat</code>，然后至少 5–10 个交易日 <code>run_paper.bat</code>，再考虑小金额 live。</li>
+</ol>
+<h3>附：信号逻辑源码 <code>src/signal/linkage.py</code></h3>
+<pre><code class="language-python">&quot;&quot;&quot;外盘方向 → 518880 买卖意图。
+
+流程（每个外盘 tick 调用 on_tick）：
+1. 延迟补偿：外盘 tick 时间戳 + latency_comp_sec（若两边存在已知固定时滞，可用来对齐；默认 0）。
+2. 短窗收益率：用 window_sec 内最早价格与当前价比较，单位 bp。
+3. 原始方向：ret &gt;= buy_threshold_bp → UP；&lt;= sell_threshold_bp → DOWN；否则 FLAT。
+4. 防抖动：同一方向连续 confirm_ticks 次才确认；方向中断即清零。
+5. 冷却：上一个信号发出后 cooldown_sec 内不再出信号。
+6. 折溢价过滤：UP 时若 518880 溢价率 &gt; max_premium_buy_pct 不追买；
+   DOWN 时若折价率 &lt; min_discount_sell_pct（已大幅折价）不杀跌卖出。IOPV 缺失时跳过过滤并标注。
+输出 Decision(action=BUY/SELL/FLAT, reason=...)。
+&quot;&quot;&quot;
+from collections import deque
+from dataclasses import dataclass
+from typing import Optional
+
+BUY, SELL, FLAT = &quot;BUY&quot;, &quot;SELL&quot;, &quot;FLAT&quot;
+
+@dataclass
+class Decision:
+    action: str
+    reason: str
+    ret_bp: float = 0.0
+
+class LinkageSignal:
+    def __init__(self, window_sec=30, buy_threshold_bp=8, sell_threshold_bp=-8, confirm_ticks=3,
+                 cooldown_sec=120, latency_comp_sec=0, max_premium_buy_pct=0.3,
+                 min_discount_sell_pct=-0.3, **_):
+        self.window = window_sec; self.buy_th = buy_threshold_bp; self.sell_th = sell_threshold_bp
+        self.confirm = max(1, int(confirm_ticks)); self.cooldown = cooldown_sec
+        self.lat = latency_comp_sec; self.max_prem = max_premium_buy_pct; self.min_disc = min_discount_sell_pct
+        self.hist = deque()          # (ts, price)
+        self._dir = FLAT; self._count = 0
+        self._last_sig_ts = None
+
+    def reset(self):
+        &quot;&quot;&quot;清空短窗与确认计数（切换外盘源时调用；冷却时间保留）。&quot;&quot;&quot;
+        self.hist.clear(); self._dir = FLAT; self._count = 0
+
+    def _ret_bp(self, ts, price):
+        self.hist.append((ts, price))
+        while self.hist and ts - self.hist[0][0] &gt; self.window:
+            self.hist.popleft()
+        base = self.hist[0][1]
+        return (price / base - 1) * 1e4 if base else 0.0
+
+    def on_tick(self, price: float, ts: float, premium_pct: Optional[float] = None) -&gt; Decision:
+        ts = ts + self.lat
+        ret = self._ret_bp(ts, price)
+        raw = &quot;UP&quot; if ret &gt;= self.buy_th else &quot;DOWN&quot; if ret &lt;= self.sell_th else FLAT
+        if raw == FLAT:
+            self._dir, self._count = FLAT, 0
+            return Decision(FLAT, &quot;无显著方向&quot;, ret)
+        self._count = self._count + 1 if raw == self._dir else 1
+        self._dir = raw
+        if self._count &lt; self.confirm:
+            return Decision(FLAT, f&quot;{raw} 确认中 {self._count}/{self.confirm}&quot;, ret)
+        if self._last_sig_ts is not None and ts - self._last_sig_ts &lt; self.cooldown:
+            return Decision(FLAT, f&quot;冷却中 {ts - self._last_sig_ts:.0f}/{self.cooldown}s&quot;, ret)
+        action = BUY if raw == &quot;UP&quot; else SELL
+        note = &quot;&quot;
+        if premium_pct is None:
+            note = &quot;（IOPV缺失，未做折溢价过滤）&quot;
+        elif action == BUY and premium_pct &gt; self.max_prem:
+            return Decision(FLAT, f&quot;溢价 {premium_pct:.2f}% &gt; {self.max_prem}%，不追买&quot;, ret)
+        elif action == SELL and premium_pct &lt; self.min_disc:
+            return Decision(FLAT, f&quot;折价 {premium_pct:.2f}% &lt; {self.min_disc}%，不杀跌&quot;, ret)
+        self._last_sig_ts = ts; self._count = 0
+        return Decision(action, f&quot;外盘 {self.window}s 收益 {ret:.1f}bp 已确认{note}&quot;, ret)
+</code></pre>
+<h3>附：配置模板 <code>config.example.yaml</code></h3>
+<pre><code class="language-yaml"># 复制为 config.yaml 再修改。key 建议放 .env（${ENV_NAME} 会被替换）
+mode: paper                 # connectivity | paper | live
+enable_live: false          # live 第一道开关
+live_confirm: &quot;&quot;            # live 第二道开关：必须填 &quot;I_UNDERSTAND_REAL_MONEY&quot;
+loop_interval_sec: 1.0      # 主循环节拍
+use_mock_feeds: false       # true=全部用离线模拟行情（无网/演示）
+
+overseas:
+  # 按顺序尝试，前一个失败/断流自动切下一个；yahoo 仅作 fallback（约延迟，不得作实盘主源）
+  # 无 key 时 twelvedata/goldapi 会立即报&quot;未配置 key&quot;并跳过，实际落到免费的 sina_gc
+  sources: [twelvedata, goldapi, sina_gc, yahoo]
+  reference_sources: [sina_xau]   # 只在连通测试里打印对照，不参与信号
+  sina_gc:                    # 新浪 hf_GC 纽约 COMEX 黄金（免费，无需 key）
+    code: hf_GC
+    poll_interval_sec: 1      # 实测时间戳约每 2s 更新一次，1s 轮询足够；勿更快
+    stale_after_sec: 20       # 按行情自带时间戳；10:00-10:10 实测 age 中位 2.2s、p90 7.6s、最大 24.6s（见 README）
+    allow_live: true          # 依据实测新鲜度允许 live；无 SLA，live 前请在 NucBox 上复测
+  sina_xau:                   # 新浪 hf_XAU 伦敦金现货：时间戳只到分钟，age 天然可达 60s+
+    code: hf_XAU
+    poll_interval_sec: 5
+    stale_after_sec: 90
+    allow_live: false
+  twelvedata:
+    api_key: ${TWELVEDATA_API_KEY}
+    symbol: XAU/USD
+    use_websocket: true       # WebSocket 推送；否则 REST 短轮询
+    poll_interval_sec: 2
+  goldapi:
+    api_key: ${GOLDAPI_KEY}
+    poll_interval_sec: 5      # 注意免费额度很小
+  polygon:
+    api_key: ${POLYGON_API_KEY}
+    ticker: C:XAUUSD
+    poll_interval_sec: 2
+  yahoo:
+    symbol: GC=F
+    poll_interval_sec: 15
+  stale_after_sec: 20         # 超过即视为断流
+
+domestic:
+  symbol: &quot;518880&quot;
+  # akshare(东财，含 IOPV) → tencent(含 IOPV，字段经一致性校验) → sina(仅价格，无 IOPV)
+  # 第一个源若没有 IOPV，会继续尝试后面带 IOPV 的源；都没有则用价格并告警（折溢价过滤跳过）
+  sources: [akshare, tencent, sina]
+  poll_interval_sec: 3        # 网页接口，勿过快
+  akshare: {timeout_sec: 10}  # AKShare 无自带超时，这里强制 10s
+  retry_failed_after_sec: 60  # 某源失败后 60s 内不再尝试（akshare 失败一次要等约 8s，避免拖慢主循环）
+fx:
+  pair: USDCNH                # USDCNY | USDCNH
+  sources: [sina, akshare]    # sina: fx_susdcnh 真离岸价 / fx_susdcny；akshare: CFETS USD/CNY（CNH 时仅近似）
+  poll_interval_sec: 60
+
+signal:
+  window_sec: 30              # 外盘短窗
+  buy_threshold_bp: 8         # 短窗收益率 &gt;= +8bp 视为上行
+  sell_threshold_bp: -8
+  confirm_ticks: 3            # 连续 N 个 tick 同向才确认
+  cooldown_sec: 120           # 两次信号最小间隔
+  latency_comp_sec: 0         # 延迟补偿：把外盘时间戳前推（秒），0=不补偿
+  max_premium_buy_pct: 0.30   # 溢价率高于此不追买
+  min_discount_sell_pct: -0.30 # 折价率低于此不杀跌卖出
+
+risk:
+  max_order_value_cny: 5000   # 单笔金额上限
+  max_position_shares: 5000
+  lot_shares: 100
+  max_trades_per_day: 6
+  feed_stale_halt_sec: 30     # 任一行情断流超时即熔断
+  trading_sessions: [&quot;09:30-11:30&quot;, &quot;13:00-14:57&quot;]
+
+broker:
+  paper:
+    initial_cash: 100000
+    slippage_bp: 2
+    fee_rate: 0.0001
+  qmt:
+    userdata_path: 'D:\国金QMT交易端模拟\userdata_mini'   # MiniQMT userdata_mini 路径（示例）
+    account_id: ${QMT_ACCOUNT_ID}
+    session_id: 123456
+    price_type: limit         # limit=限价(按最新价±offset) | latest
+    limit_offset_ticks: 2
+</code></pre>
+<h3>当前进度（10-15 10:16）</h3>
+<p>不用任何付费 key 就能跑通：外盘用新浪纽约黄金 hf_GC（实测中位延迟约 2 秒，过期上限 20 秒，可用于实盘），518880 用腾讯（带 IOPV）和新浪，汇率用新浪离岸人民币。19 个测试全部通过，连通测试和两次 120 秒纸交易正常，没有下任何真单。Windows 一键安装包：<code>/workspace/trading/gold-linkage-auto.zip</code>（运行 setup.bat），还没在真 Windows 上跑过。</p>
+<p>还需要你做：告诉我券商并开通 QMT 权限；在 NucBox 装好 MiniQMT 极简模式并登录，填 userdata_mini 路径和资金账号；完成程序化交易报备；NucBox 开机后拷包运行 setup.bat，先纸交易 5–10 个交易日再小金额实盘。</p></div></html>
