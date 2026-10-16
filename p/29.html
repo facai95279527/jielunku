@@ -1,0 +1,525 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>29. 2026-10-16 DAQMTGUANGDA 最高收益可控优化方案（旁路）</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>29. 2026-10-16 DAQMTGUANGDA 最高收益可控优化方案（旁路）</h1><div class="detail"><p>路径：<code>/workspace/trading/gold-linkage-auto/docs/daqmtguangda-opt-plan-20261016.md</code></p>
+<h3>聊天原文</h3>
+<p>一句话：小资金定位为早盘窗口+正股确认，主跑条件十四、默认关十三；禁止十一关却开十三；死守9:15前挂载与9:24窗；不改加密包。</p>
+<p>要点：10/13十三开+十一关多轮抢板约亏60；生产模式A保持CONDS_BEFORE_14=False；日亏约3%停新开；向作者要缩量与独立开关。</p>
+<h3>原文件全文：<code>/workspace/trading/gold-linkage-auto/docs/daqmtguangda-opt-plan-20261016.md</code></h3>
+<h5>DAQMTGUANGDA 优化方案（最高期望收益 × 可控）</h5>
+<blockquote>
+<p>日期：2026-10-16<br />
+机器：腾讯云光大金阳光 QMT（账号日志见 ~7k；历史上也有 ~2k 档）<br />
+<strong>硬约束：不解码、不改写加密包 <code>DAQMTGUANGDA.py</code>。</strong><br />
+依据：<code>daqmtguangda-cloud-review-20261016.md</code>、<code>daqmtguyangda-cond13-review.md</code>、<code>daqmt-bypass-20261015.md</code> 及 FormulaOutput 旁路摘录。<br />
+<strong>非投资建议</strong>；实盘有亏损、拒单、错过窗口风险。</p>
+</blockquote>
+<hr />
+<h6>1. 一句话目标策略定位</h6>
+<p><strong>定位：小资金「早盘窗口 + 正股确认」型可转债短线选手</strong>——贴近市场上「股债联动 / 正股封板确定性优先」的专业打法，而不是「盘中高频抢板、无退出链反复开平」的量化刷单机。</p>
+<p>映射到你这套引擎：</p>
+<table>
+<thead>
+<tr>
+<th>市场常见纪律</th>
+<th>你这边的条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>集合竞价 / 开盘选板窗</td>
+<td><strong>条件十四</strong>（8:30 选板，仅 <strong>9:24:57</strong> 过筛买入；板窗约到 9:33）</td>
+</tr>
+<tr>
+<td>正股开盘确认</td>
+<td><strong>条件十五</strong></td>
+</tr>
+<tr>
+<td>统一退出链（止损/回落/时间）</td>
+<td><strong>条件十一</strong>（必须在「有开仓条件」时可用）</td>
+</tr>
+<tr>
+<td>选板池 / 排序</td>
+<td><strong>条件十二</strong>（选板侧；与十一同批受 <code>CONDS_BEFORE_14_*</code> 控制）</td>
+</tr>
+<tr>
+<td>加速抢板 + 千档 / 主动买确认</td>
+<td><strong>条件十三</strong>（高期望但高摩擦；小资金默认旁路关闭）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>期望收益来源（可控版）</strong>：先吃透 <strong>十四（+ 必要时十五）</strong> 的早盘确定性窗口；十三只在「退出链完整 + 拒单可控 + 单日笔数上限」满足后，作为 <strong>可选增强</strong>，绝不作为扭亏主引擎。</p>
+<hr />
+<h6>2. 基于实盘的诊断（哪些行为在亏钱）</h6>
+<h6># 2.1 证据表（已验证）</h6>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>十三</th>
+<th>十一</th>
+<th>启动</th>
+<th>signals/orders</th>
+<th>账户</th>
+<th>亏钱/空转机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10/12</td>
+<td>开</td>
+<td>关</td>
+<td>~09:06</td>
+<td>1/1</td>
+<td>~7074</td>
+<td>已有开仓；SELFCHECK：<strong>卖出不由十一接管</strong></td>
+</tr>
+<tr>
+<td><strong>10/13</strong></td>
+<td><strong>开</strong></td>
+<td><strong>关</strong></td>
+<td>~09:21</td>
+<td>上午 1/1</td>
+<td><strong>7079→7019（约 -60）</strong></td>
+<td>多轮抢板买 10 张 → 浮亏 ~0.6% / 正股回落 30–90s / 满 120s 挂卖 → 回 idle 再抢；拒单刷屏，日志爆盘</td>
+</tr>
+<tr>
+<td>10/14</td>
+<td>开</td>
+<td>（同批）</td>
+<td><strong>14:13</strong></td>
+<td>0/0</td>
+<td>~7079</td>
+<td>午后才启；加速≥0.3% + 千档/主动买过滤未进；<strong>十四窗已过</strong></td>
+</tr>
+<tr>
+<td>10/15</td>
+<td><strong>关</strong></td>
+<td>—</td>
+<td>~09:19</td>
+<td>2/0</td>
+<td>~7076</td>
+<td><code>CONDS_BEFORE_14=False</code>；仅十四/十五；有信号无委托</td>
+</tr>
+<tr>
+<td>10/16</td>
+<td>—</td>
+<td>—</td>
+<td>客户端在</td>
+<td>—</td>
+<td>—</td>
+<td><strong>策略未挂模型交易</strong>（FormulaOutput=0）</td>
+</tr>
+</tbody>
+</table>
+<h6># 2.2 亏钱与空转的根因（按重要性）</h6>
+<ol>
+<li>
+<p><strong>（最强）十三「高频抢板 + 极短持仓」在 ~7k 资金下不经济</strong><br />
+   - 单笔固定 <strong>vol=10</strong>；价位日志见 ~190–310 一带 → 单笔名义约 <strong>2k–3k+</strong>，几乎半仓～大半仓在「加速抢板」上。<br />
+   - 退出阈值极紧（浮亏约 <strong>0.6%</strong>、正股回落、<strong>满 120s</strong>）→ 典型「买贵卖便宜」循环；手续费/滑点/买卖价差叠上去，期望收益为负。<br />
+   - 10/13 一天内多次「卖出完成 回 idle」再挂买，是 <strong>摩擦损耗型亏损</strong>，不是「偶发踩雷」。</p>
+</li>
+<li>
+<p><strong>（强）无统一退出链开仓：十一关 + 十三开</strong><br />
+   - SELFCHECK 明确警告；十三虽自带挂卖，但与十一退出体系脱节。<br />
+   - 专业短线铁律：<strong>禁止「有进攻、无统一防守」</strong>；有开仓就必须有可验证的退出链。</p>
+</li>
+<li>
+<p><strong>（强）运维时间窗错误</strong><br />
+   - 十四依赖 <strong>9:24:57</strong>；午后挂载（10/14、历史上 NucBox 午后启动）= 主窗口白送。<br />
+   - 10/16 客户端在但未挂模型 = 全日零策略。</p>
+</li>
+<li>
+<p><strong>（中）拒单风暴</strong><br />
+   - 「买侧拒单 N 次，停止该券」被刷到极大计数 → 既不成交又吃盘/吃内存；小盘云机危险。<br />
+   - 专业做法：单券拒单上限后 <strong>当日停该券</strong>，并 <strong>当日停策略新开</strong>，而不是继续轮询刷日志。</p>
+</li>
+<li>
+<p><strong>（中）小资金下「有信号无委托」（10/15）</strong><br />
+   - 可能是资金/仓位/价格保护/剩余额度不够下 10 张，或板窗外信号。<br />
+   - 在 ~2k–7k 量级，<strong>10 张高价债可能直接买不起或不该买</strong>；需要作者给「按可用资金缩放手数」或降低固定手。</p>
+</li>
+<li>
+<p><strong>（弱但仍真实）双客户端 / 巨型日志</strong><br />
+   - 10/12 残留 XtItClient 已按你要求关掉；日志清理你说先不动——但要知道再来一次 10/13 级刷屏可能写满盘。</p>
+</li>
+</ol>
+<h6># 2.3 一句话诊断</h6>
+<p><strong>当前加密包在「十三开 + 十一关」时的行为，更像高频试错抢板，不像专业投资者的「早盘确定性窗口 + 硬退出」；在你的资金量上，这是系统性地把手续费和滑点变成主成本。</strong></p>
+<hr />
+<h6>3. 「最高期望收益且可控」推荐配置</h6>
+<blockquote>
+<p>目标不是「理论上最大毛收益」，而是 <strong>期望收益（扣摩擦）最高且可活过小资金</strong>。<br />
+加密包改不了参数时，用 <strong>开关 + 挂载时刻 + 资金纪律 + 旁路监控</strong> 逼近该配置。</p>
+</blockquote>
+<h6># 3.1 推荐开关矩阵（默认生产态 = A）</h6>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>十一</th>
+<th>十二</th>
+<th>十三</th>
+<th>十四</th>
+<th>十五</th>
+<th><code>CONDS_BEFORE_14_ENABLED</code></th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. 生产推荐（默认）</strong></td>
+<td>关*</td>
+<td>关*</td>
+<td><strong>关</strong></td>
+<td><strong>开</strong></td>
+<td>开（观察）</td>
+<td><strong>False</strong></td>
+<td>日常实盘；先吃透早盘窗</td>
+</tr>
+<tr>
+<td><strong>B. 十四单条件对照</strong></td>
+<td>关</td>
+<td>关</td>
+<td>关</td>
+<td><strong>开</strong></td>
+<td><strong>关</strong></td>
+<td>False</td>
+<td>连续 3–5 日只验十四胜率</td>
+</tr>
+<tr>
+<td><strong>C. 十五单条件对照</strong></td>
+<td>关</td>
+<td>关</td>
+<td>关</td>
+<td><strong>关</strong></td>
+<td><strong>开</strong></td>
+<td>False</td>
+<td>再验正股开盘腿</td>
+</tr>
+<tr>
+<td><strong>D. 十三受控实验（仅模拟/极小仓）</strong></td>
+<td><strong>必须开</strong></td>
+<td>按作者建议</td>
+<td><strong>开</strong></td>
+<td>建议关或不同日</td>
+<td>关</td>
+<td>True</td>
+<td><strong>禁止</strong>与「十一关」同开</td>
+</tr>
+<tr>
+<td><strong>E. 禁止态</strong></td>
+<td>关</td>
+<td>*</td>
+<td><strong>开</strong></td>
+<td>*</td>
+<td>*</td>
+<td>True</td>
+<td><strong>10/12–13 亏损态；永不作为默认</strong></td>
+</tr>
+</tbody>
+</table>
+<p>* <code>CONDS_BEFORE_14_ENABLED=False</code> 时，一至十三整批暂停；十一/十二也会停——这正是 10/15 的安全旁路。<br />
+若编辑器能 <strong>单独</strong> 开十一而关十三：开十三的实验日必须十一开；做不到就 <strong>不要开十三</strong>。</p>
+<h6># 3.2 仓位与资金纪律（贴合 ~2k–7k）</h6>
+<p>公开市场上转债 T0/短线常见纪律（映射到你）：</p>
+<table>
+<thead>
+<tr>
+<th>纪律</th>
+<th>建议落到你账户</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单笔硬止损约 1%–2%（你十四日志已有约 1% / 回撤 0.8% 类描述）</td>
+<td><strong>信任十四自带退出</strong>；勿再叠十三同日抢板</td>
+</tr>
+<tr>
+<td>单日累计亏约 3% 停手</td>
+<td><strong>日亏约 -210（按 7k）或 -60（按 2k）强制停新开</strong>；10/13 已约 -60，接近「当日该停」</td>
+</tr>
+<tr>
+<td>单券日内次数上限（常见 ≤2）</td>
+<td>十三当前行为远超此；<strong>未拿到「日内次数」参数前不开十三</strong></td>
+</tr>
+<tr>
+<td>小资金集中 vs 分散</td>
+<td><strong>同一时刻最多 1 只债、1 条进攻条件</strong>；禁止十四+十三同日并行</td>
+</tr>
+<tr>
+<td>固定 10 张</td>
+<td>面值/价格高时名义过大；向作者要 <strong>按 avail 缩放</strong> 或 1–5 张档</td>
+</tr>
+<tr>
+<td>流动性</td>
+<td>优先成交额够、盘口厚的券；拒单多的券当日拉黑</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小资金摩擦提醒（必须看）：</strong></p>
+<ul>
+<li>可转债佣金按笔/按成交额计；<strong>一天十几轮开平</strong>，即使方向对半，净期望也容易为负。  </li>
+<li>抢板常伴随 <strong>买一吃穿 / 卖一砸出</strong>；0.6% 浮亏止损在滑点后可能变成 1%+。  </li>
+<li>拒单多 = 机会成本 + 日志盘占满 → 间接导致策略挂死。</li>
+</ul>
+<h6># 3.3 「最高可控期望」路径（分阶段）</h6>
+<pre><code>阶段 0（本周）：模式 A/B —— 仅十四（+可选十五观察）
+        ↓ 连续 ≥5 个完整交易日，9:15 前挂载，留 FormulaOutput
+阶段 1：统计十四：信号数、委托数、成交、日盈亏、拒单
+        ↓ 若胜率/期望为负 → 先向作者要十四参数，不碰十三
+阶段 2：仅当「十一可单独开」+「十三日内次数/加速/千档可调」明文到手
+        → 模式 D 在模拟或最小手数测 ≥3 日
+阶段 3：十三实盘增强仅作为「十四空仓日的可选卫星」，且日亏熔断优先
+</code></pre>
+<p><strong>当前判断：阶段 0–1 的期望收益，高于立刻重开十三。</strong><br />
+原因：10/13 已用真钱证明十三在现参数 + 十一关下是负期望；十四尚未在「完整早盘挂载」下做过足够样本（10/15 有信号无单；10/14/16 窗错过）。</p>
+<h6># 3.4 条件十四 / 十五怎么配（推荐）</h6>
+<p><strong>条件十四（主引擎）</strong></p>
+<ul>
+<li><strong>必须</strong> 交易日 <strong>09:15 前</strong>（更稳：<strong>08:50–09:10</strong>）挂上模型交易。  </li>
+<li>日志应出现：引擎创建、8:30 选板、<strong>仅 9:24:57 过筛买入</strong>、板窗说明、SELFCHECK。  </li>
+<li>关注：过筛条件里「正股 + 剩余量 + 溢价/成交额」类门槛是否导致长期 0 成交；有信号无委托时查 <strong>avail、手数、涨跌停保护价</strong>。  </li>
+<li>退出：日志已描述约 <strong>止损 1% / 转债回撤 0.8% / 板回落 0.8% 挂 -1% 卖</strong>——与专业短线 1%–2% 止损带一致，<strong>优先保留，勿用十三覆盖同一标的</strong>。</li>
+</ul>
+<p><strong>条件十五（卫星）</strong></p>
+<ul>
+<li>作为「正股开盘确认」腿；建议在十四连续样本够了之后，用模式 C 单开对照。  </li>
+<li>勿与十三同日；可与十四同日仅当资金够且策略本身互斥持仓（若不确定 → 不同日）。</li>
+</ul>
+<p><strong>条件十三（增强，默认关）</strong></p>
+<ul>
+<li>仅模式 D；硬前提：<br />
+  1. 十一开或十三退出可证明与十一等价且可测；<br />
+  2. 加速阈值、千档、主动买、日内次数、冷却、单笔 vol <strong>有明文</strong>；<br />
+  3. 拒单熔断旁路就绪；<br />
+  4. 账户可用资金覆盖「vol×价格×1.2」仍留现金缓冲。  </li>
+<li>现参数下（加速≥0.3%、买 10 张、0.6%/120s 退出）在 7k 账户上 <strong>不建议</strong> 作为收益主杠杆。</li>
+</ul>
+<hr />
+<h6>4. 运营 SOP</h6>
+<h6># 4.1 开盘前（08:40–09:14）</h6>
+<ol>
+<li>只保留 <strong>一个</strong> 当日 <code>XtItClient</code>（跨日残留直接结束任务）。  </li>
+<li>光大 QMT → 模型交易 → 确认 <code>DAQMTGUANGDA</code> <strong>运行中</strong>。  </li>
+<li>确认开关为 <strong>模式 A 或 B</strong>（<code>CONDS_BEFORE_14_ENABLED=False</code>，十三不交易）。  </li>
+<li>看 <code>userdata\log\XtClient_FormulaOutput_YYYYMMDD.log</code> 开始增长；出现 SELFCHECK / COND14 引擎行。  </li>
+<li>记下开盘 <code>total</code> / <code>avail</code>（日志里有「日亏基准 9:15」「资金基准 pre925」）。</li>
+</ol>
+<h6># 4.2 关键窗（09:24–09:35）</h6>
+<ul>
+<li><strong>死守十四买入窗</strong>；此段不要重启 QMT、不要重载策略。  </li>
+<li>看是否出现过筛买入 / 挂单 / 拒单。  </li>
+<li>若 9:35 仍无任何 COND14 相关行 → 当日策略可能未真正跑十四逻辑，记入复盘，<strong>不要午后补挂指望十四</strong>。</li>
+</ul>
+<h6># 4.3 盘中监控（旁路，不改包）</h6>
+<table>
+<thead>
+<tr>
+<th>看什么</th>
+<th>阈值建议</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FormulaOutput 是否在写</td>
+<td>10 分钟无新行</td>
+<td>检查模型是否被停</td>
+</tr>
+<tr>
+<td>日亏（相对 9:15 total）</td>
+<td>≥ <strong>约 3%</strong> 或绝对值你定的线（7k≈210；也可更严用 1%≈70）</td>
+<td><strong>停策略新开 / 平仓纪律按十一或十四退出</strong></td>
+</tr>
+<tr>
+<td>单券拒单</td>
+<td>连续拒单明显刷屏 / 出现「停止该券买单」</td>
+<td>当日勿再对该券手动加码；考虑停策略</td>
+</tr>
+<tr>
+<td>holding / pending_buy 刷屏</td>
+<td>类似 10/13 千次级</td>
+<td><strong>立刻停十三相关开关</strong>（回到 False）</td>
+</tr>
+<tr>
+<td>C: 剩余空间</td>
+<td>&lt; 3GB</td>
+<td>告警（清理需你另行确认；本次按你要求先不清理）</td>
+</tr>
+</tbody>
+</table>
+<h6># 4.4 强制停（当日）</h6>
+<ul>
+<li>触发日亏熔断；或  </li>
+<li>出现十三在「十一关」下开始 <code>pending_buy</code>；或  </li>
+<li>双客户端再现；或  </li>
+<li>磁盘即将写满导致 QMT 卡死。</li>
+</ul>
+<h6># 4.5 收盘后（15:05 后，10 分钟）</h6>
+<p>检查表见 §6.3。至少确认：当日 Output 非空、复盘行 <code>signals/orders</code>、收盘 total、是否误开十三。</p>
+<h6># 4.6 明确错误操作</h6>
+<table>
+<thead>
+<tr>
+<th>不要</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>午后挂上指望十四补买</td>
+<td>9:24 窗已过（10/14 实证）</td>
+</tr>
+<tr>
+<td>为回本打开十三且十一关</td>
+<td>10/12–13 亏损态</td>
+</tr>
+<tr>
+<td>解码/替换 DAQMTGUANGDA.py</td>
+<td>硬约束；易毁策略与合规风险</td>
+</tr>
+<tr>
+<td>同日十四+十三并行搏消息</td>
+<td>小资金仓位冲突 + 摩擦翻倍</td>
+</tr>
+<tr>
+<td>无 FormulaOutput 却以为「在跑」</td>
+<td>10/16 教训</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h6>5. 向作者要的明文参数清单</h6>
+<p>请作者（或策略编辑器 CFG）提供下列 <strong>可读参数名 + 当前值 + 可否热改</strong>，否则无法把十三调成「专业可增强」：</p>
+<h6># 5.1 总开关与退出链</h6>
+<ol>
+<li><code>CONDS_BEFORE_14_ENABLED</code> 默认与热改方式  </li>
+<li><code>COND11_ENABLED</code> / 十二 / 十三 / 十四 / 十五 <strong>是否可独立开关</strong>（最关键）  </li>
+<li>十一退出：止损%、回撤%、时间窗、是否接管十三持仓  </li>
+</ol>
+<h6># 5.2 条件十三（抢板）</h6>
+<ol start="4">
+<li>选标时刻（日志见约 9:30:30）、加速阈值（现推断 <strong>1m ≥0.3%</strong>）  </li>
+<li>千档 / <code>aggressor</code> / <code>ask_not_eaten</code> 的精确定义与阈值  </li>
+<li>开仓 <strong>vol</strong> 是否固定 10；可否按 <code>avail</code> 缩放  </li>
+<li>浮亏退出 <strong>0.6%</strong>、正股回落 <strong>30–90s</strong>、时间止损 <strong>120s</strong> —— 是否可调；建议专业区间（例如时间止损拉长、浮亏与十四对齐到 ~1%）  </li>
+<li><strong>日内最大开仓次数</strong>、冷却秒数、是否空仓才重选  </li>
+<li>拒单 lim → 停券 / 停策略的阈值  </li>
+</ol>
+<h6># 5.3 条件十四 / 十五</h6>
+<ol start="10">
+<li>9:24:57 过筛全条件（正股、剩余量、溢价、成交额等）数值表  </li>
+<li>买入张数（×10、+1.5% 等）与资金不足时的行为（缩量 / 跳过 / 仍报错）  </li>
+<li>十五触发与退出；与十四持仓是否互斥  </li>
+</ol>
+<h6># 5.4 池与环境</h6>
+<ol start="13">
+<li>池内废码清理方式（如曾出现的无效码警告）  </li>
+<li>日志级别：holding 状态可否降为 debug，避免 300MB+ Output  </li>
+<li>账号 <code>22050727</code> 是否实盘；佣金模板对「单日多笔 10 张」的成本估算  </li>
+</ol>
+<h6># 5.5 若作者只给三样，优先要</h6>
+<ol>
+<li><strong>十一与十三独立开关</strong>  </li>
+<li><strong>十三：vol + 日内次数 + 冷却</strong>  </li>
+<li><strong>十四：资金不足时缩量逻辑</strong>  </li>
+</ol>
+<hr />
+<h6>6. 可选旁路（不改加密包）</h6>
+<blockquote>
+<p>以下为「监控与纪律」层；需要你点头后再在云机落地脚本。本次只写方案。</p>
+</blockquote>
+<h6># 6.1 仓位 / 日亏上限提醒（建议）</h6>
+<ul>
+<li>每 60s 读最新 FormulaOutput 尾部：解析 <code>total=</code>、<code>avail=</code>、<code>pending_buy</code>、<code>state=holding</code>。  </li>
+<li>若 <code>total</code> 相对当日 9:15 基准跌破你设的线 → 弹窗/写 <code>ALERT_YYYYMMDD.txt</code> /（可选）邮件。  </li>
+<li>若检测到 <code>COND13</code> + <code>pending_buy</code> 且当日启动日志有 <code>COND11_ENABLED=False</code> → <strong>立即 ALERT「禁止态」</strong>。</li>
+</ul>
+<h6># 6.2 拒单熔断建议</h6>
+<ul>
+<li>统计尾部 5 分钟内「拒单」「停止该券买单」次数。  </li>
+<li>超过阈值 → ALERT，并提示你在模型交易里 <strong>手动停止策略</strong>（旁路无法安全替你点停，除非你另行授权自动化）。  </li>
+</ul>
+<h6># 6.3 盘后复盘检查表（复制即用）</h6>
+<pre><code>日期：____
+[ ] 09:15 前已挂载 DAQMTGUANGDA
+[ ] FormulaOutput 非 0，有 SELFCHECK
+[ ] CONDS_BEFORE_14_ENABLED 是否 False（生产态）
+[ ] 是否误开 COND13 pending_buy
+[ ] 十四窗（9:24–9:33）是否有过筛/委托记录
+[ ] 复盘 signals=____ orders=____
+[ ] 开盘 total=____ 收盘 total=____ 日盈亏=____
+[ ] 拒单/ERROR 是否异常刷屏
+[ ] 仅一个 XtItClient
+[ ] C: 剩余 ____ GB（&amp;lt;3GB 标红）
+结论：继续模式 A/B / 暂停 / 联系作者要参 ____
+</code></pre>
+<h6># 6.4 与黄金 QMT 隔离</h6>
+<ul>
+<li>可转债加密包与明文 <code>GOLD_LINKAGE_*</code> / <code>GOLD_T0_*</code> <strong>分品种、分模型</strong>；不要同一账户同秒抢资金。  </li>
+<li>云盘小：大日志按你之前说的 <strong>先不清理</strong>；但复盘摘要继续写到 <code>/workspace/trading/gold-linkage-auto/docs/</code>，避免只堆在 QMT userdata。</li>
+</ul>
+<hr />
+<h6>7. 明确不做什么</h6>
+<ol>
+<li><strong>不</strong>解码、反编译、替换 <code>DAQMTGUANGDA.py</code>。  </li>
+<li><strong>不</strong>在十一关闭时强开十三「搏回本」（禁止态 E）。  </li>
+<li><strong>不</strong>午后补挂指望条件十四买入窗。  </li>
+<li><strong>不</strong>在未保留近几日 Output、未得你确认前批量清日志（本次按你要求 <strong>先不清理</strong>）。  </li>
+<li><strong>不</strong>编造历史收益率或保证「优化后必赚」。  </li>
+<li><strong>不</strong>同时把十四、十三、十五当作三个进攻源并行打满仓。  </li>
+<li><strong>不</strong>在 FormulaOutput=0 时假设策略在跑。</li>
+</ol>
+<hr />
+<h6>8. 风险声明</h6>
+<ul>
+<li>本文件基于 <strong>日志旁路推断</strong> 与公开可转债短线纪律常识，<strong>不是</strong>对加密源码的审计报告，也 <strong>不是</strong>投资建议。  </li>
+<li>可转债短线 / 打板 / T0 波动大，存在涨跌停、停牌、强赎、流动性枯竭、拒单、策略未挂载、券商接口变更等风险。  </li>
+<li>小资金下 <strong>手续费与滑点可占收益的主要部分</strong>；历史 10/13 约 -60 元已说明现参数组合可为负期望。  </li>
+<li>即使完全按本方案的模式 A 执行，仍可能亏损或长期无成交；任何开关变更应先模拟或极小仓验证。  </li>
+<li>作者参数未到手之前，<strong>十三保持关闭</strong> 是风险控制结论，不是收益承诺。</li>
+</ul>
+<hr />
+<h6>9. 执行优先级（给你的下一动作）</h6>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>动作</th>
+<th>谁做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>明早 <strong>09:15 前</strong> 挂上 DAQMTGUANGDA，模式 <strong>A 或 B</strong></td>
+<td>你</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>挂上后喊一声，我读当日 Output 确认开关与 SELFCHECK</td>
+<td>我</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>把 §5 清单发给策略作者</td>
+<td>你</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>连续 5 日盘后填 §6.3 检查表（可让我代填）</td>
+<td>你/我</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>确认后是否落地 §6.1–6.2 旁路提醒脚本</td>
+<td>你点头后我做</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>日志清理（约回收 1.9GB）——你说了先不清理，搁置</td>
+<td>搁置</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>文档路径：<code>/workspace/trading/gold-linkage-auto/docs/daqmtguangda-opt-plan-20261016.md</code></em></p></div></html>
