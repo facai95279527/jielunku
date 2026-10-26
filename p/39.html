@@ -1,0 +1,176 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>39. 2026-10-22 光大 QMT 10/16–10/22 复盘：零成交、测试模式与编码损坏</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>39. 2026-10-22 光大 QMT 10/16–10/22 复盘：零成交、测试模式与编码损坏</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：黄金QMT<br />
+关键路径：<code>/workspace/qmt-review/QMT复盘_20261016-1022.md</code><br />
+核验说明：正文截至 10/22 09:24。作为本轮最新运行复盘，取代早期“十六尚未 LIVE/十四十五正常启用”等状态性说法；不将建议调参当作已执行。来源助手和实际发送记录仍缺。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/qmt-review/QMT复盘_20261016-1022.md</code></h3>
+<h5>光大 QMT 运行复盘（10/16–10/22 09:24，上海时间）</h5>
+<p>只读复盘。没有改文件、没有启停模型、没有下单。原始日志在 raw/，策略源码快照在 src/。</p>
+<h6>0. 结论</h6>
+<ul>
+<li><strong>10/16–10/21 共 4 个交易日，账户成交 0 笔，盈亏 0。</strong> 资金一直是 7075.79，持仓市值一直是 0（XtClient 的 accountdetail）。</li>
+<li>原因：10/16 起 <code>TEST_MODE=True</code>，十至十五不运行（十四、十五都停了）；<code>CONDS_BEFORE_14_ENABLED=False</code>，十三也停了；条件十六 LIVE，但 3 天都没选出票；条件九每天报一笔 -21% 的探针单，不可能成交。</li>
+<li><strong>今天（10/22）</strong>：</li>
+<li>09:07:54 模型加载失败：<code>SyntaxError:'gbk' codec can't decode byte 0x80 in position 233</code>。</li>
+<li>09:15:18 Desktop\daqmtguangda_fix_cond16.py（Cursor 方向的修复）把文件头改成了 <code>#coding:latin-1</code>，修了缩进，并覆盖了 Desktop 和 QMT python 目录里的 DAQMTGUANGDA_c16.py、新建策略文件2.py。</li>
+<li>09:19:01 模型重新加载成功（reqid …_11102416）。但文件内容是有损的 UTF-8：有 2759 处字节变成了 <code>?</code>，涉及 528 行非注释代码，比如 <code>R_COND9 = "条件?"</code>。</li>
+</ul>
+<h6>1. 在跑的程序和模型</h6>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>实际情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>光大 XtItClient</td>
+<td>PID 16324，10/22 09:06:55 启动；miniquote 09:07:13 启动</td>
+</tr>
+<tr>
+<td>东莞 XtItClient</td>
+<td>PID 14988，10/21 09:17:50 启动，在跑 DONGGUAN1.py（不在本次复盘范围内）</td>
+</tr>
+<tr>
+<td>光大模型</td>
+<td>只有一个：新建策略文件2.py，绑 111024，账号 22050727。内容和 DAQMTGUANGDA_c16.py 一模一样（MD5 AE3E62…）</td>
+</tr>
+<tr>
+<td>今天的 ROOT</td>
+<td><strong>C:\Users\Administrator\Desktop\daqmtguangda</strong>（以前是 QMT\python）</td>
+</tr>
+<tr>
+<td>XIN.py / GOLD_LINKAGE / 挂在 000300 上的实例</td>
+<td>10/16 之后光大的 FormulaOutput 里没有任何输出，说明没在跑。10/16 13:30–14:27 加载多次都报编码或语法错</td>
+</tr>
+<tr>
+<td>开关（今天）</td>
+<td>TEST_MODE=True；COND14/15=not TEST_MODE，即关；COND11/12=False；十三关；COND16 启用，LIVE，下午路径=False（10/19–21 是 True）</td>
+</tr>
+</tbody>
+</table>
+<h6>2. 成交统计</h6>
+<table>
+<thead>
+<tr>
+<th>策略/条件</th>
+<th>信号</th>
+<th>报单</th>
+<th>成交</th>
+<th>盈亏</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>条件九（测试 1 手）</td>
+<td>10/19、10/20、10/21、10/22 各 1 次</td>
+<td>10/19、10/22 进了柜台，都是废单；10/20、10/21 策略日志写了 BUY，但客户端 Message 日志里没有对应的 passorder 记录</td>
+<td>0</td>
+<td>0</td>
+<td>报价 = ask×(1−0.21)，<code>COND9_BUY_PREMIUM=-0.21</code></td>
+</tr>
+<tr>
+<td>条件十六 LIVE</td>
+<td>10/19–10/21 每天前 5 名都没过「差≥2.0」，下午路径 52 次都因为「单跳额&lt;200万」被拒</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>前 5 名差值最大 1.47（亿田，10/19）；单跳额最大 106 万（泰坦，10/20）</td>
+</tr>
+<tr>
+<td>条件十四、十五</td>
+<td>测试模式下停用</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>十一、十二、十三</td>
+<td>暂停</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td>胜率、手续费占比、滑点、持仓时间</td>
+<td>没有成交，<strong>算不出来</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>窗口外的参考（10/14）：<br />
+- 14:30:43 条件十三以 246.172 指定价买 111024 共 10 张；14:31:30 以 242.800「成交回报清仓」，持仓约 47 秒。<br />
+- 买入成交价日志里没写，单笔亏损没法精确算。如果按指定价成交，约亏 33.7 元（-1.37%）。</p>
+<h6>3. 运行问题（带证据）</h6>
+<ol>
+<li><strong>策略文件编码被破坏（最严重）</strong><br />
+   - 10/22 09:07:54 <code>SyntaxError:'gbk' codec can't decode byte 0x80 in position 233</code>，09:07–09:19 模型没在跑。<br />
+   - 现在的文件既不是合法 GBK 也不是合法 UTF-8，有 2759 个替换字节。<br />
+   - 字符串常量也坏了：<code>R_COND9 = "条件?"</code>。今天日志全是乱码（如 <code>å¿è·³</code>），新写出的 csv/json 也可能是乱码。<br />
+   - 和外部数据（磁盘 json、柜台 remark）按中文比对的逻辑可能对不上。</li>
+<li><strong>测试模式让主力条件全停</strong><br />
+   - 每天日志都有 <code>[提示] 测试模式：条件一至九每笔只买1手；条件十至十五不运行</code>、<code>[条件十四][COND14] 测试模式已停用</code>。<br />
+   - 从 10/16 起一直是 TEST_MODE=True。</li>
+<li><strong>条件九是必然不成交的探针单</strong><br />
+   - 10/19 09:20:01：<code>BUY 113677.SH px=151.680</code>（现价 192.000），随后 <code>买单废单 113677.SH remark=B000001|条件九</code>。<br />
+   - 10/22 09:20:01：<code>BUY 127096.SZ px=215.416</code>（现价 272.679），随后 <code>买单废单 127096.SZ</code>。<br />
+   - 每天制造废单，可能触发 <code>CODE_REJECT_HALT_MAX=5</code> 计数，也会给柜台留下异常委托记录。</li>
+<li><strong>模型启动晚，错过 9:24:57/9:24:59/9:25:05 的竞价窗口</strong><br />
+   - 10/20 init 在 09:25:19，条件十六在 09:25:56 才做「9:25:05 选池」。<br />
+   - 10/21 init 在 09:24:46，接着「标的池自动更新…force 超时等待收尾」卡了 2 分钟，条件十六 09:29:40 才日切。<br />
+   - 10/19 init 在 09:04:58，属于正常。<br />
+   - 今天 09:19:01 才加载。</li>
+<li><strong>标的池自动更新反复超时，数据一直是旧的</strong><br />
+   - 10/19、10/20 15:50 之后每 15 分钟重跑一次 force，每次 <code>elapsed_sec≈910–923</code>。<br />
+   - 条件十一的拉取报错 <code>拉取全市场转债列表第1页失败，请检查网络后重试</code>，池的 as_of 一直停在 20261019。</li>
+<li><strong>条件十六的数据缺口</strong><br />
+   - 每天都是「剩余规模无效跳过 331–366 只」，候选只剩 66–71 只。<br />
+   - 强赎临近的检查是「unchecked」。<br />
+   - 今天还出现：<code>昨日成交额 未找到上一交易日 turnover_snapshot</code>、<code>昨日涨幅来自QMT日K n=0 → 前5均值=unchecked</code>、<code>基本面 as_of=20261013</code>、底池 1031（昨天是 1079）。原因是 ROOT 改到了 Desktop，那里没有 QMT\python 下的历史快照。</li>
+<li><strong>10/21 客户端 14:00:45 退出（<code>[exec quiting] wait suicide</code>）</strong><br />
+   - 10/21 没有 15:05 复盘，cond16_summary_20261021 也缺失。</li>
+<li><strong>每天 08:15 和 08:35 柜台断线重连</strong>，大约 1 分钟恢复。另外 07:00 有「全推行情疑似延迟36606秒」，是隔夜之后的提示，开盘前就恢复了。10/19 07:01–07:45 登录一直失败（<code>not find service or rule limit</code> / <code>发送请求失败</code>），07:49 才登录成功。</li>
+</ol>
+<h6>4. 优化建议（按预计对盈利的影响排序）</h6>
+<ol>
+<li><strong>从干净的源码重建运行文件，不要用 latin-1 补丁凑合</strong><br />
+   - 依据：问题 1。<br />
+   - 做法：在 UTF-8 源码上改好，再整体转成 GBK，文件头写 <code>#coding:gbk</code>。导入前在本机用 gbk 严格解码，再 py_compile 校验。<br />
+   - 现有干净的 GBK 备份是 10/16 15:03 的 <code>.bak_before_watchsell</code>，但比 10/19 起实际在跑的版本旧，需要找出 10/16–10/21 之间真正在跑的那个版本。<br />
+   - 待用户/Cursor 处理，我没动。</li>
+<li><strong>决定是否结束测试模式（建议，待用户决定）</strong><br />
+   - 依据：4 个交易日 0 成交，主力条件十四、十五都没运行。测试模式下也没有任何一笔成交可用来验证链路（条件九的单不可能成交）。<br />
+   - 如果想验证下单链路，可以把条件九改成贴近现价的真实 1 手；如果不需要验证，就停掉条件九。</li>
+<li><strong>条件九的 -21% 报价</strong><br />
+   - 如果目的只是测试链路，这种必废的单测不到成交和撤单流程，反而累积废单。<br />
+   - 建议改成 ask1 或 ask1+0.5% 报 10 张，或者直接关掉。</li>
+<li><strong>保证 09:15 之前完成 init，池更新不能阻塞主流程</strong><br />
+   - 依据：问题 4 和 5。<br />
+   - 做法：池的 force 更新放后台线程，加超时（比如 30 秒），超时就用旧池。条件十六的日切和选池不要等池更新完。</li>
+<li><strong>条件十六门槛太严</strong><br />
+   - 3 天的前 5 名，差值都在 -6.39 到 1.47 之间，「差≥2.0」一次都没过；下午「单跳额≥200万」52 次全拒（最大 106 万）。<br />
+   - 照这个参数基本不会开仓。可以用 cond16_signals 的历史数据回测，看把差值降到 1.0、或改用跳额分位数后的收益。<br />
+   - 注意：用户只拒绝了给十四加这个过滤，十六的门槛可以调。属于建议，待用户决定。</li>
+<li><strong>修复「剩余规模无效」的数据源</strong>：每天有 331–366 只被跳过，候选池被砍掉大约 80%。</li>
+<li><strong>ROOT 和数据目录统一</strong>：今天 ROOT=Desktop，丢了 turnover_snapshot 和昨日涨幅，条件十六的择时门变成 unchecked。</li>
+<li><strong>闲置资金</strong>：近 7k 现金 4 天都没用。可以考虑尾盘逆回购（目录里有现成的「尾盘闲置资金自动逆回购.py」）。收益很小，按 GC001 约 1.5% 年化估算，每天约 0.3 元；优先级低。</li>
+<li><strong>手续费</strong>：代码里 <code>FEE_RATE_PER_SIDE=0.0001</code>。实际佣金和最低收费从日志里看不出来，需要用户确认（可转债一般不设 5 元最低，但要以光大的实际费率为准）。</li>
+</ol>
+<h6>5. 数据缺口</h6>
+<ul>
+<li>没有成交，胜率、手续费、滑点、持仓时间都算不出来。</li>
+<li>XtTradeData 是 leveldb 格式，没解析；成交和委托以 Message/XtClient 日志和策略的 signals json 为准。</li>
+<li>10/21 14:00 之后客户端退出，没有数据。</li>
+<li>10/20、10/21 条件九的 BUY 是否真的发到了柜台，存疑（客户端日志里没有 passorder 记录）。</li>
+<li>东莞 QMT 和期货 TqSdk 不在本次范围。</li>
+<li>一处偏好存疑：日志里条件十六写的是「峰回落0.6%两档止盈/半仓保本」，和用户偏好一致；条件十四日志写的是「止损1%/转债回撤0.8%」，和 0.6% 的偏好不一致。十四目前没在跑，没有成交证据能说明哪个更赚钱。</li>
+</ul></div></html>

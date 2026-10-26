@@ -1,0 +1,281 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>51. 2026-10-26 DouZero 式掼蛋练习工具交付及恢复训练故障修复</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>51. 2026-10-26 DouZero 式掼蛋练习工具交付及恢复训练故障修复</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/guandan-plan/douzero-gd/README.md</code>；<code>/workspace/guandan-plan/douzero-gd/tasks/phase5_report.md</code><br />
+核验说明：README 明确修复时间 10/26 00:23；取最终 README 与 phase5 回归报告，不把 phase1–4 分拆为多条。恢复训练修复前的 0.4 小时权重/评估已作废；原文件仍含早期评估表，不应重新标为当前有效强度。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/guandan-plan/douzero-gd/README.md</code></h3>
+<h5>掼蛋练习与复盘工具</h5>
+<p>仅作线下练习和复盘。采用两副牌、四人两队的淮安/江苏竞赛口径，<strong>不实现进贡/还贡</strong>，每局从新发牌开始。规则引擎与 HTTP 服务使用 Python 标准库；模型依赖 numpy、CPU PyTorch，测试使用 pytest。不接真人对局，不识屏。</p>
+<pre><code class="language-bash">python3 -m pytest -q
+python3 scripts/bench_env.py --games 200
+</code></pre>
+<pre><code class="language-python">from gd.env import GuandanEnv
+from gd.agents import RandomAgent, RuleAgent
+
+env = GuandanEnv(seed=42, level=2)  # level: 2..14，14 表示 A
+agent = RuleAgent()
+while not env.done:
+    observation, rewards, done, info = env.step(agent.act(env))
+print(env.rankings, env.team_scores)
+</code></pre>
+<p>物理牌 ID 为 0..107，每副 0..51 是自然点数 2..A、花色 ♠♥♦♣，52/53 为小王/大王。<code>gd.cards.parse_cards</code> 支持 <code>♠A 红桃10 小王</code> 等文本，按牌池取两副中的不同实体；<code>format_cards</code> 输出可读文本。</p>
+<p><code>gd.moves.legal_moves(hand, level, last_move_on_table_or_None)</code> 返回声明式 <code>Move</code>；<code>classify(cards, level)</code> 返回默认最佳解释，非法组合返回 <code>None</code>，空组合返回 <code>PASS</code>。<code>beats</code> 比较声明。<code>Move.identities</code> 按实际牌顺序记录替代后的 <code>(点数, 花色)</code>；普通组合中的配牌花色没有比较意义。同一实体牌组允许不同合法声明，例如普通顺子和同花顺；网页直接输入牌时 <code>classify</code> 优先解释成炸弹，再选最大点数。<code>Move.to_dict/from_dict</code> 可序列化声明。</p>
+<p>环境提供 <code>current_player</code>、<code>hands</code>、<code>legal_actions</code>（或 <code>legal_moves()</code>）、<code>remaining_counts</code>、<code>history</code>、<code>played_cards</code>、<code>rankings</code>、<code>done</code>、<code>team_scores</code>。历史包含所有出牌和过牌（每项 <code>seat/cards/move</code>），<code>observation(seat)</code> 只公开该座位手牌，其余为公开信息。奖励为两队 <code>(0/2队, 1/3队)</code> 得分，终局前均为零。领出不允许过，<code>step(None)</code> 等价于过。</p>
+<p>复盘可使用 <code>GuandanEnv.from_state(hands=..., level=..., current_player=..., history=..., remaining_counts=..., played_cards=..., rankings=..., last_move=..., last_player=..., passed=..., done=False)</code>。调用方用剩余物理牌随机补全未知手牌；余张数若给定，必须与补全手牌一致。支持不满 108 张的局部局面。历史可为片段，因此当前桌面、出牌者、已过牌座位须显式传入，不能仅凭历史猜测。牌不能在各家手牌与已出牌中重复。<code>snapshot()</code> 可直接恢复；<code>snapshot(json_safe=True)</code> 可经 JSON 存储后原样传入 <code>from_state</code>。</p>
+<p>双上立即终局，未出完的两名对手按座位顺序附在 <code>rankings</code> 后；两人之间的实际先后尚未发生，此附加顺序不影响胜方或得分。RuleAgent 使用贪心组合保留策略，优先清小散牌、避免拆炸弹和单出配牌；不是全局最优手数求解器。</p>
+<h6>阶段 2：CPU 自对弈训练与评估</h6>
+<p>本机使用 <code>python3</code>。网络共享四个座位，仅使用公开观察；默认按头游目标决策。</p>
+<p>2026-10-26 00:23（北京时间）已修复 <code>--resume</code> 后优化器仍绑定旧模型、导致保存权重不变的 bug（载入模型后重建优化器）；此前恢复训练的 0.4 小时无效，相关 checkpoint 与评估已作废。</p>
+<pre><code class="language-bash"># 默认 6 actors、batch 512；每 15 分钟和退出时保存。
+python3 -m gd.train --minutes 480
+# 恢复模型、优化器、计数和累计用时。
+python3 -m gd.train --resume checkpoints/model_latest.pt --minutes 480
+# 冒烟（限定 2 分钟）
+python3 -m gd.train --minutes 2
+# 模型对战；games 是总局数，必须为偶数。
+python3 -m gd.evaluate --ckpt checkpoints/model_latest.pt --opponent random --games 1000 --workers 6
+python3 -m gd.evaluate --ckpt checkpoints/model_latest.pt --opponent rule --games 1000 --workers 6
+# 不提供 ckpt 时评估 RuleAgent，以下为 rule vs random。
+python3 -m gd.evaluate --opponent random --games 1000 --workers 6
+# 每两小时分别评估 random/rule；由用户或调度方启动。
+bash scripts/eval_loop.sh
+</code></pre>
+<p>可用 <code>--head adp</code> 切换训练中的自对弈选招和评估决策目标。训练仍同时优化两个目标。<br />
+<code>--epsilon-start 0.1 --epsilon 0.01 --epsilon-minutes 60</code> 控制探索退火；<br />
+设 <code>--epsilon-start 0.01</code> 可从一开始使用固定探索率。<br />
+日志位于 <code>logs/train.log</code>、<code>logs/train_metrics.csv</code>；评估打印 JSON 并追加 <code>logs/eval.csv</code>。<br />
+<code>ModelAgent.rank_actions()</code> 返回每个合法动作的 <code>wp</code>、归一化 <code>adp</code> 和截断的 <code>win_probability</code>。<br />
+<code>wp</code> 的显示值不代表已完成统计校准；短冒烟仅验证训练管线。</p>
+<p>每个评估 seed 打两局，模型分别坐 0/2、1/3；牌和先手固定。<br />
+头游率、双上率附 Wilson 95% 区间（边际二项近似，配对内可能相关）；<br />
+平均得分附按独立配对均分计算的正态近似 95% 区间，样本很少时仅供参考。<br />
+评估循环先复制不可变 checkpoint 快照，确保两种对手使用同一版本。</p>
+<h6>网页启动与使用</h6>
+<pre><code class="language-bash">python3 server.py
+# 可选参数
+python3 server.py --host 127.0.0.1 --port 8765 --ckpt checkpoints/model_latest.pt
+# 服务器运行时生成示例截图
+bash scripts/screenshot.sh
+</code></pre>
+<p>打开 http://127.0.0.1:8765 。复盘页支持级牌、手牌、余张、完整出牌历史和当前桌面；“载入例3”可立即分析。历史每行 <code>下家: S3 H3</code> 或 <code>对家: 过</code>，座位也可写 0/1/2/3。桌面牌在历史中出现时复用，否则补计入已出牌。每家余张加已出牌必须27张、合计108张；历史不能省略已出的实体牌。已出完玩家的名次按完整历史还原；已结束局面不支持继续分析。</p>
+<p>英文牌写法：S/H/D/C 对应黑桃/红桃/方块/梅花；<code>SA H2 C10 SJ</code>。<strong>SJ 始终是黑桃J</strong>；小王写 <code>XW</code> 或 <code>小王</code>，大王写 <code>DW</code>、<code>BJ</code> 或 <code>大王</code>。也支持中文花色与符号。重复牌自动分配到两副中的实体牌。</p>
+<p>陪练页可选级牌、种子与模型/规则对手，对家始终为模型。点选竖叠手牌或候选，再点出牌；跟牌可过。隐藏胜率时候选按文字排序，防止推荐顺序泄露答案。终局提供名次、得分及每次选择与模型推荐的差值。候选按规范化规则枚举，代表同类声明的一个确定实体组合；手选牌按具体实体牌判型、校验并估值，也接受规范化列表之外的合法花色组合。</p>
+<p>模型每次 API 请求检查 checkpoint 文件时间与大小，变化时只读重新加载；整次计算使用同一模型。HTTP 采用 ThreadingHTTPServer，模型计算与会话更新用锁串行化，PyTorch 仅用1个线程。后台长训不受网页控制。默认只监听本机；这是可信本地环境练习服务，无登录和持久化会话，重启后对局清空。</p>
+<h6>目录</h6>
+<ul>
+<li><code>gd/cards.py</code>、<code>moves.py</code>、<code>env.py</code>：牌、规则、单局环境。</li>
+<li><code>gd/features.py</code>、<code>model.py</code>、<code>agents.py</code>：公开信息编码、双目标网络与策略。</li>
+<li><code>gd/train.py</code>、<code>evaluate.py</code>：DMC 自对弈训练与对战评估。</li>
+<li><code>server.py</code>、<code>web/index.html</code>：标准库 HTTP API 与无 CDN 的中文单文件网页。</li>
+<li><code>scripts/</code>：环境基准、定时评估、浏览器截图脚本。</li>
+<li><code>tests/</code>：规则、环境、学习管线与真实 HTTP API 测试。</li>
+<li><code>checkpoints/</code>、<code>logs/</code>：权重与训练/评估记录；<code>screenshots/</code>：示例截图；<code>tasks/</code>：规格与阶段报告。</li>
+</ul>
+<h6>规则实现要点</h6>
+<p>单张、对子、三张和同点炸弹把级牌提到 A 之上、王之下；顺子则按自然点数。顺子恰好5张，A2345最低、10JQKA最高，不能绕到JQKA2；三连对恰好3对、钢板恰好2组三张，同样允许低A。三带二可带同种王对，不可三带一。红桃级牌为逢人配，只替非王，单出按级牌。炸弹序为4炸＜5炸＜同花顺＜6炸＜7炸＜8炸＜四王。所有仍在场的其他玩家都过后重开轮次；最后出牌者已出完时优先由对家接风。头游一队按队友二/三/末游得+3/+2/+1，另一队取负；双上提前结束，另外两家名次只作占位。不含进贡与还贡。</p>
+<h6>模型方法、强度与局限</h6>
+<p>运行 <code>python3 scripts/update_readme_strength.py</code> 可从现有日志更新下表。</p>
+<!-- STRENGTH_START -->
+<p>仅单行 games ≥ 1000 的评估列为正式结果；其余标注“冒烟”。同帧记录逐条展示，不累加可能重复的 seed。<br />
+训练局数/时长取帧数最接近的训练日志行，仅为近似。Wilson 95% 为边际二项区间，配对局可能相关。</p>
+<table>
+<thead>
+<tr>
+<th>checkpoint 帧数</th>
+<th>训练局数（约）</th>
+<th>训练时长（约）</th>
+<th>对战</th>
+<th>head</th>
+<th>头游率</th>
+<th>Wilson 95%</th>
+<th>双上率</th>
+<th>平均得分</th>
+<th>局数</th>
+<th>性质</th>
+<th>seed</th>
+<th>评估时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>rule vs random 基线</td>
+<td>wp</td>
+<td>100.00%</td>
+<td>83.89%～100.00%</td>
+<td>95.00%</td>
+<td>2.950</td>
+<td>20</td>
+<td>冒烟</td>
+<td>2026</td>
+<td>2026-10-25T15:53:39.461541+00:00</td>
+</tr>
+<tr>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>rule vs random 基线</td>
+<td>wp</td>
+<td>98.90%</td>
+<td>98.04%～99.38%</td>
+<td>93.70%</td>
+<td>2.892</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-25T16:04:44.952228+00:00</td>
+</tr>
+<tr>
+<td>623680</td>
+<td>6202</td>
+<td>0.03 小时</td>
+<td>模型 vs random</td>
+<td>wp</td>
+<td>95.00%</td>
+<td>76.39%～99.11%</td>
+<td>60.00%</td>
+<td>2.300</td>
+<td>20</td>
+<td>冒烟</td>
+<td>2026</td>
+<td>2026-10-25T15:53:41.062084+00:00</td>
+</tr>
+<tr>
+<td>623680</td>
+<td>6202</td>
+<td>0.03 小时</td>
+<td>模型 vs random</td>
+<td>wp</td>
+<td>94.60%</td>
+<td>93.02%～95.84%</td>
+<td>75.20%</td>
+<td>2.446</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-25T16:03:30.326055+00:00</td>
+</tr>
+<tr>
+<td>623680</td>
+<td>6202</td>
+<td>0.03 小时</td>
+<td>模型 vs rule</td>
+<td>wp</td>
+<td>35.00%</td>
+<td>18.12%～56.71%</td>
+<td>10.00%</td>
+<td>-0.900</td>
+<td>20</td>
+<td>冒烟</td>
+<td>2026</td>
+<td>2026-10-25T15:53:41.442778+00:00</td>
+</tr>
+<tr>
+<td>623680</td>
+<td>6202</td>
+<td>0.03 小时</td>
+<td>模型 vs rule</td>
+<td>wp</td>
+<td>37.20%</td>
+<td>34.26%～40.24%</td>
+<td>10.50%</td>
+<td>-0.846</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-25T16:04:12.645656+00:00</td>
+</tr>
+<tr>
+<td>5062230</td>
+<td>50596</td>
+<td>0.28 小时</td>
+<td>模型 vs random</td>
+<td>wp</td>
+<td>97.80%</td>
+<td>96.69%～98.54%</td>
+<td>65.10%</td>
+<td>2.399</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-25T16:41:01.472897+00:00</td>
+</tr>
+<tr>
+<td>5062230</td>
+<td>50596</td>
+<td>0.28 小时</td>
+<td>模型 vs rule</td>
+<td>wp</td>
+<td>59.10%</td>
+<td>56.02%～62.11%</td>
+<td>10.40%</td>
+<td>-0.239</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-25T16:41:41.347514+00:00</td>
+</tr>
+<tr>
+<td>27293263</td>
+<td>268156</td>
+<td>2.07 小时</td>
+<td>模型 vs random</td>
+<td>wp</td>
+<td>99.00%</td>
+<td>98.17%～99.46%</td>
+<td>20.60%</td>
+<td>1.396</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-26T05:59:51.157248+00:00</td>
+</tr>
+<tr>
+<td>27293263</td>
+<td>268156</td>
+<td>2.07 小时</td>
+<td>模型 vs rule</td>
+<td>wp</td>
+<td>61.60%</td>
+<td>58.55%～64.56%</td>
+<td>3.70%</td>
+<td>-0.275</td>
+<td>1000</td>
+<td>正式</td>
+<td>2026</td>
+<td>2026-10-26T06:00:34.317461+00:00</td>
+</tr>
+</tbody>
+</table>
+<!-- STRENGTH_END -->
+
+<p>参考 DouZero 的深度蒙特卡洛（DMC）：多进程 actor 自对弈，以终局回报监督包含动作的 Q 网络。共享四座位网络，LSTM 编码近期公开历史，MLP 同时预测头游目标和归一化得分；网页胜率是 <code>clip((wp+1)/2,0,1)</code>，ADP 是网络得分输出乘3。与原版相比，本项目为掼蛋重新实现规则、特征与动作，没有使用原版权重；只用 CPU、约98万参数小网络，训练时间有限，不能据此声称达到论文水平或职业水平。</p>
+<p>网页实时读取 <code>logs/eval.csv</code> 中最新模型对随机、规则AI的头游率与 Wilson 95% 区间，以相对点估计的最大偏差显示“±”；同时显示当前 checkpoint 的累计训练局数。评估可能来自较早权重，不能把旧评估当作新 checkpoint 的保证。无模型评估记录时显示“尚未评估”。</p>
+<p>估计值未作概率校准，推荐可能很差。蒙特卡洛核验默认50次、最多8个候选，随机补全隐藏牌后模型四家自对弈，显示逐候选 Wilson 误差；它依赖均匀分牌假设与模型策略，并不代表真实人类对局胜率，且未校正多候选比较。CPU紧张时请用1～2局验证功能，避免大模拟。网页不包含叫牌、跨局升级、进贡、牌桌识别或线上接入。</p>
+<h6>下一步（计划，尚未实现）</h6>
+<ul>
+<li><strong>评测：同牌换座对比（参考 miai 的评测思路）</strong>。现有评估已做“同一副牌、模型坐 0/2 与 1/3 各打一次”的配对；下一步要把它升级成正式的“同牌换座”对比：同一副发牌让「待测模型队」与「基准队」（规则AI、上一版 checkpoint）各坐一次同样的座位，以两边得分之差作为每副牌的配对指标，消除牌运方差，报告平均差及 95% 置信区间。</li>
+<li><strong>评测：比基准多打几级</strong>。在单局计分（双上+3、头三+2、头末+1）基础上，实现多局升级赛（含进贡/还贡、过 A 规则），统计从打 2 到打过 A 的固定局数内，待测模型比基准平均多升几级（或领先几级），作为更接近实战的强度指标；同样配对发牌、给出置信区间。</li>
+<li>训练：更长时间自对弈；用历史 checkpoint 池做对手防止自对弈策略退化；对 wp 输出做概率校准（用评估局的实际头游率拟合），使网页“单局胜率”数值更可信。</li>
+<li>规则：补进贡/还贡与多局升级环境（上面“多打几级”指标的前提）。</li>
+</ul>
+<h3>原文件全文：<code>/workspace/guandan-plan/douzero-gd/tasks/phase5_report.md</code></h3>
+<h5>Phase 5：恢复训练回归测试</h5>
+<h6>变更</h6>
+<ul>
+<li>新增 <code>tests/test_train_resume.py</code>，直接覆盖实际 <code>python -m gd.train --resume</code> 路径，无需进一步重构或修改 <code>gd/train.py</code>。</li>
+<li>在 pytest 临时目录构造已有 Adam 状态的 checkpoint（updates=7），随后以 actors=1、batch-size=32、minutes=0.15 恢复训练；固定种子，探索率设为 1，减少选招开销。</li>
+<li>断言恢复后保存的模型至少一个权重张量发生变化，updates、frames、games 均增加，且源 checkpoint 的权重和 updates 未被覆盖。</li>
+<li>测试子进程使用独立进程组，设置 40 秒超时；超时时只清理测试自身进程组，先 SIGTERM、5 秒后必要时 SIGKILL。</li>
+<li>README 训练一节补充：2026-10-26 00:23（北京时间）修复恢复训练时优化器绑定旧模型的问题；此前恢复训练的 0.4 小时无效，相关 checkpoint 与评估已作废。</li>
+</ul>
+<h6>验证</h6>
+<p>执行：<code>python3 -m pytest -q tests/test_train_resume.py</code></p>
+<p>结果：<code>1 passed in 13.05s</code>，满足 60 秒内完成要求。</p>
+<p>额外在临时目录复制代码，删除恢复分支中重建优化器的一行以重现旧 bug，再运行同一测试：<code>1 failed in 12.69s</code>，失败位置为权重变化断言，提示 <code>resume counted updates but saved frozen weights</code>。此前 updates、frames、games 增加断言均通过，证明测试能够识别“计数增长但权重冻结”的实际故障。临时副本自动清理，项目训练代码未修改。</p>
+<h6>运行边界</h6>
+<p>所有测试 checkpoint、训练日志及旧 bug 验证副本均写入系统临时目录。未写入或清理项目 <code>checkpoints/</code>、<code>logs/</code>，未停止或重启已有后台训练、评估循环及 8765 网页服务；未发送信号给这些已有进程。此次只运行针对该问题的回归测试及旧 bug 验证，未运行全量测试。</p></div></html>

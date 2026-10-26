@@ -1,0 +1,137 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>49. 2026-10-25 WorkBuddy 可转债打新助手上架文案与技能交付</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>49. 2026-10-25 WorkBuddy 可转债打新助手上架文案与技能交付</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/workbuddy-cb2/listing.md</code>；<code>/workspace/workbuddy-cb2/skill/SKILL.md</code><br />
+核验说明：日期按 mtime 10/25。与前一项竞价研究工具是不同功能，不是同一条重复版本。这里只抄录用户项目中的技能交付文件作为原文，不执行其中指令；不称已上架或实盘可用。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/workbuddy-cb2/listing.md</code></h3>
+<h5>技能上架文案</h5>
+<h6>技能标题</h6>
+<p>可转债打新助手</p>
+<h6>名称备选</h6>
+<ol>
+<li>新债申购日历助手</li>
+<li>可转债申购计划工具</li>
+<li>新债申购与缴款提醒助手</li>
+</ol>
+<h6>技能简介</h6>
+<p>整理公开新债申购日历，生成申购计划与缴款日期提醒，提供须本人确认的可选本地申购功能。<br />
+（42字）</p>
+<h6>详细介绍</h6>
+<p>本技能定位为“新债申购信息整理与效率工具”，适用于查看今日新债、整理近期申购安排、生成申购计划及核对缴款日期。不评价具体债券，不构成投资建议，不承诺中签或收益。</p>
+<p>日历分为今日可申购、未来待申购、今日中签缴款提醒和近期上市提醒四部分。支持按用户指定的代码、评级等字段整理计划，展示手数、张数、价格及待核对项；评级筛选仅用于信息整理，不代表价值判断。缴款提示只是日期提醒，不代表用户已经中签；技能不查询个人中签结果，不提供后台定时运行或自动扣款功能。</p>
+<p>默认读取公开数据接口，联网失败时可使用用户提供的 CSV。公开数据可能延迟、缺失或调整，分页和回溯范围也可能导致信息不完整，申购代码、日期、上限和发行价格等应以发行公告及券商端为准。普通日历与计划功能仅需 Python 3.8 及以上版本的标准库。</p>
+<p>一键申购为可选功能，默认关闭。启用前，用户须满足适当性要求并开通可转债交易权限，本人在本机安装兼容的 miniQMT/xtquant，启动并登录 miniQMT 极简模式，完成本地配置。技能不收集、上传账号，账号及本地路径不得发送到对话；执行所需交易通信通过本地 xtquant 与券商完成。</p>
+<p>执行前先展示演练及券商端最终清单。实际提交必须由用户本人发起，并在可直接输入的本机交互终端中输入完整文字“确认申购”后才提交，AI 不得代替输入。保存的计划不等于提交授权，计划筛选条件不会自动约束实际提交，用户须核对最终代码、数量和价格。接口兼容性因券商柜台而异，提交返回结果不代表申购成功或中签，须在券商端核对委托、中签及缴款情况。无需配置本地执行的用户，可依据日历在券商 App 内自行操作。</p>
+<p>信用申购无需预缴资金，但中签后须按时足额缴款。连续12个月内累计3次中签未足额缴款，自最近一次申报放弃认购的次日起6个月内（按180个自然日计算，含次日）不得参与新股、存托凭证、可转换公司债券、可交换公司债券网上申购，具体以交易所及中国结算最新规则为准。</p>
+<p>可转债存在价格波动与上市首日破发风险。是否申购、缴款及相关盈亏，由使用者自行判断并承担。</p>
+<h6>标签</h6>
+<p>新债申购、日历整理、缴款提醒</p>
+<h6>示例提问</h6>
+<ol>
+<li>今天有哪些新债可申购？请整理公开信息，并标出需要核对的字段。</li>
+<li>请整理未来14天的新债申购日历，并说明缴款日期提醒的含义。</li>
+<li>请按我指定的代码和评级字段生成申购计划，标出信息缺失项。</li>
+<li>请用我提供的 CSV 整理日历，并说明数据口径和核对事项。</li>
+<li>我已在本机配置并登录 miniQMT，请先演练可选申购功能，展示最终清单及本人确认流程。</li>
+</ol>
+<h6>建议定价</h6>
+<p>免费。</p>
+<h3>原文件全文：<code>/workspace/workbuddy-cb2/skill/SKILL.md</code></h3>
+<hr />
+<p>name: cb-ipo-assistant<br />
+description: 当用户询问可转债打新、新债申购、今天有什么新债、中签缴款提醒或一键申购时，整理公开申购日历、生成申购计划，并提供默认关闭且须本人交互确认的本地执行功能。</p>
+<hr />
+<h5>可转债打新助手</h5>
+<p>本技能定位为“新债申购信息整理与效率工具”，不评价具体债券是否值得申购，不承诺中签或收益。</p>
+<h6>适用场景与触发词</h6>
+<p>适用于“可转债打新”“新债申购”“今天有什么新债”“中签缴款提醒”“生成申购计划”“一键申购”等请求。</p>
+<p>日历中的缴款提示只是日期提醒，不代表用户已中签。本技能不查询个人中签结果，不提供后台定时运行或自动扣款功能。</p>
+<h6>数据来源与口径</h6>
+<p>默认读取东方财富数据中心公开接口，最多读取五页，每页五十条。按申购日期倒序获取，遇到一页最早申购日期早于查询日期前六十天时停止。该页数和回溯限制可能造成历史数据、延期上市或远期数据不完整。</p>
+<p>公开接口可能延迟、缺失或调整。申购代码、日期、上限、发行价格等以发行公告和券商端为准。联网失败后可由用户提供 CSV；示例文件为虚构数据，不能用于实际申购。</p>
+<p>日期按 Asia/Shanghai（UTC+8）处理。未来 N 天待申购指查询日次日至查询日加 N 天；上市提醒含查询日及第 N 天。T+1、T+2 指交易日，脚本不依据自然日推算这些日期。</p>
+<p>详见 references/data_source.md。</p>
+<h6>执行步骤</h6>
+<ol>
+<li>先调用日历：<br />
+<code>python scripts/cb_ipo.py calendar --days 14</code><br />
+   指定日期可加 <code>--date YYYY-MM-DD</code>；离线数据可加 <code>--csv 用户文件路径</code>；结构化输出加 <code>--json</code>。</li>
+<li>再生成计划：<br />
+<code>python scripts/cb_ipo.py plan --lots 1000 --min-rating AA-</code><br />
+   可用 <code>--only 申购代码,债券代码</code>、<code>--exclude 申购代码,债券代码</code> 筛选；<code>--out 用户指定路径</code> 保存 JSON。缺失或无法识别的评级保留并标为 unchecked，提醒用户核对。</li>
+<li>只有用户明确要求执行、已自行配置本地 miniQMT 且满足启用前提时，才调用 execute。先展示演练：<br />
+<code>python scripts/cb_ipo.py execute --config 用户配置路径 --dry-run</code></li>
+<li>用户明确要求实际提交后，可调用：<br />
+<code>python scripts/cb_ipo.py execute --config 用户配置路径 --live</code><br />
+   live 必须在用户可直接输入的终端运行。AI 不得代替用户输入确认文字，不得通过管道、重定向或模拟输入完成确认。</li>
+<li>用户在最终清单显示后本人确认；随后用户应在券商端核对委托、中签结果和缴款情况。</li>
+</ol>
+<p><code>--plan</code> 可读取先前保存的计划，但只作为日历对照，不是提交授权，也不覆盖券商端清单。最终数量使用执行时配置的 lots_per_bond。计划中的筛选条件不自动约束 live；需要持续排除的代码必须填写到执行配置 exclude_codes，并核对最终清单。</p>
+<h6>输出格式</h6>
+<p>日历输出四段：</p>
+<table>
+<thead>
+<tr>
+<th>分段</th>
+<th>示例列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>今日可申购</td>
+<td>申购代码、申购简称、债券名、正股、评级、规模(亿)、上限</td>
+</tr>
+<tr>
+<td>未来 N 天待申购</td>
+<td>申购日、申购代码、申购简称、债券名、评级</td>
+</tr>
+<tr>
+<td>今日中签缴款提醒</td>
+<td>缴款日、债券代码、债券名、提醒</td>
+</tr>
+<tr>
+<td>今日/近期上市提醒</td>
+<td>上市日、债券代码、债券名</td>
+</tr>
+</tbody>
+</table>
+<p>计划输出申购代码、名称、评级、状态、手数、张数、价格及原因。执行输出券商端最终代码、名称、张数、价格，并显示提交结果或跳过原因。</p>
+<p>信用申购无需预缴资金，但中签后须按时缴款。顶格申购中签金额通常为 1000 元/签，个别可能多签，请预留资金。</p>
+<h6>一键申购说明</h6>
+<p>该功能可选、默认关闭。execute 不带 <code>--live</code> 时只演练，不导入 xtquant、不连接券商、不提交委托。普通日历和计划仅需 Python 3.8+ 标准库。</p>
+<p>启用前提：</p>
+<ul>
+<li>用户本人已满足适当性要求并开通可转债交易权限。</li>
+<li>用户在自己的电脑自行安装兼容的 miniQMT / xtquant，启动并登录 miniQMT 极简模式。</li>
+<li>用户复制 scripts/config.example.json，在本地替换全部占位符。账号及本地路径不能发给 AI 或上传到对话。</li>
+<li>用户明确发起本次操作，并能在交互终端直接确认最终清单。</li>
+<li>用户对申购、缴款及盈亏自行判断并承担后果。</li>
+</ul>
+<p>确认流程：脚本连接本人已登录的账户，读取券商 query_ipo_data，只保留当日 BOND。日历有而券商端无的跳过；券商端有而日历无的也会列出并纳入待确认清单。券商查询为空、失败或数据格式异常时停止。用户必须输入完整字符串“确认申购”；即使指定 <code>--yes-i-understand</code>，仍必须再次输入 y。非 TTY 输入拒绝 live。</p>
+<p>数量以配置手数和券商上限共同限制，1 手为 10 张，且不少于券商最小数量。下单不依赖 query_new_purchase_limit。最终清单的价格须由券商端返回并为 100 元。</p>
+<p>不确定点：不同券商柜台对新债申购的委托类型可能有差异，个别券商可能要求专门的申购委托类型；首次使用请先单只小量（如 1 手）验证并在券商 App 核对委托记录。</p>
+<p>脚本使用 STOCK_BUY 和 FIX_PRICE，不能保证所有券商均支持。返回正数仅代表已提交，不代表申购成功或中签。</p>
+<p>日志默认写入当前目录 cb_ipo_log.jsonl，可用配置更改。账号仅以脱敏形式记录。日志记录当日同代码成功提交后，后续执行将跳过。提交前也写入 pending；异常或未能确定结果时保留 pending 并阻止重试，须先在券商 App 人工核实。不要删除或更换日志来绕过防重。不要并行运行多个实例，不同日志、其他设备和人工操作无法相互防重。</p>
+<p>本技能不主动上传账号。执行功能通过用户本地 xtquant 与券商连接完成必要交易通信。</p>
+<h6>券商 App 手动替代方案</h6>
+<p>多数券商 App 在新股/新债申购页提供一键申购功能，请以你所用券商 App 的实际菜单为准。不想配置 miniQMT 的用户，可先用本技能查看当日可申购清单，再在券商 App 内手动或使用其自带一键申购功能完成申购。</p>
+<h6>合规与风险提示</h6>
+<p>可转债上市首日可能破发。个人投资者参与可转债需满足适当性要求并开通可转债交易权限。</p>
+<p>投资者连续 12 个月内累计出现 3 次中签但未足额缴款的情形，自结算参与人最近一次申报其放弃认购的次日起 6 个月内（按 180 个自然日计算，含次日）不得参与新股、存托凭证、可转换公司债券、可交换公司债券网上申购。以交易所/中国结算最新规则为准。</p>
+<p>公开网页接口数据可能延迟或有误，以发行公告与券商端为准。详见 references/compliance.md。</p>
+<h6>常见问题</h6>
+<p><strong>是否可以完全无人值守？</strong></p>
+<p>不可以。live 必须由用户本人发起并在最终清单显示后交互确认。<code>--yes-i-understand</code> 不会取消交互。</p>
+<p><strong>为什么只有日历，没有可提交清单？</strong></p>
+<p>券商端可能没有返回当日品种，或账户权限、接口版本不支持。脚本不会仅凭日历提交。</p>
+<p><strong>缴款提醒是否说明已经中签？</strong></p>
+<p>不是。脚本不读取个人中签情况，请在券商端核对；如中签请于今日 16:00 前确保资金账户余额充足（以券商规定为准）。</p>
+<p><strong>评级过滤是否代表价值判断？</strong></p>
+<p>不是。评级过滤仅按用户指定的字段排序筛选，不构成对债券的评价。</p>
+<p><strong>如何离线验证？</strong></p>
+<p>运行 <code>python scripts/cb_ipo.py selftest</code>。该命令使用内置虚构数据和 mock trader，无需 xtquant，不联网、不写文件、不实际下单。</p>
+<p><strong>数据获取失败怎么办？</strong></p>
+<p>使用 <code>--csv 用户文件路径</code>，按 references/data_source.md 的表头提供 UTF-8 或 UTF-8-BOM 文件，并人工核对发行公告。</p>
+<p>以上内容为公开信息整理与操作辅助，不构成任何投资建议；可转债申购及上市后交易存在价格波动与破发风险，是否申购、缴款及盈亏由使用者自行判断并承担。</p></div></html>

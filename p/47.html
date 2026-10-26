@@ -1,0 +1,216 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>47. 2026-10-25 例3 首出 DanZero 四家自对弈报告：单♦5 点估计最高</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>47. 2026-10-25 例3 首出 DanZero 四家自对弈报告：单♦5 点估计最高</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/guandan-plan/sim/ex3_lead_report_danzero.md</code><br />
+核验说明：日期按文件 mtime，实验种子也为 20261025；实际发送待核验。该报告明确替代旧启发式 v3 胜率，因此 ex3_lead_report.md、v2、v3 不另收。仅是指定模型/手牌结论，不是真人胜率。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/guandan-plan/sim/ex3_lead_report_danzero.md</code></h3>
+<h5>例3 DanZero 首出报告</h5>
+<p><strong>结果来自 DanZero 四家自对弈，每候选 N=2000。F（单♦5）头游率点估计最高：59.25%，Wilson 95%区间 [57.08%, 61.38%]。</strong> 这是本模型、本手牌下的比较，不能视为真人校准概率。</p>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>固定首出</th>
+<th style="text-align: right;">己方头游</th>
+<th style="text-align: right;">头游率</th>
+<th>Wilson 95%区间</th>
+<th style="text-align: right;">双上率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>三连对99-1010-(J+配)</td>
+<td style="text-align: right;">1015/2000</td>
+<td style="text-align: right;">50.75%</td>
+<td>[48.56%, 52.94%]</td>
+<td style="text-align: right;">30.20%</td>
+</tr>
+<tr>
+<td>B</td>
+<td>三连对QQ-KK-AA</td>
+<td style="text-align: right;">799/2000</td>
+<td style="text-align: right;">39.95%</td>
+<td>[37.82%, 42.11%]</td>
+<td style="text-align: right;">19.35%</td>
+</tr>
+<tr>
+<td>C</td>
+<td>普通顺45678</td>
+<td style="text-align: right;">804/2000</td>
+<td style="text-align: right;">40.20%</td>
+<td>[38.07%, 42.37%]</td>
+<td style="text-align: right;">22.15%</td>
+</tr>
+<tr>
+<td>D</td>
+<td>同花顺♠A2345</td>
+<td style="text-align: right;">776/2000</td>
+<td style="text-align: right;">38.80%</td>
+<td>[36.69%, 40.96%]</td>
+<td style="text-align: right;">21.45%</td>
+</tr>
+<tr>
+<td>E</td>
+<td>对44</td>
+<td style="text-align: right;">841/2000</td>
+<td style="text-align: right;">42.05%</td>
+<td>[39.90%, 44.23%]</td>
+<td style="text-align: right;">22.65%</td>
+</tr>
+<tr>
+<td>F</td>
+<td>单♦5</td>
+<td style="text-align: right;">1185/2000</td>
+<td style="text-align: right;">59.25%</td>
+<td>[57.08%, 61.38%]</td>
+<td style="text-align: right;">40.40%</td>
+</tr>
+<tr>
+<td>G</td>
+<td>四炸4444</td>
+<td style="text-align: right;">848/2000</td>
+<td style="text-align: right;">42.40%</td>
+<td>[40.25%, 44.58%]</td>
+<td style="text-align: right;">23.05%</td>
+</tr>
+</tbody>
+</table>
+<h6>验证</h6>
+<p>权重验证：通过。12个参数形状为 <code>(567,512),(512,)</code>、4组 <code>(512,512),(512,)</code>、<code>(512,1),(1,)</code>，共 1,341,953 个参数；加载后逐项与 checkpoint 转置数组完全一致。Torch/NumPy 合成输入前向在 2e-5 容差内一致，输出有限且不恒定。</p>
+<p>规则抽查：五张顺、恰三对、恰两组相连三同张、3+2、红桃级牌可配普通牌但不能配王、五炸＜同花顺＜六炸、四王最大、接风均通过。具体9组旧/新裁判差分包括候选A/C/D、钢板、三带二、普通配对与两种不能配王的反例，详见结果JSON。</p>
+<p>信息隔离与生命周期：交换对手整手、保持公开信息相同时，座位0的观察字典完全一致；不提供 <code>all_players_hands/others_hands/min_steps_estimation</code>。0/2双上后保留本局前两名，未升级或重发。各模拟、各座位重新构造独立代理与历史，决策前深拷贝公开状态，避免原代理修改PASS历史造成共享污染。</p>
+<p>仓库原有动作生成、大小比较和流程测试另行通过47项；抽取A–D各3个种子串行复跑，头游/双上与并行正式结果完全一致。</p>
+<p>强度健全性：两个 DanZero 队友对两个仓库内置 RandomAgent；固定同一批牌局种子，DanZero 分别执0/2与1/3，开局领出仍为0。下表为单局阵营头游率。</p>
+<table>
+<thead>
+<tr>
+<th>DanZero座位</th>
+<th style="text-align: right;">胜局</th>
+<th style="text-align: right;">头游率</th>
+<th>Wilson 95%区间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0/2</td>
+<td style="text-align: right;">50/50</td>
+<td style="text-align: right;">100.00%</td>
+<td>[92.87%, 100.00%]</td>
+</tr>
+<tr>
+<td>1/3</td>
+<td style="text-align: right;">50/50</td>
+<td style="text-align: right;">100.00%</td>
+<td>[92.87%, 100.00%]</td>
+</tr>
+<tr>
+<td>合计</td>
+<td style="text-align: right;">100/100</td>
+<td style="text-align: right;">100.00%</td>
+<td>[96.30%, 100.00%]</td>
+</tr>
+</tbody>
+</table>
+<p>通过门槛为合计Wilson下界大于50%。随机策略是较弱基线；该测试验证接入可工作，不证明达到职业水平。两种换座结果共用牌局种子，合计Wilson为描述性区间，并非全部独立的发牌样本。</p>
+<h6>配对差</h6>
+<p>各候选共用发牌种子。下列为逐种子头游0/1差值的均值 ± 1.96 × 样本标准误，单位为百分点；区间未作多重比较校正。</p>
+<table>
+<thead>
+<tr>
+<th>比较</th>
+<th style="text-align: right;">头游率差</th>
+<th>配对95%区间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C−D</td>
+<td style="text-align: right;">1.40%</td>
+<td>[-1.31%, 4.11%]</td>
+</tr>
+<tr>
+<td>C−F</td>
+<td style="text-align: right;">-19.05%</td>
+<td>[-21.78%, -16.32%]</td>
+</tr>
+<tr>
+<td>C−G</td>
+<td style="text-align: right;">-2.20%</td>
+<td>[-4.97%, 0.57%]</td>
+</tr>
+<tr>
+<td>D−F</td>
+<td style="text-align: right;">-20.45%</td>
+<td>[-23.22%, -17.68%]</td>
+</tr>
+<tr>
+<td>D−G</td>
+<td style="text-align: right;">-3.60%</td>
+<td>[-6.41%, -0.79%]</td>
+</tr>
+<tr>
+<td>F−G</td>
+<td style="text-align: right;">16.85%</td>
+<td>[14.05%, 19.65%]</td>
+</tr>
+</tbody>
+</table>
+<p>以下为点估计最高者与其他候选的探索性配对比较；最高者由本批数据选择，存在选择偏差。</p>
+<table>
+<thead>
+<tr>
+<th>比较</th>
+<th style="text-align: right;">头游率差</th>
+<th>配对95%区间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F−A</td>
+<td style="text-align: right;">8.50%</td>
+<td>[5.71%, 11.29%]</td>
+</tr>
+<tr>
+<td>F−B</td>
+<td style="text-align: right;">19.30%</td>
+<td>[16.47%, 22.13%]</td>
+</tr>
+<tr>
+<td>F−C</td>
+<td style="text-align: right;">19.05%</td>
+<td>[16.32%, 21.78%]</td>
+</tr>
+<tr>
+<td>F−D</td>
+<td style="text-align: right;">20.45%</td>
+<td>[17.68%, 23.22%]</td>
+</tr>
+<tr>
+<td>F−E</td>
+<td style="text-align: right;">17.20%</td>
+<td>[14.39%, 20.01%]</td>
+</tr>
+<tr>
+<td>F−G</td>
+<td style="text-align: right;">16.85%</td>
+<td>[14.05%, 19.65%]</td>
+</tr>
+</tbody>
+</table>
+<p>区间包含0的比较不能确定方向；不包含0也只表示当前模型与抽样下的差异。旧v3的启发式胜率不能继续作为本次首出结论的依据。</p>
+<h6>方法与复跑</h6>
+<p>采用 <a href="https://github.com/Choysang/rlcard-guandan">Choysang/rlcard-guandan</a> 原生环境、裁判及 DanzeroAgent，固定提交 <code>6ebe65a14a0bfe6140df9f231e7bf4a340c94f34</code>，仓库保存在 <code>vendor/rlcard-guandan/</code>（含MIT许可）。权重位于 <code>guandan_rlcard/baselines/danzero/q_network.ckpt</code>，SHA256 <code>a6f132e50e205709c0efdb1b550d935c5bfc313b21726b0e70e300b6cd7ea1a3</code>。</p>
+<p>选择原生环境是为了沿用与DanZero一致的动作声明、合法动作全集和567维编码，减少自建裁判适配误差。未改上游出牌裁判，只关闭本局结束后的自动升级和重发。统计在第二名产生后结束，此时头游与双上已完全确定。</p>
+<p>级牌2、双方初始级别均为2、无进贡、座位0领出。使用 <code>guandan_wr_bot.py</code> 的TOKENS与SPECS（只复用数据和差分校验，不调用其choose/playout策略）。固定座位0的27张；剩余81张按种子均匀洗牌，依次分给1/2/3各27张。A–G均在原生合法动作中：按牌型、声明关键点数及物理牌多重集匹配，首轮只保留该候选，再交给DanzeroAgent.step；未添加非法动作，也没有漏掉首手自身初始化。</p>
+<p>后续所有座位均由加载目标权重的DanzeroAgent决策（唯一合法动作时按原生代理直接选取）。其内置随机分支改为抛异常哨兵；正式实验没有触发。固定 <code>PYTHONHASHSEED=0</code>，每进程Torch单线程；Q网络无循环隐状态，代理历史仍按局和座位隔离。</p>
+<p>发牌种子：20261025 起连续 2000 个；总正式牌局 14000。正式验证与模拟耗时 347.7 秒（不含依赖安装和开发试跑）。</p>
+<pre><code class="language-bash">python3 -m pip install --user torch --index-url https://download.pytorch.org/whl/cpu
+python3 -m pip install --user rlcard numpy
+python3 danzero_ex3.py --n 2000 --sanity-n 50 --seed 20261025 --workers 6
+</code></pre>
+<p>本机Python受PEP 668保护，安装时额外用了 <code>--break-system-packages</code>，包仍安装在用户目录；也可使用虚拟环境。结果文件记录Python/Torch版本、参数、逐种子头游及双上结局、全部验证信息；任何验证异常退出码非零并保留错误，不静默降级。</p>
+<h6>局限</h6>
+<p><strong>单局头游率不是升级赛胜率；DanZero 本身并非职业水平校准。</strong> 本次只验证了该移植版本对随机策略的优势，未复现论文强度或与职业选手对战。均匀暗牌补全未利用真人发牌/策略后验；模型、历史编码及规则实现仍可能存在未覆盖误差。Wilson和配对区间只描述抽样误差，不覆盖这些系统误差。</p></div></html>

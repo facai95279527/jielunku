@@ -1,0 +1,98 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>54. 2026-10-26 掼蛋教练自检规则补丁：先逐花色查同花顺</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>54. 2026-10-26 掼蛋教练自检规则补丁：先逐花色查同花顺</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/qipai-kb/掼蛋牌型规则-教练自检.md</code><br />
+核验说明：初稿为 10/23，最新新增“自检第0步”明确 10/26，故按最新规则版本列入；没有原发送消息，无法确认已向用户宣布。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/qipai-kb/掼蛋牌型规则-教练自检.md</code></h3>
+<h5>掼蛋牌型规则（教练自检 · 默认淮安/江苏竞赛口径）</h5>
+<blockquote>
+<p>整理：2026-10-23。练习与教学默认此套；若用户饭局有地方变种，先问清再改。</p>
+</blockquote>
+<h6>级牌与逢人配</h6>
+<ul>
+<li>打 X：所有点数为 X 的牌是级牌（参谋），小于小王、大于 A。</li>
+<li><strong>红桃 X = 逢人配</strong>：可当除大小王外任意点/色，组成合法牌型；<strong>不能当王</strong>。</li>
+<li>打 2 时：♥2=配，其余花色 2=普通级牌。</li>
+</ul>
+<h6>合法一手（张数写死的尤其易错）</h6>
+<table>
+<thead>
+<tr>
+<th>牌型</th>
+<th>张数约束</th>
+<th>非法例子（曾犯）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单张</td>
+<td>1</td>
+<td>—</td>
+</tr>
+<tr>
+<td>对子</td>
+<td>2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>三同张</td>
+<td>3</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>三连对</strong></td>
+<td><strong>恰好 3 对相连</strong></td>
+<td>QQ-KK（只有两连）非法</td>
+</tr>
+<tr>
+<td><strong>钢板</strong></td>
+<td><strong>恰好 2 个相连三同张</strong></td>
+<td>三个三同张连着非法</td>
+</tr>
+<tr>
+<td>三带二</td>
+<td>3+2</td>
+<td>三带一非法</td>
+</tr>
+<tr>
+<td><strong>顺子</strong></td>
+<td><strong>恰好 5 张相连</strong></td>
+<td>345678（六张）非法</td>
+</tr>
+<tr>
+<td>同花顺</td>
+<td>恰好 5 张同花顺</td>
+<td>—</td>
+</tr>
+<tr>
+<td>炸弹</td>
+<td>≥4 同点</td>
+<td>—</td>
+</tr>
+<tr>
+<td>天王炸</td>
+<td>双大双小</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h6>A/2 在顺、连对、钢板中</h6>
+<ul>
+<li>可 A2345 或 10JQKA；<strong>不可</strong> JQKA2（2 作级时也不开成绕弯）。</li>
+<li>三连对/钢板同样：2 作级时 KKAA22 一般不按这个连，只认 223344 这类自然序。</li>
+</ul>
+<h6>理牌手数原则</h6>
+<ul>
+<li>只统计<strong>可合法领出</strong>的整手；非法组合不算减手数。</li>
+<li>逢人配：优先补炸 / 补钢板 / 补三连对 / 补顺，忌当普通级牌配对、忌无脑单甩。</li>
+<li>实战「最优手数」与「最优牌力」常冲突：饭局可略增手数留炸；训练减手数必须合法。</li>
+</ul>
+<h6>教练禁令</h6>
+<ul>
+<li>出题必须标明：打几、哪张是配。</li>
+<li>给「标准理法」前，逐手对照上表自检。</li>
+</ul>
+<h6>自检第0步（2026-10-26）</h6>
+<p>给理牌答案前，先逐花色查同花顺（含 A2345；级牌在顺子里按原点数；逢人配可补一张），再查炸弹/配补炸，最后排其他牌型。例3 曾漏看天然 ♠A2345。</p></div></html>

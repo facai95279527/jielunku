@@ -1,0 +1,245 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>53. 2026-10-26 Botzone 前六名对局分析：ADB_bot 本批样本领先但难定长期排名</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>53. 2026-10-26 Botzone 前六名对局分析：ADB_bot 本批样本领先但难定长期排名</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/qipai-kb/botzone/前6名对局分析.md</code><br />
+核验说明：报告生成 mtime 10/26，排名快照与统计截止为 10/25；按生成日排列，实际发送日期待核验。其胜率不能和例3 自对弈或 DouZero 模型评估混用。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/qipai-kb/botzone/前6名对局分析.md</code></h3>
+<h5>前6名对局分析</h5>
+<p>一句话结论：本次时间窗内，ADB_bot 的交锋总体表现最好，但不足以给六个 Bot 排出稳定的实力顺序。</p>
+<ul>
+<li>谁强：ADB_bot 总体胜率58.8%、平均得分1.213，均为六者最高。</li>
+<li>差距多大：其总体胜率比第二高的 miai 高8.2个百分点；两者直接对位却仅为52%对48%。</li>
+<li>能否定论：总体对手、搭档不同，部分区间重叠；只能描述这批样本，不能断言长期实力。</li>
+</ul>
+<h6>一、数据来源与范围</h6>
+<p>依据所给统计、抓取元数据、逐手回放及规则笔记。来源为 Botzone 公开全局对局列表；排名快照为2026年10月25日23:55。抓取覆盖2026年10月21日15:46至25日22:50，均为北京时间（UTC+8）；约71页，每页20局，含少量重试页，共1420局，其中双方均含前6名的交锋904局。后期请求卡住而停止；官方月度包连接超时，未纳入。</p>
+<p>座位0与2、1与3各为一队。头游队双上得3分，头游加三游得2分，头游加末游得1分，败队0分；“胜”指本队得分高于对方。自对弈不计；一局里，每个前6名 Bot 对对方队伍中每个其他前6名 Bot 各记一次。因此对位次数不能相加当作独立局数。总体表按“对面至少有另一名前6名”的口径统计，不等于对位行求和。</p>
+<h6>二、对位胜率</h6>
+<table>
+<thead>
+<tr>
+<th>行\列（行Bot对列Bot）</th>
+<th>htl</th>
+<th>ADB_bot</th>
+<th>miai</th>
+<th>ack</th>
+<th>lab</th>
+<th>koi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>htl</td>
+<td>—</td>
+<td>105/246=43% [37%–49%]</td>
+<td>19/49=39% [26%–53%]</td>
+<td>14/40=35% [22%–50%]</td>
+<td>29/48=60% [46%–73%]</td>
+<td>25/43=58% [43%–72%]</td>
+</tr>
+<tr>
+<td>ADB_bot</td>
+<td>141/246=57% [51%–63%]</td>
+<td>—</td>
+<td>120/232=52% [45%–58%]</td>
+<td>138/225=61% [55%–67%]</td>
+<td>127/216=59% [52%–65%]</td>
+<td>129/216=60% [53%–66%]</td>
+</tr>
+<tr>
+<td>miai</td>
+<td>30/49=61% [47%–74%]</td>
+<td>112/232=48% [42%–55%]</td>
+<td>—</td>
+<td>18/31=58% [41%–74%]</td>
+<td>19/42=45% [31%–60%]</td>
+<td>22/50=44% [31%–58%]</td>
+</tr>
+<tr>
+<td>ack</td>
+<td>26/40=65% [50%–78%]</td>
+<td>87/225=39% [33%–45%]</td>
+<td>13/31=42% [26%–59%]</td>
+<td>—</td>
+<td>26/50=52% [39%–65%]</td>
+<td>18/46=39% [26%–54%]</td>
+</tr>
+<tr>
+<td>lab</td>
+<td>19/48=40% [27%–54%]</td>
+<td>89/216=41% [35%–48%]</td>
+<td>23/42=55% [40%–69%]</td>
+<td>24/50=48% [35%–61%]</td>
+<td>—</td>
+<td>29/59=49% [37%–62%]</td>
+</tr>
+<tr>
+<td>koi</td>
+<td>18/43=42% [28%–57%]</td>
+<td>87/216=40% [34%–47%]</td>
+<td>28/50=56% [42%–69%]</td>
+<td>28/46=61% [46%–74%]</td>
+<td>30/59=51% [38%–63%]</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>表中非对角格均不少于20次。ADB_bot 对 htl、ack、lab、koi 的样本胜率为57%—61%，对应区间下限均高于50%。对 miai 为120胜、232次，52%的点估计仍接近均势。htl 对 lab 的60%与对 koi 的58%都有较宽区间，不能据此排定三者强弱。相关区间重叠时不能说谁更强，也不能仅按点估计排序；同一局产生的多项记录还存在相关性。</p>
+<h6>三、各 Bot 总体战绩</h6>
+<p>区间均为威尔逊95%区间；平均得分按本队每局得分计算，双上为次数。</p>
+<table>
+<thead>
+<tr>
+<th>Bot</th>
+<th style="text-align: right;">局数</th>
+<th style="text-align: right;">胜</th>
+<th style="text-align: right;">胜率</th>
+<th>区间</th>
+<th style="text-align: right;">平均得分</th>
+<th style="text-align: right;">双上</th>
+<th>版本号（局数）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>htl</td>
+<td style="text-align: right;">324</td>
+<td style="text-align: right;">152</td>
+<td style="text-align: right;">46.9%</td>
+<td>41.5%—52.4%</td>
+<td style="text-align: right;">0.920</td>
+<td style="text-align: right;">56</td>
+<td>3（324）</td>
+</tr>
+<tr>
+<td>ADB_bot</td>
+<td style="text-align: right;">889</td>
+<td style="text-align: right;">523</td>
+<td style="text-align: right;">58.8%</td>
+<td>55.6%—62.0%</td>
+<td style="text-align: right;">1.213</td>
+<td style="text-align: right;">223</td>
+<td>3（889）</td>
+</tr>
+<tr>
+<td>miai</td>
+<td style="text-align: right;">312</td>
+<td style="text-align: right;">158</td>
+<td style="text-align: right;">50.6%</td>
+<td>45.1%—56.1%</td>
+<td style="text-align: right;">1.038</td>
+<td style="text-align: right;">68</td>
+<td>12（312）</td>
+</tr>
+<tr>
+<td>ack</td>
+<td style="text-align: right;">292</td>
+<td style="text-align: right;">125</td>
+<td style="text-align: right;">42.8%</td>
+<td>37.3%—48.5%</td>
+<td style="text-align: right;">0.842</td>
+<td style="text-align: right;">42</td>
+<td>0（292）</td>
+</tr>
+<tr>
+<td>lab</td>
+<td style="text-align: right;">302</td>
+<td style="text-align: right;">137</td>
+<td style="text-align: right;">45.4%</td>
+<td>39.8%—51.0%</td>
+<td style="text-align: right;">0.967</td>
+<td style="text-align: right;">63</td>
+<td>8（302）</td>
+</tr>
+<tr>
+<td>koi</td>
+<td style="text-align: right;">296</td>
+<td style="text-align: right;">140</td>
+<td style="text-align: right;">47.3%</td>
+<td>41.7%—53.0%</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">63</td>
+<td>8（296）</td>
+</tr>
+</tbody>
+</table>
+<h6>四、四局回放拆解</h6>
+<p>学习时先看牌权如何转移，再看每家剩下几手。以下“余”均为该手出后余张；同点牌重复写出表示两副牌中的不同实体。关键牌只列初始手牌中的部分，不是全手牌。</p>
+<h6># 第一局：五张炸拦截残局，再以炸弹收尾双上</h6>
+<p><a href="https://www.botzone.org.cn/match/6adcd78cbdad901f32457a53">回放</a></p>
+<p>四家：座0 htl、座2 miai 同队；座1 ADB_bot、座3复现Fabledan同队。初始牌：htl 有小王、大王、大王及♠2；ADB_bot 无王、无配，有♥10♦10♣10与♠J♣J♣J组成的钢板；miai 有♥2(配)两张、♥9♥9♦9♠9♣9五张炸和♥Q♥Q♦Q♠Q♣Q五张炸；复现Fabledan有小王与♥6♠6♠6♣6四张炸。</p>
+<ul>
+<li>第1手，座0 htl 出♦3♦3♠3＋♥4♠4♠4钢板，余21；一手处理六张。</li>
+<li>第39手，座2 miai 出♥10♠10♣10♥2(配)，宣称四张10炸，余17，压过座3第36手的四张6炸。</li>
+<li>第70手，座1 ADB_bot 出♦Q♣Q♠K♣K♥A♦A三连对，余2，进入危险关口。</li>
+<li>第71手，座2 miai 出♥9♥9♦9♠9♣9五张炸，余7，截断对方出牌权。</li>
+<li>第79手，座2 miai 出♥2(配)，宣称♥8，余5；这张配没有当级牌使用。</li>
+<li>第93手，座0 htl 出♦9♠10♦J♠Q♣K顺子，余1。</li>
+<li>第97手，座0 htl 出♠A，余0，取得头游。</li>
+<li>第99手，座2 miai 出♥Q♥Q♦Q♠Q♣Q五张炸，余0，完成双上，队伍得3分。</li>
+</ul>
+<p>牌理：miai 在对手余2张时用炸，比只看炸弹能带走几张更有价值。推测此时 miai 承担控场助攻，htl 转为主攻；其后第81手 htl 用♦A接过座3的♦K，逐步清空。第99手是直接炸完，不是无人压后的接风。配子既能补炸，也能按低单宣称，不能一概留作最大牌。</p>
+<p>第一局也提醒学习者区分“有炸”与“该炸”。第39手夺回的是中盘主动权，第71手保住的是残局生存空间，两次用途不同。推测后一次更重视阻止对手清空，而不是单纯追求自己少拿几张牌。</p>
+<p>可学的点：对手进入两张残局时，先评估能否拦住其下一轮领出。</p>
+<h6># 第二局：逢人配补同花顺夺头游，接风后双上受阻</h6>
+<p><a href="https://www.botzone.org.cn/match/6ad98e1bbdad901f32414ad0">回放</a></p>
+<p>四家：座0 ADB_bot、座2 miai 对座1 htl、座3 koi。初始牌：ADB_bot 有小王、大王、♥2(配)，以及♥6♥7♥9♥10；htl 有♥2(配)、♥5♦5♣5♣5及♥9♦9♠9♣9两组四张炸；miai 有大王和♦2♦2♣2；koi 有小王与♥A♦A♠A♣A四张炸。</p>
+<ul>
+<li>第9手，座0 ADB_bot 出♣3♦4♠5♦6♠2，为2至6顺子，余20；级牌在顺子里按自然顺序。</li>
+<li>第25手，座0 ADB_bot 出♦10♠10＋♥Q♥Q♠Q三带二，余6。</li>
+<li>第56手，座3 koi 出♥A♦A♠A♣A四张炸，余3。</li>
+<li>第57手，座0 ADB_bot 出♥6♥7♥9♥10♥2(配)，宣称♥6♥7♥8♥9♥10同花顺，余1，压住四张炸。</li>
+<li>第61手，座0 ADB_bot 出大王，余0；随后三家均过。</li>
+<li>第65手，座2 miai 接风，出♥7♠7♣7♦Q♣Q三带二，余1。</li>
+<li>第67手，座1 htl 出♥5♦5♣5♣5四张炸，余15，截断双上路线。</li>
+<li>第81手，座3 koi 出小王，余0，取得二游。</li>
+</ul>
+<p>牌理：推测 ADB_bot 以同花顺接大王作为两手清空计划，配子补♥8正好把散牌变成夺权牌。miai 接风一手减五张，但余1张不代表必走：htl 的炸弹给本队争取了空间。最终 htl 第84手出♠2走完，miai 为末游；ADB_bot 队仅得1分。头游优势不能代替搭档的安全收尾。</p>
+<p>这局还有一个易误读之处：胜负按头游所属队伍确定，双上决定更高收益。不能因为对手拿到二三游，就把头游队记为败方；也不能因主攻成功，就忽略助攻最终没有走完的事实。</p>
+<p>可学的点：估算双上，要把对手剩余炸弹算进搭档的最后一手。</p>
+<h6># 第三局：配子补炸清空，六张级牌炸护航双上</h6>
+<p><a href="https://www.botzone.org.cn/match/6adcd705bdad901f32457909">回放</a></p>
+<p>四家：座0 ADB_bot、座2 miai 对座1 koi、座3 wrf。初始牌：ADB_bot 有小王、大王、大王、♥2(配)和♥10♦10♣10；koi 有小王、♥2(配)、♥3♦3♦3♠3、♦5♠5♣5♣5及♥7♦7♠7♣7；miai 有♥A♥A♦A♠A四张炸和♦2♦2♠2♠2♣2♣2六张炸；wrf 无王无配，有♦K♠K♣K♣K四张炸。</p>
+<ul>
+<li>第31手，座2 miai 出♥A♥A♦A♠A四张炸，余12，压过 koi 第30手的四张5炸。</li>
+<li>第37手，座0 ADB_bot 出♠9♠9♦A♠A♣A三带二，余8。</li>
+<li>第41手，座0 ADB_bot 出大王，余7，三家均过。</li>
+<li>第45手，座0 ADB_bot 出♠4♠4♣4三张，余4。</li>
+<li>第49手，座0 ADB_bot 出♥10♦10♣10♥2(配)，宣称四张10炸，余0。</li>
+<li>第50手，座1 koi 出♥7♦7♠7♣7♥2(配)，宣称五张7炸，余2。</li>
+<li>第51手，座2 miai 出♦2♦2♠2♠2♣2♣2六张炸，余1，反压五张炸。</li>
+<li>第54手，座2 miai 出♦5，余0，双上得3分。</li>
+</ul>
+<p>牌理：推测 ADB_bot 主攻，miai 保存六张炸负责残局护航。第49手走完仍可被炸，koi 的反击确实发生；miai 有更高一级的炸弹才保住出牌权。第54手是在自己炸弹无人压后续出，不是搭档接风。这里两张配分别补四张炸、五张炸，最终胜负关口却由六张炸决定。</p>
+<p>复盘时可先遮住后续手牌，自问五张炸被压后还剩哪些控制牌，再核对第51手。这里的六张级牌并非四王火箭，胜过五张炸靠的是炸弹长度，不能误记为级牌天然压过所有炸弹。</p>
+<p>可学的点：安排炸弹收尾时，要同时看搭档能否覆盖敌方反炸。</p>
+<h6># 第四局：天然同花顺护送头游，对手反追回二三游</h6>
+<p><a href="https://www.botzone.org.cn/match/6ad9991bbdad901f32415384">回放</a></p>
+<p>四家：座0 lab、座2 ADB_bot 对座1 htl、座3 ack。初始牌：lab 有小王、大王及♥4♥4♦4♠4♠4♣4六张炸；htl 有小王、大王、♦5♦5♣5♣5四张炸与♥J♥J♠J♠J♣J五张炸；ADB_bot 有♥2(配)、♥Q♦Q♦Q♣Q四张炸、♥K♦K♦K♠K♠K五张炸及♣6♣7♣8♣9♣10同花顺；ack 有♥2(配)、♥3♠3♣3♣3四张炸及♥6♥7♥8♥9♥10同花顺。</p>
+<ul>
+<li>第4手，座3 ack 出♦8♣9♠10♦J♥2(配)，宣称末张♥Q组成顺子，余22。</li>
+<li>第15手，座2 ADB_bot 出♥Q♦Q♦Q♣Q四张炸，余18。</li>
+<li>第16手，座3 ack 出♥6♥7♥8♥9♥10天然同花顺，余7，夺回主动。</li>
+<li>第20手，座3 ack 出♦2♦2♣2三张级牌，余4。</li>
+<li>第24手，座3 ack 出♥3♠3♣3♣3四张炸，余0；三家随后均过。</li>
+<li>第28手，座1 htl 接风，出♦3♣4♦5♣6♥7顺子，余22。</li>
+<li>第48手，座0 lab 出♥4♦4♠4♠4♣4五张炸，余2。</li>
+<li>第64手，座2 ADB_bot 出♣6♣7♣8♣9♣10同花顺，余0，取得三游。</li>
+</ul>
+<p>牌理：ack 第8、12手连续三带二减张，再以同花顺、三张级牌、炸弹依次收尾。推测其第4手用配补普通顺子，是为保留天然红桃同花顺。htl 接风时仍有27张，助攻必须转为独立清牌；lab 第51手先走完，ADB_bot 第62手再用五张K炸夺权，拿到二三游。ack 队虽胜，也只得1分。</p>
+<p>可学的点：头游后的接风只是一次领出机会，不能替搭档消除手数负担。</p>
+<h6>五、可学的打法</h6>
+<ol>
+<li>先减手数：第一局第1手钢板、第二局第25手三带二，都把多张组合一次送出。</li>
+<li>关口用炸：第一局第70—71手，对手余2张时及时截断；第二局第67手则展示防双上的作用。</li>
+<li>配子服务牌型：第二局第57手补同花顺，第三局第49—50手补不同长度炸弹；不是只能当高级单牌。</li>
+<li>主攻需有人护航：第三局第49—54手，头游后的反炸与再反炸直接决定双上。</li>
+<li>接风要算余手：第二局第65手和第四局第28手均为真实接风，结果分别是双上受阻和搭档末游。</li>
+</ol>
+<h6>六、平台规则与淮安口径</h6>
+<p>依据所给规则笔记，双方均为两副108张；顺子恰好5张、三连对恰好3对、钢板恰好两个连续三张、三带二须带一对。红桃级牌为逢人配，只替非王牌；本批打2，记作♥2(配)。顺子可为A2345或10JQKA，不可JQKA2；连牌中的级牌按自然顺序。炸弹次序为四张炸＜五张炸＜同花顺＜六张及以上炸，四王最大。</p>
+<p>平台规则提供进贡与接风：末游贡最大牌但配子除外，还牌不大于10，双下双贡，并有两张大王抗贡。可是规则笔记核实的7局均为打2、无进贡、无上局名次；本报告四局也如此。不能把平台规则支持进贡，写成本批回放发生过进贡。这些证据验证的是单副打2，未覆盖淮安实战持续升级、打过A及级牌改变后的策略。</p>
+<h6>七、局限</h6>
+<p>多数非 ADB_bot 对位只有31—59次，区间较宽；搭档强弱和发牌都会影响胜率，单局方差大。htl、ack、lab、koi 及 wrf 的调试字段具有相同的模型、信念与快速模型格式，检查点不同，支持“很可能同团队或同代码”的推测，不能当作已经证实同作者。第三局 koi、wrf 的检查点同为32800；koi 平台版本虽均为8，早期检查点22400、后期32800，说明版本号不足以锁定模型。ADB_bot 调试显示模型标记18，与平台版本3也不是同一口径；miai 在这些回放中无调试输出。结果只覆盖抓取时间窗，模型以后可能改变，不能外推全部历史或未来；排名分也不等于对某个对手的胜率。</p></div></html>

@@ -1,0 +1,844 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>48. 2026-10-25 lalala 掼蛋 AI 源码分析与可学打法</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>48. 2026-10-25 lalala 掼蛋 AI 源码分析与可学打法</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/qipai-kb/lalala/lalala分析报告.md</code><br />
+核验说明：正文未标日期，按 mtime 10/25；来源助手及发送待核验。仅收最终分析报告，不另收其源码和提取片段。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/qipai-kb/lalala/lalala分析报告.md</code></h3>
+<h5>lalala 掼蛋 AI 源码分析报告</h5>
+<p>分析对象：本目录 <code>src/</code> 全部 8 个 Python 文件及 <code>src/.idea/</code> 配置。行号按当前文件实际物理行计。面向会打掼蛋、希望提高牌技的读者。</p>
+<p>赛事名称、一等奖、东南大学李菁 lalala 队及年份采用提问所给背景；这份代码本身没有获奖证明、成绩表或完整比赛规则，不能独立验证这些信息。源码文件头署名为 Duofeng Wu，不能据此推断完整团队分工。本文只讨论这份代码实际体现的打法，不把比赛荣誉当成规则正确性的证明。</p>
+<h6>1. 一句话总结</h6>
+<p><strong>这是一个靠人工编写“看局面、套规则”的专家式 AI，通过 WebSocket 收取比赛平台给出的 JSON 局面和合法动作清单，再回复所选动作的编号；没有体现机器学习、训练模型、蒙特卡洛模拟或多轮博弈搜索。</strong></p>
+<p>它最值得人学习的是“保护成组牌、低成本接牌、残局及时拦截、队友大牌不乱压”；最不能照搬的是粗略记牌估算、机械阈值，以及若干确实存在的代码漏洞。</p>
+<p>它会遍历候选牌、尝试组合两手牌，但这不等于预测后续各家的应对。两手牌候选列表没有用于最终选择，而且比较写错了（<code>action.py:1121–1127</code>）。部分出炸决定采用约 50% 的随机选择；随机不等于学习或胜率模拟。</p>
+<h6>2. 程序结构与比赛接入</h6>
+<h6># 2.1 各文件干什么</h6>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>作用</th>
+<th>关键依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>state.py</code></td>
+<td>接消息，记各家已出牌、剩余张数、牌池和本方连续让牌次数</td>
+<td><code>State.parse:124</code>、<code>notify_play:152</code></td>
+</tr>
+<tr>
+<td><code>action.py</code></td>
+<td>按领牌、跟牌、牌型、进还贡分情形选动作</td>
+<td><code>rule_parse:1354</code>、<code>active:1093</code>、<code>passive:964</code></td>
+</tr>
+<tr>
+<td><code>utils.py</code></td>
+<td>理牌、估算外部余牌、挑炸弹、提供领牌辅助规则</td>
+<td><code>combine_handcards:13</code>、<code>rest_cards:245</code>、<code>choose_bomb:297</code></td>
+</tr>
+<tr>
+<td><code>client1.py</code>～<code>client4.py</code></td>
+<td>接平台，将状态交给同一套出牌规则，回传编号</td>
+<td>各文件 <code>received_message</code>，例如 <code>client1.py:27–36</code></td>
+</tr>
+<tr>
+<td><code>client.py</code></td>
+<td>早期通信用示例，和当前策略接口已经不匹配</td>
+<td><code>client.py:18–19、31</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>client1–4</code> <strong>不是四种打法</strong>：它们给对象传入不同名字，但 <code>State.__init__</code> 和 <code>Action.__init__</code> 没有使用这个名字改变策略。除连接地址、打印和注释外，核心选择完全相同。</p>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>当前启用地址</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client1</td>
+<td><code>ws://114.55.107.187:9618/game/gd/client1</code></td>
+<td>写死的远端平台地址，是否仍可用源码未体现</td>
+</tr>
+<tr>
+<td>client2</td>
+<td><code>ws://127.0.0.1:9618/game/gd/client2</code></td>
+<td>本地平台</td>
+</tr>
+<tr>
+<td>client3</td>
+<td><code>ws://127.0.0.1:9618/game/gd/client1</code></td>
+<td>名叫 client3，路径却是 client1，不能直接当作正确的四席配置</td>
+</tr>
+<tr>
+<td>client4</td>
+<td><code>ws://127.0.0.1:9618/game/gd/client4</code></td>
+<td>本地平台</td>
+</tr>
+</tbody>
+</table>
+<p><code>client.py</code> 使用本地 23456 端口、<code>/game/client</code> 路径；它调用不带必需名字参数的 <code>State()</code>、<code>Action()</code>，并调用不存在的 <code>Action.parse()</code>，不能按原样作为当前策略入口。</p>
+<h6># 2.2 通信协议：平台给题，AI 选编号</h6>
+<p>客户端使用 <code>ws4py.client.threadedclient.WebSocketClient</code>。收到消息先解析 JSON，再更新 State；只要消息含 <code>actionList</code>，就调用规则并发送 <code>{"actIndex": 编号}</code>。编号是列表从 0 开始的位置，不是直接发送牌面（<code>client1.py:8–11、27–36</code>）。</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>牌桌上的意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td><code>notify</code> 是通知，<code>act</code> 是轮到你决定</td>
+</tr>
+<tr>
+<td><code>stage</code></td>
+<td><code>beginning</code> 开局、<code>play</code> 出牌、<code>tribute</code> 进贡、<code>anti-tribute</code> 抗贡、<code>back</code> 还贡、<code>episodeOver</code> 小局结束、<code>gameOver</code> 到达局数、<code>gameResult</code> 总结果</td>
+</tr>
+<tr>
+<td><code>myPos</code></td>
+<td>自己座位；0～3，对家为 <code>(myPos+2)%4</code></td>
+</tr>
+<tr>
+<td><code>handCards</code></td>
+<td>当前手牌</td>
+</tr>
+<tr>
+<td><code>publicInfo</code></td>
+<td>四家公共信息，包括 <code>rest</code> 余张和 <code>playArea</code> 出牌区</td>
+</tr>
+<tr>
+<td><code>curPos / curAction</code></td>
+<td>刚行动的座位、动作</td>
+</tr>
+<tr>
+<td><code>greaterPos / greaterAction</code></td>
+<td>当前压住牌的座位、动作</td>
+</tr>
+<tr>
+<td><code>curRank / selfRank / oppoRank</code></td>
+<td>本局级牌、本方等级、对方等级</td>
+</tr>
+<tr>
+<td><code>actionList</code></td>
+<td>平台列好的合法选择；合法性主要依赖平台</td>
+</tr>
+<tr>
+<td><code>indexRange</code></td>
+<td>某些兜底分支随机选编号的上界</td>
+</tr>
+<tr>
+<td><code>result</code></td>
+<td>进还贡的 <code>[给牌座位, 收牌座位, 牌]</code> 列表</td>
+</tr>
+<tr>
+<td><code>antiPos / antiNum</code></td>
+<td>抗贡座位、人数；注释例子也有 <code>antiNums</code> 拼写</td>
+</tr>
+<tr>
+<td><code>order / restCards</code></td>
+<td>完牌顺序、局终余牌</td>
+</tr>
+<tr>
+<td><code>curTimes / settingTimes / victoryNum / draws</code></td>
+<td>已打局数、设定局数、胜局和平局统计</td>
+</tr>
+</tbody>
+</table>
+<p><strong>必须以实际读取方式为准，不能照抄注释里的 JSON 样例。</strong> 注释把动作说成对象、动作表说成字典，但真正策略使用 <code>['Single','2',['S2']]</code> 这种三项列表；过牌按 <code>['PASS', …, 'PASS']</code> 的有关位置判断。跟牌普遍把第 0 项当“过”，只遍历 <code>actionList[1:]</code>；领牌却从第 0 项开始找出牌。<code>T/J/Q/K/A</code> 表示十至 A；<code>S/H/C/D</code> 是花色，代码用 <code>SB</code>、<code>HR</code> 表示小王、大王（<code>utils.py:268–271</code>）。State 中 C、D 的中文花色注释互换，不能据此编码。</p>
+<h6># 2.3 .idea 能说明什么</h6>
+<p><code>misc.xml:6</code> 指向 Python 3.8；模块名 <code>guandanv6plus</code>；<code>workspace.xml</code> 保存 client2、client4 运行配置、调试断点和覆盖率工具记录。它们说明开发环境和运行过的入口，<strong>不能证明测试全部通过或具体胜率</strong>。<code>deployment.xml</code> 保存两个 SSH 主机映射及 lj 用户标签，另有名称含 password 的配置标签，但未见实际密码；它们是开发部署配置，不是比赛 WebSocket 协议。其余检查配置、忽略文件和窗口布局没有牌技信息。</p>
+<h6>3. 它记录和推断了哪些局面信息</h6>
+<table>
+<thead>
+<tr>
+<th>信息</th>
+<th>实际做法</th>
+<th>对牌技的意义与边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>各家已出牌</td>
+<td><code>history[座位]['send']</code> 逐张追加</td>
+<td>真有记牌，但后续策略并未分析每家历史出牌风格</td>
+</tr>
+<tr>
+<td>各家剩余张数</td>
+<td>开始按每人 27 张，通知出一张减一张</td>
+<td>用于报单、报双等判断；决策读取 history，而非直接采用 <code>publicInfo.rest</code></td>
+</tr>
+<tr>
+<td>全桌未出牌</td>
+<td>每种普通牌初始两张，看到出牌就扣；含自己未出的牌</td>
+<td>是全桌未出牌池，不是对手手牌</td>
+</tr>
+<tr>
+<td>外部未知牌</td>
+<td><code>rest_cards</code> 再扣自己手牌，按点数分组</td>
+<td>估算外部可能最大的单、对、三张、连牌；队友和两个对手混在一起</td>
+</tr>
+<tr>
+<td>本方让牌次数</td>
+<td><code>pass_num</code> 统计自己或对家连续 PASS；任一本方出牌归零</td>
+<td>是“本方连续几次没动”，不是全桌连续过牌，也不是同一轮次数</td>
+</tr>
+<tr>
+<td>自己让牌次数</td>
+<td><code>my_pass_num</code> 自己 PASS 加一，自己出牌归零</td>
+<td>久不出牌会放宽拆牌、出炸条件</td>
+</tr>
+<tr>
+<td>级牌、逢人配</td>
+<td>普通比较 A=14、级牌=15、小王=16、大王=17；红桃级牌 <code>H+curRank</code> 是逢人配</td>
+<td>连牌比较又恢复自然点序，处理并不处处一致</td>
+</tr>
+<tr>
+<td>进贡关系</td>
+<td>保存 <code>tribute_result</code></td>
+<td>还贡时据此区分还给队友还是对手</td>
+</tr>
+<tr>
+<td>对家、对手意图</td>
+<td>只靠当前压牌者、牌大小、余张和本方过牌次数套规则</td>
+<td>没有建立“缺某型、想要某型、主攻是谁”的明确推断模型</td>
+</tr>
+</tbody>
+</table>
+<p>依据：<code>state.py:43–77、166–187、206、258–295、394–398</code>；<code>action.py:967–984、1361–1370</code>。<code>remain_cards_classbynum</code> 虽初始化并传递，但未随出牌更新；不能当成另一套有效点数记牌。<code>get_remain_card_type</code>、未完成的 <code>combine_ThreePair</code> 没有进入主决策。局终会重置主要记牌和过牌次数，<code>tribute_result</code> 却未随小局清空；新消息到来前可能保留旧值。</p>
+<p><strong>最大认知边界：外面凑得出一副大对子，不代表某一个对手真有这一对。</strong> AI 也没有给每家分配未知牌，没有利用进贡牌位置持续追踪持有者，更没有基于不接牌反推缺牌概率。</p>
+<h6>4. 出牌决策：条件 → 动作</h6>
+<p>下面“外部最大”均指它对三家未知牌合并后的粗估，且受第 7 节记牌漏洞影响；不代表可靠的天牌判断。“先选”通常是先遇到就用，依赖平台动作排列，并非必然全局最小。</p>
+<h6># 4.1 理牌、手数和逢人配</h6>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>同点 1、2、3、至少 4 张</td>
+<td>分为散单、对子、三张、炸弹</td>
+<td><code>utils.combine_handcards:21–34</code></td>
+</tr>
+<tr>
+<td>尝试凑顺子</td>
+<td>先把级牌、王、非级牌天然炸从顺子候选中排除</td>
+<td><code>utils.py:36–44</code></td>
+</tr>
+<tr>
+<td>有五个连续点数</td>
+<td>只挑一个顺子区间：倾向用散单多、拆对子少、拆三张少的组合；另考虑 TJQKA</td>
+<td><code>utils.py:78–159</code></td>
+</tr>
+<tr>
+<td>同一区间还能同花</td>
+<td>尝试抽成同花顺，否则抽普通顺子；抽完重新分单、对、三张、炸</td>
+<td><code>utils.py:161–243</code></td>
+</tr>
+<tr>
+<td>已有三张和对子</td>
+<td>领牌候选把它们交叉配成三带二</td>
+<td><code>action.getlist:1064–1068</code></td>
+</tr>
+<tr>
+<td>三副相邻对子／两副相邻三张</td>
+<td>生成三连对／钢板候选</td>
+<td><code>action.py:1070–1083</code></td>
+</tr>
+<tr>
+<td>平时跟普通单、对、三张</td>
+<td>优先用已分好的该型，不动炸、顺、逢人配</td>
+<td>例如 <code>Single:119–135</code>、<code>Pair:272–290</code></td>
+</tr>
+<tr>
+<td>急拦或缺少三张等指定情形</td>
+<td>允许用逢人配补对子、三张、三连对或顺子，或补成炸</td>
+<td><code>action.py:113–117、259–270、536–547、720–723、790–811</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>没有真正计算“这手牌最少几手能走完”。</strong> 它只是选定一份粗理牌方案、比较单对三张的数量和大小，不枚举全部拆法，也不循环抽取全部顺子。逢人配多数时候作为要保护的资源，具体可替成什么牌主要由平台合法动作清单提供。</p>
+<p><code>cal_bomb_num</code> 把天然炸和识别到的同花顺计入，还按一张配加一个三张、两张配加一至两个三张估算可造炸数（<code>utils.py:496–522</code>）；这只是粗计数，不是精确的控制力或手数评估。</p>
+<h6># 4.2 领牌：按下面顺序找，找到就出</h6>
+<table>
+<thead>
+<tr>
+<th>顺序、条件</th>
+<th>动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 合法动作能一次出完手牌</td>
+<td>直接出完，优先于后面规则</td>
+<td><code>action.py:1113–1115</code></td>
+</tr>
+<tr>
+<td>2. 最小散单低于 9，且下一个对手不剩 1 张</td>
+<td>先出这张散单</td>
+<td><code>1129–1133</code></td>
+</tr>
+<tr>
+<td>3. 有三连对或钢板</td>
+<td>比较两类最小起点；更小者为三连对且起点≤10，或为钢板且起点≤9，便出</td>
+<td><code>1135–1140</code>、<code>utils.rankfour:591–608</code></td>
+</tr>
+<tr>
+<td>4. 有起点低于 10 的普通顺子</td>
+<td>出最小顺子</td>
+<td><code>1143–1144</code></td>
+</tr>
+<tr>
+<td>5. 有三带二</td>
+<td>比较散单、对子和三张的余量及大小，决定带小对、先出对或先出三张</td>
+<td><code>1146–1154</code>、<code>utils.rankthree:610–687</code></td>
+</tr>
+<tr>
+<td>6. 有三张而上条未选</td>
+<td>对手剩 1 张出三张；剩 3 张优先散单；其余比较最小散单与最小三张</td>
+<td><code>1155–1156</code>、<code>utils.rankone:732起</code></td>
+</tr>
+<tr>
+<td>7. 有对子而上条未选</td>
+<td>对手剩 1 张出对；剩 2 张出单；其余比较最小单、对</td>
+<td><code>1157–1158</code>、<code>utils.ranktwo:690–729</code></td>
+</tr>
+<tr>
+<td>8. 只剩散单一类可选且对手报单</td>
+<td>能用配组对则组对；否则尝试多张非 Bomb 动作；再否则出最大散单</td>
+<td><code>1160–1179</code></td>
+</tr>
+<tr>
+<td>9. 普通兜底</td>
+<td>出最小散单；无对应组牌则返回编号 0</td>
+<td><code>1181–1183</code></td>
+</tr>
+</tbody>
+</table>
+<p>三带二的主要细则（<code>utils.rankthree</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对子数等于三张数，或二者都≥2；最小三张点值&lt;8，或对手剩 1 张</td>
+<td>出最小三带二</td>
+</tr>
+<tr>
+<td>同一分支，对手剩 5 张，且小散单&lt;9</td>
+<td>出单，避开五张牌型</td>
+</tr>
+<tr>
+<td>对子比三张多</td>
+<td>结合最小三张、最小和次小对子，围绕 10 和三张 10 的阈值，决定三带二、最小对或次小对；对子的间隔还用到 2 点阈值</td>
+</tr>
+<tr>
+<td>三张比对子多</td>
+<td>小对子≤10 时带走；若对子&gt;10、最小三张&lt;10，或对子≥12，倾向先出三张；其他情况三带二</td>
+</tr>
+<tr>
+<td>进入不平衡分支且对手剩 3 张、小对&lt;8</td>
+<td>出对子</td>
+</tr>
+<tr>
+<td>进入不平衡分支且对手剩 2 张、最小三张&lt;10</td>
+<td>出三带二</td>
+</tr>
+</tbody>
+</table>
+<p>这些是固定顺序，不是“顺子永远先出”或“大牌永远最后出”。尤其前面的顺子、连牌规则可能先返回，后面的报单防守就不会再执行。</p>
+<h6># 4.3 普通跟牌：先看完整组牌，再看是否值得拆</h6>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>条件 → 动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>跟单</td>
+<td>已有散单可压，或可用点值≥15的单张，且不含配 → 先接</td>
+<td><code>Single:119–125</code></td>
+</tr>
+<tr>
+<td>跟对</td>
+<td>已有对子可压，或该对是级牌，且不用配 → 先接</td>
+<td><code>Pair:272–279</code></td>
+</tr>
+<tr>
+<td>跟三张</td>
+<td>已有完整三张可压且不用配 → 接</td>
+<td><code>Trips:549–555</code></td>
+</tr>
+<tr>
+<td>跟三带二</td>
+<td>三张来自完整三张、对子来自完整对子，带对点值≤13且不用配 → 接</td>
+<td><code>ThreeWithTwo:419–427</code></td>
+</tr>
+<tr>
+<td>跟三连对</td>
+<td>先三副原对；不行可拆一组三张补对；再在没有三张时尝试配</td>
+<td><code>ThreePair:651–723</code></td>
+</tr>
+<tr>
+<td>跟钢板</td>
+<td>两组都是原有三张且不用配 → 接</td>
+<td><code>TwoTrips:876–884</code></td>
+</tr>
+<tr>
+<td>跟顺子</td>
+<td>已理出的那条顺子能压且不用配 → 接；压队友另有限制</td>
+<td><code>Straight:779–789</code></td>
+</tr>
+<tr>
+<td>对手压牌且普通接法没有选中</td>
+<td>单、对：本方连续 PASS≥5 或自己≥3 → 尝试从大到小找不拆炸、顺、配的接法</td>
+<td><code>Single:161–164</code>、<code>Pair:316–319</code></td>
+</tr>
+</tbody>
+</table>
+<p>不要把“不拆炸”理解成所有动作都逐张严格检查。许多规则只检查动作的第一张是否属于某组，可能漏掉其余成员或重复牌问题。</p>
+<h6># 4.4 队友出牌时：并非逢传必接</h6>
+<p>以下是进入常规队友分支时的处理；紧急拦截和“一手走完”可能已提前返回。</p>
+<table>
+<thead>
+<tr>
+<th>队友当前牌型</th>
+<th>条件 → 动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单张</td>
+<td>点值≥14，或距估算外部最大≤2 → 让</td>
+<td><code>action.py:137–155</code></td>
+</tr>
+<tr>
+<td>对子</td>
+<td>点值≥13，或距外部最大≤2 → 让</td>
+<td><code>292–310</code></td>
+</tr>
+<tr>
+<td>三张</td>
+<td>点值≥13，或距外部最大≤2 → 让</td>
+<td><code>557–574</code></td>
+</tr>
+<tr>
+<td>三带二</td>
+<td>三张点值≥14，或距外部最大≤2 → 让</td>
+<td><code>429–446</code></td>
+</tr>
+<tr>
+<td>三连对、钢板</td>
+<td>起点≥10，或距估算外部最大起点≤2 → 让</td>
+<td><code>694–711、886–903</code></td>
+</tr>
+<tr>
+<td>队友牌较小且余牌≤4；三带二用≤5</td>
+<td>能完整接则考虑接：单、对、三张、三带二在队友点值≤10时接；更大时只愿意高 1 点。三连对相应小牌界线为 7</td>
+<td>各牌型队友分支</td>
+</tr>
+<tr>
+<td>队友牌较小且余牌更多</td>
+<td>有常规完整组牌就接，无则让</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>队友出顺子</td>
+<td>用已理出的顺子接，要求原顺起点≤7，或新旧起点差≤2</td>
+<td><code>785–787</code></td>
+</tr>
+<tr>
+<td>队友出炸弹或同花顺</td>
+<td>常规 Bomb 分支直接让</td>
+<td><code>925–926</code></td>
+</tr>
+</tbody>
+</table>
+<p>它只识别“队友目前压住”，没有识别“这是不是专门给我传牌”的明确意图。因此和“对家传牌必接”口号并不完全一致。</p>
+<h6># 4.5 炸弹、同花顺、王：什么时候动控制牌</h6>
+<p>先看是否进入出炸判断，再由 <code>choose_bomb</code> 挑成本较低的可用炸。</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>跟单或对，对手牌达到外部最大、对手还≥15张、自估炸数&gt;1，且常规接法未选</td>
+<td>抽一次随机数，&gt;0.5 才尝试炸</td>
+<td><code>166–171、321–326</code></td>
+</tr>
+<tr>
+<td>跟三张、三带二、钢板，对手达到外部最大、还≥15张，且常规接法未选</td>
+<td>约一半机会尝试炸；这里没有“炸数&gt;1”的同样前提</td>
+<td><code>452–457、580–585、909–914</code></td>
+</tr>
+<tr>
+<td>跟三连对，对手达到外部最大、还≥15张</td>
+<td>尝试炸，没有上述随机门槛</td>
+<td><code>724–727</code></td>
+</tr>
+<tr>
+<td>对手还≤15张，且其牌很大或接近外部最大</td>
+<td>单张点值≥15、对子≥14、三张/三带二≥12、三连对/钢板起点≥10，或距外部最大≤2 → 在相应分支尝试炸</td>
+<td><code>172、327、458、586、728、915</code></td>
+</tr>
+<tr>
+<td>本方／自己久未出牌，且前序接法未选</td>
+<td>单张 PASS≥7／自己≥5；对子≥6／自己≥5；三张、三带二、三连对、钢板≥5／自己≥3 → 尝试炸</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>对手出炸或同花顺</td>
+<td>自估炸数≥3，或出炸对手余张≤18 → 尝试反炸；队友出炸则让</td>
+<td><code>Bomb:922–961</code></td>
+</tr>
+<tr>
+<td>顺子跟牌没有选中，并进入无预留顺子的指定分支</td>
+<td>下一个对手≤15张、原顺起点≥9、本方 PASS≥5、自己≥3、或上家≤5张等任一条件 → 尝试炸</td>
+<td><code>790–816</code>，存在座位判断漏洞，见第7节</td>
+</tr>
+</tbody>
+</table>
+<p>挑炸规则（<code>utils.choose_bomb:297–367</code>）：普通同点炸成本大致为“点值＋16×超过四张的数量”；用一张配额外加 3、两张配加 16；同花顺为起点值＋32。取合格候选中最低成本者，倾向先小炸、少耗配、保护既有组牌。天然炸通常要求完整用掉，部分加配扩炸只在没有三张时接受；同花顺只接受已理出的那条且不用配。</p>
+<p>这套成本是<strong>选牌偏好，不是完整规则裁判</strong>；能否压过上手由平台动作清单保证。它并不接受所有合法炸，因此“有炸可压”仍可能选择过。</p>
+<p>王：大、小王在普通比较中高于级牌；单张规则允许把高点单牌作为常规接法。四王炸在候选排名中设置 <code>JOKER=10000</code>，但内部理牌按 B、R 分开，常规 <code>choose_bomb</code> 未见可靠识别四王炸的专用路径；一手走完等路径可能直接使用平台提供的动作。<strong>没有独立的“王一定留到最后”或“四王必炸”策略。</strong></p>
+<h6># 4.6 残局：威胁不等报单才开始管</h6>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>跟牌时自己≤10张</td>
+<td>先看能否一手出完；对手压牌时能走就走</td>
+<td><code>passive:981–986</code>、<code>utils.one_hand:388–393</code></td>
+</tr>
+<tr>
+<td>队友压牌，自己能一手普通牌走完</td>
+<td>可以接着走；若整手是炸/同花顺，而下一个对手&gt;7张且自估整手控制牌足够大，则可能让队友</td>
+<td><code>utils.py:394–409</code></td>
+</tr>
+<tr>
+<td>跟单：下一个对手≤4张，或上家剩1～3张</td>
+<td>先尊重队友已足够大的牌；再找外部最大级别完整单、不拆炸顺的单；不行尝试炸，再接受距外部最大≤2的单；指定条件下用配</td>
+<td><code>action.py:78–117</code></td>
+</tr>
+<tr>
+<td>跟对：下一个对手≤4，或上家剩1～4</td>
+<td>类似拦截流程；队友对子点值≥12且下个对手不是报双时，可以让</td>
+<td><code>223–270</code></td>
+</tr>
+<tr>
+<td>跟三张：下一个对手≤6，或上家剩1～5</td>
+<td>争取顶大三张，不行试炸，再考虑较大三张或配</td>
+<td><code>510–547</code></td>
+</tr>
+<tr>
+<td>跟三带二：下一个对手≤7，或上家剩1～7</td>
+<td>从大三张起找原三带原对；必要时拆大三张作带对、试炸或配</td>
+<td><code>382–417</code></td>
+</tr>
+<tr>
+<td>领牌、对手报单</td>
+<td>多个分支改出对、三张、三带二；只有单可走时尝试出最大散单</td>
+<td><code>1129–1133、1160–1179</code>；<code>utils.rankone/ranktwo/rankthree</code></td>
+</tr>
+<tr>
+<td>对手报双或剩3、5张</td>
+<td>某些分支换型：报双出单或三带二；剩3出单/对；剩5有条件出单</td>
+<td>见领牌规则及 <code>utils.py:618–619、653–656、698–699、739–740</code></td>
+</tr>
+</tbody>
+</table>
+<p>队友报单、报双没有一套专门“给他送指定牌型”的领牌程序。<code>active</code> 主要看相邻对手张数，未据队友余一张主动领小单传送。队友少牌主要影响跟牌时让不让；队友已走完也只沿用余张和座位条件，没有清晰的主攻交接模型。</p>
+<h6># 4.7 进贡、还贡</h6>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>动作</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>进贡有多个动作</td>
+<td>看第0个动作，若含红桃级牌则选第1个，否则第0个；不是自己重新找全手最大牌</td>
+<td><code>tribute:1345–1352</code></td>
+</tr>
+<tr>
+<td>只有一个合法动作</td>
+<td>直接选0，进还贡也如此</td>
+<td><code>rule_parse:1355–1357</code></td>
+</tr>
+<tr>
+<td>还贡</td>
+<td>内部只考虑点值≤10的牌，级牌改为15后被排除；先散单，再拆三张，再拆对子，再拆炸</td>
+<td><code>1309–1337</code></td>
+</tr>
+<tr>
+<td>还给对手，有散单</td>
+<td>按列表顺序找5或10；否则随机散单</td>
+<td><code>1211–1223</code></td>
+</tr>
+<tr>
+<td>还给队友，有散单</td>
+<td>优先随机选低于5的散单；没有再随机散单</td>
+<td><code>1225–1232</code></td>
+</tr>
+<tr>
+<td>需要拆对子</td>
+<td>尽量避开组成三连对的对子；特别检查9与10/J、10与J/Q的衔接</td>
+<td><code>1234–1270</code></td>
+</tr>
+<tr>
+<td>需要拆三张</td>
+<td>尽量避开相邻三张、10接J的钢板潜力</td>
+<td><code>1272–1294</code></td>
+</tr>
+<tr>
+<td>需要拆炸</td>
+<td>代码意图先取超过4张的炸中一张，但相关循环写错，不能保证执行</td>
+<td><code>1296–1307</code></td>
+</tr>
+<tr>
+<td>前述都没有</td>
+<td>从全手点值≤10的牌中随机一张</td>
+<td><code>1338–1344</code></td>
+</tr>
+</tbody>
+</table>
+<p>还对手5/10为何更好，源码未解释；不能编造为经过统计证明的策略。红桃5/10的判断写在前面，但整段按散单顺序遇到任意5/10就返回，并不保证全局优先红桃。抗贡由平台通知，源码未体现自行裁定抗贡资格。</p>
+<h6>5. 和教学口径的对照</h6>
+<p>本节只对照提问列举的教学口径；完整教学体系源码未体现。</p>
+<table>
+<thead>
+<tr>
+<th>教学口径</th>
+<th>一致处</th>
+<th>不同处与值得学的地方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主攻、助攻</td>
+<td>认识对家，队友大牌会让，敌方残局会拦</td>
+<td>没有明确角色分工；领牌不主动按队友余牌传型。可学“队友已有控制时少抢”，不可说它实现完整主攻助攻体系</td>
+</tr>
+<tr>
+<td>惜炸</td>
+<td>有普通组牌优先用；选炸倾向低成本，避免拆完整炸</td>
+<td>对手≤18张就可能反炸；多种15张、过牌次数和随机阈值触发出炸。惜炸不是绝对存炸</td>
+</tr>
+<tr>
+<td>减手数</td>
+<td>三带二消对子、连牌整组走、保护已组顺炸</td>
+<td>不算最少手数，先抽一条顺子可能漏更好的组合。应学习整组意识，不能照抄其理牌结果</td>
+</tr>
+<tr>
+<td>对家传牌必接</td>
+<td>队友小牌可低成本接，自己整手能走通常接</td>
+<td>队友牌大时主动让，队友少牌更谨慎；没有真正辨认传牌意图。“必接”不符合源码</td>
+</tr>
+<tr>
+<td>报单不出单</td>
+<td>多处报单优先对、三张、三带二</td>
+<td>无其他出路时出最大单；部分前序分支先返回。“不出单”是有条件的防守偏好</td>
+</tr>
+<tr>
+<td>报双换型</td>
+<td>有对子与散单的分支会报双出单，也会三带二</td>
+<td>不是所有牌型都统一检查；实际应看敌方可能牌型，不能只按余张断言</td>
+</tr>
+<tr>
+<td>大王保控制、配要珍惜</td>
+<td>大王数值最高，常规接牌多保护配</td>
+<td>没有统一王保留策略；急拦会用配。值得学“资源价值随局面改变”</td>
+</tr>
+</tbody>
+</table>
+<h6>6. 可转成人类口诀的10条要点</h6>
+<p>以下是从代码提炼的学习提示，不是无例外的必胜定律。</p>
+<ol>
+<li><strong>先理整组再跟牌，别为小压拆大本。</strong>（<code>utils.combine_handcards</code>，<code>action.Single/Pair</code>）</li>
+<li><strong>能一手走就先走，别把收尾拖成险。</strong>（<code>action.py:1113–1115、981–986</code>）</li>
+<li><strong>小散单趁早处理，先看下家是否报单。</strong>（<code>1129–1133</code>）</li>
+<li><strong>三张带小对，尽量整组往外送。</strong>（<code>utils.rankthree</code>、<code>action.ThreeWithTwo</code>）</li>
+<li><strong>对家大牌站得住，自己别忙着抢。</strong>（各牌型队友分支）</li>
+<li><strong>对家小牌能省接，大跳高压要算账。</strong>（队友少牌时“高一档”条件）</li>
+<li><strong>敌方四张左右就警觉，不等报单才拦截。</strong>（<code>action.Single/Pair</code>）</li>
+<li><strong>敌方报单先换型，只剩单牌顶大单。</strong>（<code>1160–1179</code>、<code>utils.rankone/ranktwo</code>）</li>
+<li><strong>炸要炸在争先处，能省一档省一档。</strong>（<code>utils.choose_bomb</code>，不是保证最小合法炸）</li>
+<li><strong>还贡先顾整牌形，连对钢板别轻拆。</strong>（<code>action.back_action</code>；具体还5/10不宜当通用口诀）</li>
+</ol>
+<h6>7. 局限、规则口径与明显问题</h6>
+<h6># 7.1 与题目所列淮安／江苏口径的对应</h6>
+<p>这里仅核对提问列明的四项，不据此宣称覆盖所有地方规则；比赛服务器的完整裁判源码未提供。</p>
+<table>
+<thead>
+<tr>
+<th>口径</th>
+<th>源码体现</th>
+<th>能否确认</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>顺子5张</td>
+<td>理牌按五个连续点数处理，另考虑A2345、TJQKA</td>
+<td>策略层一致（<code>utils.py:78、120、220</code>）；完整合法性依赖平台</td>
+</tr>
+<tr>
+<td>三连对3对</td>
+<td>检查第0/2/4张，候选拼接三副对，共6张</td>
+<td>一致（<code>action.py:655–658、1070–1075</code>）</td>
+</tr>
+<tr>
+<td>钢板2组三张</td>
+<td>检查第0/3张，候选拼接两组三张，共6张</td>
+<td>一致（<code>880–883、1078–1082</code>）</td>
+</tr>
+<tr>
+<td>逢人配不当王</td>
+<td>以红桃级牌为配，王另排16/17；未见主动拿配组成王的策略</td>
+<td>“配不能替王”的完整裁定源码未体现，不能只凭AI没选就认定平台绝对禁止</td>
+</tr>
+</tbody>
+</table>
+<p>其他如双贡、同点进贡排序、接风、升级过A、四王炸完整比较等，不能由这份客户端确认为地方规则的完整实现。</p>
+<h6># 7.2 明确漏洞与简化</h6>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>实际后果及依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>扣自己两张相同牌时没有累计扣减</td>
+<td><code>utils.py:260</code> 每次都用原始余数减1。实际最小验证：初始两张S2、自己握两张S2，外部仍估出一张S2。会误判天牌和最大对子</td>
+</tr>
+<tr>
+<td>外部牌池不分家</td>
+<td>三家合计凑成对子、三张、炸，不代表某人持有；对手意图、花色缺口概率均未建模</td>
+</tr>
+<tr>
+<td>两手走完候选判断失效</td>
+<td><code>action.py:1126</code> 比较两个原地排序的返回值，两边都是 None，张数和相同便可能误判；候选又没被使用，实际没有两手连走规划</td>
+</tr>
+<tr>
+<td>重复牌按“有没有”删除</td>
+<td><code>utils.py:201</code>、<code>action.py:801</code> 使用成员关系筛除，同样字符串的两张牌可能一起被删；理牌和剩牌评价会失真</td>
+</tr>
+<tr>
+<td>同花顺识别不完整</td>
+<td>只检查选出的一个区间，扫描还略过手牌最后一张（<code>utils.py:186</code>）；可能漏同花顺；级牌一开始被排除，也漏含自然级牌的连牌</td>
+</tr>
+<tr>
+<td>三连对配位判断重复</td>
+<td><code>action.py:688–691</code> 后两条相同，漏了本应考虑的另一位置，配牌机会可能漏选</td>
+</tr>
+<tr>
+<td>队友座位漏取模</td>
+<td><code>action.py:790</code> 用 <code>(myPos+2)!=greaterPos</code>，座位2、3时对家判断可能错，导致顺子分支错误进入后续判断</td>
+</tr>
+<tr>
+<td>领牌连牌点序不一致</td>
+<td><code>getlist</code> 用级牌=15、A=14的表找相邻对/三张，可能漏自然连续；跟牌时却恢复自然序，不能认为连牌识别完整</td>
+</tr>
+<tr>
+<td>还贡拆炸循环错误</td>
+<td><code>action.py:1304</code> 对字典直接拆成 key,value，而非遍历键值对；普通单字符点数键会触发解包错误</td>
+</tr>
+<tr>
+<td>还贡不严格从合法清单筛目标</td>
+<td>先按点值≤10选牌，最后才找动作；无匹配返回 None、可还低牌为空时随机选空表等边界未防护；队友分支把非T点数直接转整数，也依赖筛选前提</td>
+</tr>
+<tr>
+<td>编号0有多种含义</td>
+<td>跟牌默认0是过，领牌找不到精确牌序也返回0（<code>utils.getindex:568–571</code>）。不能保证兜底选到符合策略的动作；动作排序不同会改变打法</td>
+</tr>
+<tr>
+<td>状态依赖完整通知</td>
+<td>初始27张后逐张扣；漏通知、中途加入等没有自动与publicInfo.rest校正。抗贡或新局贡牌记录更新边界也较简化</td>
+</tr>
+<tr>
+<td>异常保护实际被注释</td>
+<td><code>rule_parse:1358–1402</code> 多个 try/except 只有注释；一次异常可能中断响应；<code>random_parse</code> 末尾没有返回动作</td>
+</tr>
+<tr>
+<td>计型辅助并未完成</td>
+<td><code>get_remain_card_type</code> 有分支跳过某些列表追加、顺子标志处理异常，且同花顺结果未放入返回表；但它未进入当前主流程，不应说它直接决定本次出牌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>验证范围：</strong> 已逐文件通读，并用 Python 3 对全部8个文件进行内存语法编译，均通过；用独立执行的 <code>utils.py</code> 最小例子确认重复牌扣减问题。没有连接原比赛服务器，没有跑完整对局或测胜率。语法通过不代表所有分支可正常运行；未提供的赛事真实成绩、调参过程、训练过程、规则说明均为「源码未体现」。</p>
+<h6>8. 能否接入我们的胜率模拟</h6>
+<p><strong>能作为有特色的规则对手或四家统一策略，但不宜原样接上就把结果称作“复现一等奖AI胜率”。</strong> 策略本身不需要 WebSocket：可在外面补一层转换，把模拟局面包装成它读得懂的消息，直接调用 <code>State.parse</code> 和 <code>Action.rule_parse</code>；每家独立一份状态，不能共用一个 State。</p>
+<p>本次只读查看了 <code>/workspace/guandan-plan/sim/guandan_wr_bot.py</code>：现有入口 <code>choose(hand, allhands, seat, top, owner, diag=None)</code> 在74行，牌使用数字身份，合法动作是本地对象；与本项目字符串牌、三项动作和通知状态不一样。策略只能收到自己手牌与公开信息，<strong>不能把 allhands 中对手真实牌送给它</strong>，否则胜率对照失去意义。</p>
+<p>还看到 sim 内 vendor 的 <code>base4/base4_agent.py</code> 含高度相似的 Action、Single、back_action 等代码和合并辅助函数，并引入了平台 Player。这是一个值得继续核查的现成适配线索；这里只做片段核对，未证明它与本目录完全等价，也不能直接认定它就是同一获奖版本。</p>
+<table>
+<thead>
+<tr>
+<th>工作</th>
+<th>具体需要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>牌和动作转换</td>
+<td>数字身份↔S/H/C/D字符串；王编码；三带二、三连对、钢板的成员顺序；重复牌按数量映射</td>
+</tr>
+<tr>
+<td>合法清单适配</td>
+<td>保证跟牌PASS在0位、领牌无PASS；保持动作排列稳定；验证返回编号和合法性</td>
+</tr>
+<tr>
+<td>对局状态适配</td>
+<td>开局座位、逐手通知、剩余张数、级牌、过牌、收轮和接风；每局正确重置</td>
+</tr>
+<tr>
+<td>安全完成选择</td>
+<td>对None、越界、异常做明确记录；兜底次数单独公布，不能把大量随机兜底算作原策略表现</td>
+</tr>
+<tr>
+<td>两个版本分开评估</td>
+<td>保留原样策略作为复现版本；若修记牌、拆牌等漏洞，另命名为修正版，不能混为同一AI</td>
+</tr>
+<tr>
+<td>对照实验</td>
+<td>同发牌种子换座位、双方对调、固定随机种子，报告局数和不确定范围；分别比较单个对手和四家同策略</td>
+</tr>
+</tbody>
+</table>
+<p>工作量估计：对熟悉现有模拟器的开发者，只接纯出牌小局并跑通异常统计，约1～2人日；做可复核的原版/修正版对照、边界覆盖和批量评估，约3～5人日；若还要完整多局升级、进还贡和抗贡，需要额外工作。以上是工程判断，非源码给出的工期或已完成承诺。原平台合法动作的排序若无法复现，也应单列为复现偏差。</p>
+<p>本次只新增本报告，未修改 <code>src/</code> 源码，也未修改或运行 <code>/workspace/guandan-plan/sim</code> 下的任何文件；没有建立适配器、没有输出模拟胜率。</p></div></html>

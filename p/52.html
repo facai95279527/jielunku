@@ -1,0 +1,245 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>52. 2026-10-26 miai 分析：DMC 主线与 VRPO 的证据边界</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>52. 2026-10-26 miai 分析：DMC 主线与 VRPO 的证据边界</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/qipai-kb/miai分析.md</code><br />
+核验说明：正文抓取日期 10/26。facts.md 与 paper.txt 属于证据/原材料，不重复收。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/qipai-kb/miai分析.md</code></h3>
+<h5>miai 分析</h5>
+<p>本文以 <a href="miai/facts.md">miai/facts.md</a> 中已核实事实为依据，必要时核对 <a href="miai/paper.txt">论文原文</a>。事实抓取日期为 2026-10-26（新加坡时间）。工程判断、建议与尚未核实的事项分别说明；不把斗地主结果当成掼蛋结果。</p>
+<h6>1 结论摘要</h6>
+<p>miai 值得我们当作强陪练、人工对照和工程方法参考，但现有证据不足以证明其掼蛋算法在相同规则、相同算力下优于我们的 DouZero 式 DMC。论文中的 VRPO 在斗地主上明显胜过 DouZero；<strong>论文全文没有掼蛋实验数据，也没有人类对战测试</strong>。</p>
+<p>对目前只有 8 核 CPU、15GB 内存、无 GPU 的工具，建议继续以 DMC 为主线，先借鉴动作拆分思路、终局奖励、复式牌评测与 Edge 对照指标。VRPO 整体替换涉及训练体系重构，暂不建议；可列为后续 GPU 阶段的候选方案。</p>
+<p>网站可以先用于免费陪练和人工对照。自动接入前应联系作者，询问 <code>/api/act</code> 是否可授权使用；接口存在、前端能调用，并不等于公开授权。当前未发现可直接下载的代码或权重。</p>
+<h6>2 miai 是谁</h6>
+<p>Botzone 掼蛋天梯的第 3 名 miai，作者为 nanomena，分数 1220.25，描述链接指向 <code>guandan.miai.moe</code> 和论文。GitHub 身份对应 Zhiyuan Fan（范致远），MIT 博士生；个人主页还列有斗地主与桥牌网站。</p>
+<p>同一天梯另有第 18 名 miai_vrpo（开心掼个蛋，1148.10，描述为“VRPO self-play”）和第 11 名 miai（Caelum，1183.57）。它们与 nanomena 的关系查不到，不能混作同一模型或同一作者的成绩。</p>
+<p>论文为 Zhiyuan Fan、Gabriele Farina 合著的《GAE Falls Short in Imperfect-Information Self-Play Reinforcement Learning》，arXiv:2605.19235v1，2026-05-19 提交，是预印本，未注明录用会议。主页上的其他研究和报道可以辅助确认作者身份，不能代替掼蛋实力证据。</p>
+<h6>3 论文方法通俗解释</h6>
+<h6># VRPO / Q-boosting</h6>
+<p>VRPO 是 PPO 的改版。PPO 可以理解为“根据这批对局调整出牌倾向，但限制每次改动幅度”。论文关注的问题是：传统 GAE 用实际发生的后续行动估计当前动作好坏；自对弈策略带有随机性，后续抽样出什么动作会给这个估计带来噪声。即便局面价值预测完全准确，这种噪声仍然存在。</p>
+<p>Q-boosting 训练一个中心化 Q-critic，预测“当前局面下，每个候选动作分别值多少”。训练时它能看全部玩家手牌，用多步 Expected SARSA(λ) 迹替代 GAE，把部分后续动作的随机抽样换成按策略概率求期望。λ=0.95；论文定理在 λ=1 时给出无偏性质，并说明 critic 足够准确时，其均方误差小于使用精确局面价值的 GAE。<strong>这有条件限制，不是任意训练阶段都保证更优。</strong></p>
+<p>训练保留 PPO clip，ε_base=0.02；加入到均匀分布的 KL 正则，α_base=0.1 并衰减，以维持探索；critic 使用 64×B 的小循环回放；评测使用 β=0.999 的策略 EMA，可理解为对近期策略做平滑。</p>
+<p>训练时看全手牌、执行时只看本方信息，属于中心化训练、分散执行（CTDE / MAPPO 式）。这不意味着部署时能偷看对手手牌。</p>
+<h6># 网络</h6>
+<p>观察先变成 token，使用 128 维嵌入求和，加玩家嵌入，再送入 4 层、4 头的 LLaMA 式因果 Transformer，前馈层倍率为 2；之后拼接二值通道，经过带 RMSNorm 的 3 层、256 宽 MLP。通俗地说，它把牌、玩家和出牌历史编码成一个局面特征。</p>
+<p>候选动作使用 256 维 token 嵌入和 2 层 MLP，与局面特征做内积，得到动作偏好。critic 对每个玩家分别编码，再用残差 MLP 融合，输出各候选动作的 Q 值。优化器为 Muon，学习率 4e-4，权重衰减 0.01。论文各游戏使用同一结构和超参数；网站掼蛋部署的具体网络和训练配置查不到。</p>
+<h6># 动作拆分</h6>
+<p>一次完整出牌可以拆成连续的小选择：先选牌型和主点，再选终点或带牌。这样不用同时给所有完整组合打分。论文斗地主单步最多 35 个候选，对比 DouZero 的 27,472。</p>
+<p>这是表示方法上的节省，但选择步骤会变多，且前面的选择影响后续可选项。掼蛋还涉及逢人配和不同牌型，不能直接沿用斗地主编码，也不能把这些候选数当作掼蛋数据。</p>
+<h6># 奖励与无搜索</h6>
+<p>论文只用终局奖励，斗地主按炸弹翻倍计分，不依赖人工设计的辅助损失。其思路是让模型最终对赢输或计分结果负责，而不是人为规定“某种出牌看起来更好”。迁移到掼蛋时，仍须先确定头游、搭档结果和升级收益之间的目标口径。</p>
+<p>论文方法没有在线搜索，也没有独立的对手手牌推断模块；部署决策依靠策略网络。无搜索可以减少决策时的计算，但不代表训练便宜，也不代表没有从历史信息学习对手牌的隐含判断。</p>
+<h6>4 训练算力与时长</h6>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>已核实配置与训练量</th>
+<th>时长及边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>斗地主</td>
+<td>40,000 迭代，B=2048 局，约 2.65e9 步，4×RTX 5090</td>
+<td>约 55 小时</td>
+</tr>
+<tr>
+<td>单挑无限注德州</td>
+<td>40,000 迭代，B=8192，约 1.51e9 步</td>
+<td>约 63 小时；facts 未单独明确该项硬件</td>
+</tr>
+<tr>
+<td>网站掼蛋</td>
+<td>具体训练配置、训练量查不到</td>
+<td>训练时长查不到</td>
+</tr>
+<tr>
+<td>网站在线推理</td>
+<td>p50 19ms、mean 77ms、p99 148ms</td>
+<td>服务器硬件查不到，不能套到我们的 CPU</td>
+</tr>
+</tbody>
+</table>
+<p>我方为 8 核 CPU、15GB 内存、无 GPU。论文斗地主的 55 小时是大规模 GPU 训练的实测结果，既不是掼蛋训练时间，也不是 CPU 运行时间。</p>
+<p><strong>CPU 大约差几个数量级：现有事实查不到，无法给出有证据的数量级估计。</strong> GPU 数量与 CPU 核数不能直接相除；训练还包含环境采样、网络更新、批处理和内存开销。按工程判断，同等规模训练在我方机器上会有显著资源压力，但具体慢多少不能量化。</p>
+<p>可执行的估算办法是：先让相同配置的小规模原型在我方机器上完成包含采样与更新的完整训练循环，测得有效训练步吞吐，再以论文约 2.65e9 步除以吞吐估算 CPU 时长，并与 55 小时比较。该结果仍应标为估计，因为短程吞吐未必代表长期运行，且动作拆分后的“步”必须使用一致定义。当前没有这项实测；在“只用 facts 数字”的约束下，不编造百倍或千倍差距。</p>
+<h6>5 评测结果</h6>
+<h6># 论文评测</h6>
+<table>
+<thead>
+<tr>
+<th>任务与对局</th>
+<th>结果</th>
+<th>样本量</th>
+<th>误差与解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>斗地主：VRPO 对 PerfectDou</td>
+<td>平均收益 +0.152</td>
+<td>100,000 副复式牌</td>
+<td>±0.004，±1 SEM</td>
+</tr>
+<tr>
+<td>斗地主：VRPO 对 DouZero</td>
+<td>平均收益 +0.286</td>
+<td>100,000 副复式牌</td>
+<td>±0.004，±1 SEM</td>
+</tr>
+<tr>
+<td>斗地主：PerfectDou 对 DouZero</td>
+<td>平均收益 +0.141</td>
+<td>100,000 副复式牌</td>
+<td>±0.004，±1 SEM</td>
+</tr>
+<tr>
+<td>德州：VRPO 对 Slumbot</td>
+<td>+33 mBB/手</td>
+<td>1,000,000 手</td>
+<td>±19 mBB/手；facts 未注明此误差的置信口径，作者称“非决定性胜利”</td>
+</tr>
+<tr>
+<td>小游戏：APTTT / ADH3 / Liar's Dice</td>
+<td>可剥削度比 IPPO / MAPPO / MMD / PPG 低 15% 以上</td>
+<td>各 5 个种子</td>
+<td>具体误差数值查不到</td>
+</tr>
+<tr>
+<td>掼蛋</td>
+<td><strong>论文没有数据</strong></td>
+<td>查不到</td>
+<td>无法从论文给出掼蛋胜率、收益或误差</td>
+</tr>
+</tbody>
+</table>
+<p>斗地主表格是角色平均收益，不是胜率，不能改写为胜率提升。±1 SEM 也不能当作 95% 置信区间。论文报告 VRPO 约用 40% 的训练步数便超过 PerfectDou；DouZero 的训练量约为 1e10 步。这支持其在该实验设置下的样本效率优势，不构成我方掼蛋训练的耗时保证。</p>
+<p>复式牌的价值在于让不同策略在相同发牌条件下比较，减少发牌运气对差异的干扰。论文没有人类对战测试。</p>
+<h6># 网站统计</h6>
+<p>以下为 <code>/api/stats</code> 的 <code>range=all</code> 快照，生成于 2026-10-25T16:01Z。单人模式统计自 2026-08-04 起。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>样本量</th>
+<th>玩家队赢局率</th>
+<th>Edge 平均值</th>
+<th>误差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单人：玩家与 Miai 搭档，对另外的 Miai</td>
+<td>24,615 手、34 名玩家</td>
+<td>38.35%</td>
+<td>+0.847 级</td>
+<td>赢局率 95%CI：37.75–38.96%；Edge 95%CI：0.820–0.873</td>
+</tr>
+<tr>
+<td>多人：玩家搭档对 Miai</td>
+<td>28,489 手、11 名玩家</td>
+<td>37.97%</td>
+<td>+0.962 级</td>
+<td>赢局率 95%CI：37.41–38.54%；Edge 95%CI：0.937–0.987 级</td>
+</tr>
+</tbody>
+</table>
+<p>口径说明：Edge 的均值和区间单位均为“级”；区间取自接口字段 ci95_low/ci95_high（95%）。</p>
+<p>单人模式中，Miai 更好占 48.7%，持平 34.4%，更差 16.9%。玩家名次分布为头游 4595、二游 3700、三游 6274、末游 10046；同座 Miai 分别为 6193、6187、6157、6078。</p>
+<p>网站把每手牌交给全 Miai 桌在同一副牌上复打，以“级”为单位形成 Edge 对照。按 facts 的统计方向，正值对应 Miai 相对玩家表现更好，不能当成玩家优势。这种对照比单看输赢更有诊断价值，可以帮助识别相同发牌下的结果差异。</p>
+<p>局限是：玩家为自选的网站访客，水平未知；99.7% 会话只打 1 手；手数不等于独立玩家数，同一玩家和搭档可能贡献相关样本。统计不能证明 Miai 胜过专业选手，也不能作为其对我方工具的胜率。Miai v2 自 2026-09-09 起全程上线并包含进贡还贡决策，而全量统计起点更早，不能把全量结果都归给同一版本。Edge 的精确计算公式和置信区间如何处理相关性，facts 未给出。</p>
+<h6>6 开源与许可证</h6>
+<p>论文采用 CC BY 4.0。该许可适用于论文，不自动覆盖模型代码、权重和网站服务。</p>
+<p>作者 GitHub 有 9 个公开仓库，未发现掼蛋或 VRPO 代码；Botzone 源码按钮不可用；网站前端没有模型文件，推理在服务端。当前未发现可用代码、权重或对应许可证，不能按“已开源、可直接集成”规划。</p>
+<p><code>POST /api/act</code> 需要 <code>infoset_str</code>，未公开文档。建议联系作者询问授权、输入输出规范、规则版本、使用限制及可持续性；未获得授权前，不擅自调用该未公开接口做批量评测或产品集成。</p>
+<h6>7 规则口径</h6>
+<p>网站支持完整升级赛：从 2 打起；打 A 需头游且队友非末游；A 三次不过回 2。支持单进贡、双进贡、还贡、抗贡，以及红桃级牌逢人配。</p>
+<p>我方当前不含进贡，默认头游目标。因此网站完整升级赛的表现和 Edge，不能直接等同于我方单手头游目标的性能。</p>
+<p>网站对顺子、三连对、钢板长度没有查到直接说明。标准掼蛋分别是 5 张、3 对、2 个三张，与我方一致的可能性较高，但<strong>尚未核实网站口径</strong>。对战或比较前还应核实合法动作与终局计分；不能凭“都叫掼蛋”认定规则兼容。</p>
+<h6>8 对我们 8 核 CPU 工具的借鉴</h6>
+<p>以下工作量是工程相对判断，不是已测工时；可交付天数和 CPU 训练耗时均查不到。</p>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>可采取的做法</th>
+<th>相对工作量</th>
+<th>主要风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可直接借鉴</td>
+<td>建立固定发牌、交换座位或策略位置的复式牌评测，保存逐手结果与误差</td>
+<td>低至中；需固定评测流程和结果记录</td>
+<td>配牌或座位不对称、重复样本相关性处理不当</td>
+</tr>
+<tr>
+<td>可直接借鉴</td>
+<td>在现有终局目标下检查奖励与评测是否一致；保持终局结果为核心</td>
+<td>低，先审查现有实现</td>
+<td>头游与搭档收益不同，改奖励可能改变任务本身</td>
+</tr>
+<tr>
+<td>可直接借鉴</td>
+<td>用网站做人工陪练、局面复盘，参考当前合法动作的 wp/adp 排序</td>
+<td>低；人工工作随复盘量增加</td>
+<td>隐藏信息、规则和目标不一致，wp/adp 不应与 Edge 直接换算</td>
+</tr>
+<tr>
+<td>需改造</td>
+<td>为掼蛋设计动作拆分，覆盖逢人配及全部合法组合</td>
+<td>高；涉及动作编码、环境推进、模型输入输出和训练衔接</td>
+<td>漏动作、重复编码、拆分次序引入偏差，旧模型不能直接沿用</td>
+</tr>
+<tr>
+<td>需改造</td>
+<td>建立本地全基线复打的 Edge 类指标</td>
+<td>中；需统一发牌、搭档、计分与版本</td>
+<td>我方没有完整升级赛时只能定义本地口径，不能声称复现网站 Edge</td>
+</tr>
+<tr>
+<td>需改造</td>
+<td>中心化 Q-critic、Q-boosting 和 PPO 更新的小规模实验</td>
+<td>高；需新增训练流程与稳定性验证</td>
+<td>critic 不准、训练吞吐低，理论条件不一定满足</td>
+</tr>
+<tr>
+<td>当前不可行</td>
+<td>在现有资源和证据下承诺完整复现论文规模，并整体替换 DMC</td>
+<td>很高，具体工时查不到</td>
+<td>无公开实现与权重，内存和吞吐未经验证，掼蛋效果无论文保证</td>
+</tr>
+<tr>
+<td>当前不可行</td>
+<td>直接下载现成 miai 模型，或把未公开 API 当作已获授权的稳定依赖</td>
+<td>无法排期，取决于作者提供和授权</td>
+<td>资源不可得、接口协议和授权缺失</td>
+</tr>
+</tbody>
+</table>
+<p>“可直接借鉴”指方法可以进入我方工作流，并非无需实现；“当前不可行”指当前不应承诺交付，并非断言 CPU 在数学上无法运行这些算法。</p>
+<p>**与 DouZero DMC 相比孰优，必须按问题回答：**论文斗地主的最终对局结果与报告的训练步数，支持 VRPO 在其设置下优于 DouZero；我方掼蛋的实力比较查不到。就现阶段工程适配而言，DMC 已有实现，适合继续作为 CPU 基线。VRPO 的样本效率优势不能自动抵消更复杂的网络、critic 和更新开销，也不能推出 CPU 墙钟时间更短。</p>
+<p>算力数量级比较仍以第 4 节为准：对方 4×RTX 5090、55 小时是事实；我方 CPU 慢几个数量级缺少测量依据，当前不能给出数值估计。</p>
+<h6>9 具体建议</h6>
+<ul>
+<li><strong>先用网站做免费的强陪练和人工对照。</strong> 记录典型局面、合法动作、我方 wp/adp 排序及实际结果；把差异当作待验证假设，避免凭少量输赢下结论。</li>
+<li><strong>联系作者询问 <code>/api/act</code> 是否可授权使用。</strong> 同时确认模型版本、规则、调用协议和使用限制。在授权明确前，不擅自调用未公开接口。本报告不代为发送联系消息。</li>
+<li><strong>优先建设复式牌评测和 Edge 类对照。</strong> 固定发牌与版本，让候选策略和基线在同样条件下复打；同时报告样本量、收益和误差。先使用我方明确的头游目标，完整升级赛指标待规则补齐后再做。</li>
+<li><strong>核对终局奖励。</strong> 明确当前优化的是头游还是搭档收益，使训练目标与评测目标一致；不直接照搬斗地主炸弹翻倍奖励。</li>
+<li><strong>把动作拆分作为独立工程试验。</strong> 先证明合法动作覆盖和回译正确，再测候选评估开销与完整决策耗时；候选数减少不等于总耗时必然减少。</li>
+<li><strong>保留 DMC 主线，暂不整体替换为 VRPO。</strong> 后续具备 GPU 条件时，再评估中心化 Q-critic 和 Q-boosting，并用相同规则与复式牌比较实际收益。CPU 阶段若做原型，目的应是验证正确性与测吞吐，不承诺论文级训练结果。</li>
+</ul>
+<h6>10 来源链接</h6>
+<ul>
+<li><a href="miai/facts.md">已核实事实汇总</a>：本文事实与数字的直接依据。</li>
+<li><a href="miai/paper.txt">本地论文全文</a>：核对方法、平均收益口径与动作拆分。</li>
+<li><a href="https://arxiv.org/abs/2605.19235">arXiv 论文页面</a>、<a href="https://arxiv.org/pdf/2605.19235">论文 PDF</a>：方法、训练与论文评测。</li>
+<li><a href="https://guandan.miai.moe">Miai 掼蛋网站</a>、<a href="https://guandan.miai.moe/api/stats?range=all">网站统计接口</a>：网站规则、功能与统计；本文引用的是 facts 中的快照。</li>
+<li><a href="https://www.botzone.org.cn/game/ranklist/65490c16ec1ab1389702dced">Botzone 掼蛋天梯</a>：账号、排名、描述与源码可见性。</li>
+<li><a href="https://github.com/nanomena">nanomena 的 GitHub</a>、<a href="https://miai.moe">作者主页</a>、<a href="https://fan-zhiyuan.org">个人主页域名</a>：身份与公开项目线索。</li>
+</ul>
+<p>本文未修改 <code>/workspace/guandan-plan</code> 下任何文件。</p></div></html>

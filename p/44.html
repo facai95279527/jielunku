@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>44. 2026-10-23 星星英语 Android 离线应用交付说明（日期待核验）</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>44. 2026-10-23 星星英语 Android 离线应用交付说明（日期待核验）</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/kid-english-app/english-play/README.md</code><br />
+核验说明：无正文交付日期；标题日期暂按现存 mtime 10/23 占位，不能作为实际发送日。README 是实现/安装说明，CODEX_BRIEF 与 CODEX_ENRICH 是开工需求而非另一个完成结论。README 引用的 TEST_REPORT.md 当前不存在，无法补验其运行记录；不认定已验收。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/kid-english-app/english-play/README.md</code></h3>
+<h5>星星英语 · English Play</h5>
+<p>适合 6 岁儿童在横屏平板、安卓盒子和投影仪上独立玩耍的原生 Android 应用。<strong>Kotlin + Jetpack Compose，Android 8.0+，无广告、无登录、无内购，可完全离线使用。</strong></p>
+<h6>安装试用</h6>
+<p>已构建的 APK：<a href="app/build/outputs/apk/debug/app-debug.apk"><code>app/build/outputs/apk/debug/app-debug.apk</code></a>。</p>
+<ol>
+<li>将 APK 复制到安卓平板、盒子或安卓投影仪，用系统文件管理器打开，允许该文件管理器“安装未知应用”后安装。</li>
+<li>启动 <strong>星星英语</strong>，应用自动横屏。优先使用盒子 HDMI 连接投影仪，或使用设备自身的屏幕镜像功能；应用本身不需要联网或投屏服务。</li>
+<li>点击“今日冒险”，或选择泥巴农场 / 雪之歌。按大按钮听一听、找图片、翻牌配对，完成获得一颗星。</li>
+<li>家长先在“家长 → 验证 → 测试英语声音”检查投影仪输出音量。38 段英式朗读已经打包，首次启动也能断网使用；设备有本地英式 TTS 时优先使用。</li>
+</ol>
+<p>通过 USB / ADB 安装：</p>
+<pre><code class="language-bash">adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n com.family.englishplay/.MainActivity
+</code></pre>
+<p>包名 <code>com.family.englishplay</code>，显示名“星星英语”。这是开发调试签名 APK，可直接安装；升级时用 <code>-r</code> 保留数据。安装签名不同的版本需要先卸载，卸载会清空数据。</p>
+<h6>已实现的内容与规则</h6>
+<ul>
+<li>Home：今日 0–3 星、剩余时间、今日冒险、两世界入口、家长门。</li>
+<li>泥巴农场 4 关：一起跳泥坑 / 雨后回家 / 洗手洗澡 / 朋友来玩（每关约 7 词）。</li>
+<li>雪之歌 4 关：雪地音乐会 / 暖暖的魔法 / 一起堆雪人 / 晚安小星星（每关约 7 词）。</li>
+<li>每关：听短句 → 听词点图 → <strong>四组</strong>声音与图片翻牌配对 → 可选跟读（前 4 词）→ 给星。</li>
+<li>英语单词与短句默认连续朗读 <strong>3 遍</strong>，遍与遍之间停顿约 <strong>2.8 秒</strong>；点「再听」会重新播 3 遍。鼓励语仍播 1 遍。</li>
+<li>世界第 1 关始终开放；完成后解锁本世界第 2 关。已完成关卡可重玩。今日冒险优先选择尚未完成的关卡。</li>
+<li>默认每天 12 分钟，家长可选 8 / 12 / 15 分钟。<strong>前台所有页面都计时</strong>，包括首页、关卡和家长页面；离开应用 / 熄屏暂停，语音也停止。到点中断学习，显示 <code>Eyes rest! Come back tomorrow ⭐</code>。</li>
+<li>一天最多 3 星，集齐后同样进入休息锁定。到时或满星均不能通过返回、重启、换世界继续学习；家长门仍可进入。</li>
+<li>用设备本地日期作为日界线。跨天自动清空当日时长、星星与当日领奖标记，保留关卡完成进度、分钟设置与跟读开关。应用停留在休息页跨天时也会恢复首页。</li>
+<li>ViewModel + DataStore 保存设置、进度、计时与领奖标记。同一次完成返回或页面恢复不会重复给星。前台每约 250ms 写入用时，以单调时钟计算间隔，普通退出会结算当前间隔；强行杀进程可能损失最后一个不足 250ms 的计时间隔。</li>
+<li>没有摄像头 / 麦克风 / 网络权限。跟读为孩子开口、自行确认的可跳过练习，不录音、不使用在线评分。家长打开“显示可跳过的跟读环节”后出现，默认关闭。</li>
+</ul>
+<h6>家长门和设置</h6>
+<p>首页或休息页右上角进入“家长”，完成两位数加法，再按住按钮 2.5 秒。长按支持触屏或按住遥控器确认键。验证只在当前前台会话内有效，应用进入后台后失效。家长门用于减少孩子误触，不是安全密码系统。</p>
+<p>设置中可以：</p>
+<ul>
+<li>更改每日时长。已用时长不会因切换选项而清零，调低到已用时长以下立即锁定学习。</li>
+<li>开关可跳过跟读、测试英语声音、查看当前语音来源。</li>
+<li>经页面内二次确认重置<strong>今日</strong>时长和星星；已解锁关卡保留。</li>
+</ul>
+<p>离线计时使用设备日期，不对抗家长改系统时间、清除应用数据或卸载重装。建议设备日期保持正确。所有设置保存在设备上，不上传。</p>
+<h6>投影仪与遥控器</h6>
+<p>固定横屏，高对比浅底深字；页面标题 ≥32sp，主要操作按钮 ≥64dp。页面可纵向滚动，适配低分辨率盒子和系统放大字体；若底部按钮未出现，向上滑动或用遥控器继续向下移动焦点。</p>
+<p>支持 Android TV 启动入口和横幅；主要按钮有焦点高亮，使用方向键 / 确认键操作。触控或 USB / 蓝牙鼠标是首选。Emoji 的外观由设备字体决定，不同盒子可能略有不同。</p>
+<h6>Android Studio 打开和构建</h6>
+<ol>
+<li>用支持 AGP 8.7 的 Android Studio 打开<strong>本目录</strong>（含 <code>settings.gradle.kts</code>）。</li>
+<li>Gradle JDK 选 <strong>JDK 17</strong>；SDK Manager 安装 Android SDK Platform 35、Build Tools 35.0.0（AGP 也可能自动安装 34.0.0）、Platform Tools。</li>
+<li>本地 <code>local.properties</code> 填 <code>sdk.dir=你的SDK绝对路径</code>。此文件不进入版本控制。</li>
+<li>等待 Gradle Sync 后运行 <code>app</code>，或 Build → Build APK(s)。首次获取构建依赖需联网，装好的 App 运行无需联网。</li>
+</ol>
+<p>命令行：</p>
+<pre><code class="language-bash">export JAVA_HOME=/path/to/jdk17
+export ANDROID_HOME=/path/to/android-sdk
+export PATH=&quot;$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH&quot;
+./gradlew assembleDebug testDebugUnitTest lintDebug
+</code></pre>
+<p>当前交付环境已装 JDK 17：<code>/home/box/jdk17</code>，SDK：<code>/home/box/android-sdk</code>。可在此环境直接使用：</p>
+<pre><code class="language-bash">JAVA_HOME=/home/box/jdk17 PATH=/home/box/jdk17/bin:$PATH ./gradlew assembleDebug testDebugUnitTest lintDebug
+</code></pre>
+<p>产物：<code>app/build/outputs/apk/debug/app-debug.apk</code>。</p>
+<h6>工程结构</h6>
+<pre><code class="language-text">app/src/main/java/com/family/englishplay/
+  MainActivity.kt     Compose 页面、Navigation、关卡交互、家长门
+  Progress.kt         ViewModel、DataStore、日界线、计时与奖励规则
+  Content.kt          四关词汇、原创短句和通用 Emoji
+  Voice.kt            仅选离线 en-GB TTS，内置音频兜底
+  AudioResources.kt   编译期检查的音频资源映射
+app/src/main/res/raw/ 38 段离线英语朗读
+app/src/test/         计时、跨天、奖励与内容规则单测
+</code></pre>
+<p>已解锁关卡由永久完成集合推导，无须重复存储解锁集合。没有 WebView、服务器、账号、广告 SDK 或统计 SDK。</p>
+<h6>自测</h6>
+<p><code>./gradlew testDebugUnitTest lintDebug</code>：覆盖跨天仅重置当日数据、同日持久化规则、时间耗尽、三星硬上限、重复领奖、负时间间隔、调整时长、四关内容完整性。报告位于 <code>app/build/reports/tests/testDebugUnitTest/index.html</code> 和 <code>app/build/reports/lint-results-debug.html</code>。</p>
+<p>安装后建议复核：</p>
+<ol>
+<li>飞行模式下启动，测试朗读，完整通过 farm_1 和 snow_1，确认各自第 2 关解锁。</li>
+<li>退出重开，确认星星、关卡、剩余时间仍在；后台停留后回来，用时不应增加该后台间隔。</li>
+<li>第 3 颗星后点击继续，应进入休息页，重启也应锁玩。</li>
+<li>家长验证，修改到 8 分钟、开启跟读；返回后应保留设置；重置当日后可以继续玩。</li>
+<li>用完每日时间，确认自动进入休息页。次日再次打开，星星和时间重置，关卡进度保留。</li>
+</ol>
+<p>实际构建与运行验证记录见 <a href="TEST_REPORT.md"><code>TEST_REPORT.md</code></a>。模拟器验证不能替代目标投影仪上的音量、遥控器和远距可读性检查。</p>
+<h6>版权与音频</h6>
+<p><strong>本项目为原创学习应用，没有使用正版动画角色名、商标、可识别角色造型、官方图片、音乐、视频、字幕或整段剧本。</strong> 内容仅使用泥坑、雨靴、雪、朋友、城堡等通用题材与原创常用短句；没有抓取任何正版内容。</p>
+<p>随包朗读由 Piper alba 英式英语模型对本项目文本合成，具体来源、署名、CC BY 4.0 许可和再生成方式见 <a href="THIRD_PARTY_NOTICES.md"><code>THIRD_PARTY_NOTICES.md</code></a>。模型和合成工具不包含在 App 中。</p></div></html>

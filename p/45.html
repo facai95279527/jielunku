@@ -1,0 +1,236 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>45. 2026-10-24 可本地运行的强掼蛋 AI 选型调研</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>45. 2026-10-24 可本地运行的强掼蛋 AI 选型调研</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/guandan-plan/sim/strong_ai_survey.md</code><br />
+核验说明：正文核查日期 10/24。选型建议是当时的调研结论；后续 DanZero 已接入的结果另列，不把“未实施”的估时当作当前进度。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/guandan-plan/sim/strong_ai_survey.md</code></h3>
+<h5>可本地运行的强掼蛋 AI 调研</h5>
+<p>核查日期：2026-10-24。目标：替换当前 flat Monte Carlo 模拟中四家的启发式出牌策略。仅新增本报告；现有代码未修改。候选克隆及下载均放在 <code>/tmp/guandan-survey/</code>。</p>
+<h6>结论与选型</h6>
+<p><strong>当前 Linux/Python 模拟器首选：<a href="https://github.com/Choysang/rlcard-guandan"><code>Choysang/rlcard-guandan</code></a> 的 DanZero。</strong> 有随仓库分发的已训练 567 维 Q 网络、完整 Python 源码、PyTorch 推理和较清楚的规则修复记录；接入时可以只调用策略而保留现有裁判。它是整理移植版，不是论文作者的官方重新发布，也不能直接把论文胜率当作该版本实测结果。</p>
+<p>预计 <strong>2–4 人日完成初版</strong>（牌与动作编码、公开状态/历史适配、四座位隔离和回归验证）；<strong>再 2–5 人日</strong>完成批量推理、性能基准和成对换座对战评估。此为静态源码评估后的工程估计，未实施集成。若直接搬其完整环境并改用其原生协议，演示会更快，但不等于与当前模拟器规则完全一致。</p>
+<p>备选是同仓库 <strong>PerfectDan</strong>：实际下载到 73 MB 权重，适合做第二策略比较，但缺少足够的独立强度证据，且有循环网络状态管理成本。<strong>DanZero+ 不能视为现成可用的更强权重；DanLM 有权重但核心代码是 macOS 专用二进制；DanKS/FableDan 没公开训练权重。</strong></p>
+<h6>候选对照</h6>
+<p>规则列依次为“顺子 / 三连对 / 钢板 / 逢人配”。“支持”指源码或规则文档能对应该口径，不代表已通过我们的差分测试。</p>
+<table>
+<thead>
+<tr>
+<th>候选及仓库 URL</th>
+<th>已训练权重</th>
+<th>语言、主要依赖与本地限制</th>
+<th>规则口径</th>
+<th>给定手牌+历史→出牌</th>
+<th>许可证与判断</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DanZero 原始研究代码</strong>：<a href="https://github.com/AltmanD/guandan_mcc">AltmanD/guandan_mcc</a></td>
+<td>本次仓库文件扫描未找到独立模型 checkpoint，Releases 为空；不应据 README 的 showdown 就认定含训练模型</td>
+<td>Python；Ubuntu 20.04、Python 3.8、TF 1.15.5、NumPy 1.18.5、ws4py、PyArrow、ZMQ；带离线裁判/客户端</td>
+<td>平台协议为 5张 / 3对 / 2组三张 / 红桃级牌配；裁判关键部分为发布程序，未完整源码验证</td>
+<td>能改造：<code>rl-frame/actor_n</code> 与 <code>showdown/clients</code> 处理平台消息；需抽离网络通信、维护历史并取得权重</td>
+<td><a href="https://github.com/AltmanD/guandan_mcc/blob/main/LICENSE">Apache-2.0</a>。研究参考，旧依赖和权重缺口使其不适合作第一落地点</td>
+</tr>
+<tr>
+<td><strong>DanZero+ 官方论文代码</strong>：<a href="https://github.com/submit-paper/Danzero_plus">submit-paper/Danzero_plus</a></td>
+<td><strong>有 DanZero 基线 <code>q_network.ckpt</code>，未找到可确认的 DanZero+ 最终 PPO checkpoint</strong>；Releases 为空。README 的百度盘是 actor 容器镜像，未验证其中模型</td>
+<td>Python；actor 3.6 / learner 3.8，TF 1.15.4/1.15.5，Torch 1.9.1/1.13.1、NumPy、ws4py、PyArrow、ZMQ；Docker 分布式训练</td>
+<td>同比赛平台：5 / 3对 / 2组 / 红桃级牌配；<code>actor_n/game.py</code>、平台说明与 <code>wintest</code> 客户端可查</td>
+<td>原理上可；<code>actor_torch</code>、<code>wintest/torch</code> 可抽取。训练配置/绝对路径较多，不能直接按一个 inference API 使用</td>
+<td><strong>根目录未见 LICENSE，GitHub license=null</strong>。README 说基于原 DanZero；不能自行推定新增代码继承了明确授权。建议先解决最终权重与授权</td>
+</tr>
+<tr>
+<td><strong>DanZero / DMC / DanZero+ 整理移植</strong>：<a href="https://github.com/Choysang/rlcard-guandan">Choysang/rlcard-guandan</a></td>
+<td><strong>DanZero 有</strong>：<code>guandan_rlcard/baselines/danzero/q_network.ckpt</code>，实下载 5,368,401 B。<strong>DMC、DanZero+ 无成品</strong>，README 要求用户提供 <code>model.tar</code>；裸实例可能用未训练参数</td>
+<td>Python≥3.8、rlcard≥1.2、NumPy；DanZero 额外 PyTorch。实际注册的 DanZero 用 PyTorch 加载 TF 格式参数数组，<strong>不需要 TF 1.x</strong>；另有未注册的 TF 实现文件</td>
+<td><strong>5 / 3对 / 2组 / 支持</strong>，红桃级牌不能配王。A可低/高；文档记录接风、四王炸、钢板比较、9/10张炸等修复</td>
+<td><strong>能，优先选它</strong>：<code>get_agent_class('danzero')</code> → <code>DanzeroAgent(player_id,np_random)</code> → <code>step(state)</code>；<code>prepare(message)</code> 编码，<code>Action.step</code> 排合法候选。需做 state adapter，不能直接把当前 JSON 塞进去</td>
+<td>根 <a href="https://github.com/Choysang/rlcard-guandan/blob/main/LICENSE">MIT</a>；上游来源与权重授权链仍应保留记录。论文级强度不能直接背书移植后的每个修复</td>
+</tr>
+<tr>
+<td><strong>PerfectDan（上述仓库自有 PPO/LSTM）</strong>：<a href="https://github.com/Choysang/rlcard-guandan/tree/main/guandan_rlcard/baselines/perfectdan">同仓库</a></td>
+<td><strong>有 GitHub Release</strong>，本次完整下载成功，73,039,243 B，见后文</td>
+<td>Python、rlcard、NumPy、Torch；<code>PPOGuandanAgent(..., model_path=..., device='cpu')</code></td>
+<td>与同仓库共用裁判：<strong>5 / 3对 / 2组 / 支持</strong></td>
+<td>能；<code>step</code>/状态编码器/模型加载已有实现。需设为评估模式，管理 <code>preserve_rnn_state</code>，不能让不同模拟分支共用隐状态</td>
+<td>仓库 MIT。不是 PerfectDou，也未确认等于任何已发表冠军模型；建议作为实测候选</td>
+</tr>
+<tr>
+<td><strong>DanLM + DanZero V1T</strong>：<a href="https://github.com/dashidhy/DanLM">dashidhy/DanLM</a></td>
+<td><strong>有</strong>：DanLM <code>.pt</code>、DanZero V0/V1T 的 <code>.onnx</code> 和 V1T <code>.pt</code> 均已克隆到本地</td>
+<td>Python 3.12、Torch、NumPy、onnxruntime；UI 可选 FastAPI/Uvicorn。<strong>核心 engine/encoding/model/eval 只见 <code>*.cpython-312-darwin.so</code>，不是可移植 Python 源码</strong>；README 指定 macOS ARM64</td>
+<td>声称按比赛平台；5/3对/2组/配牌的底层实现封装在二进制中，<strong>本次不能源码独立确认</strong>。不能拿附带规则 bot 的代码证明核心引擎一致</td>
+<td>macOS 指定环境可用其 UI/eval agent；当前 Linux 无法直接 import。即使 ONNX 能运行，仍缺可审计的同版本 encoder/tokenizer；重建不是简单换依赖</td>
+<td><a href="https://github.com/dashidhy/DanLM/blob/main/LICENSE">Apache-2.0 加非商业限制</a>，不是标准无附加条件的 Apache。作者自报强，但本次未复测；不作为 Linux 首选</td>
+</tr>
+<tr>
+<td><strong>FableDan</strong>：<a href="https://github.com/lrx0716/FableDan">lrx0716/FableDan</a></td>
+<td><strong>未发布</strong>；README 明确 weights/checkpoints 不进 git，Releases 为空，需要自行训练</td>
+<td>Python建议≥3.10；部署 NumPy；训练 Torch，CUDA可选；完整 <code>fabledan/*.py</code></td>
+<td><strong>5 / 3对 / 2组 / 支持</strong>；<code>combos.py</code> 中 STRAIGHT、PLATE、TUBE 与配牌枚举；有接风/进贡</td>
+<td>能：<code>NumpyAgent.act(obs)</code> / <code>TorchAgent.act(obs)</code> 与 Botzone JSON 入口；源码较完整，但当前不能拿到其已训强策略</td>
+<td><a href="https://github.com/lrx0716/FableDan/blob/main/LICENSE">Apache-2.0 加非商业限制</a>。适合研究/自行训练；“榜单强”不等于已发布对应模型</td>
+</tr>
+<tr>
+<td><strong>DanKS V1/V2/V3/V3Pro</strong>：<a href="https://github.com/Calix-L/DanKS">Calix-L/DanKS</a></td>
+<td><strong>没有公开训练权重</strong>；README 明示训练权重和私有部署环境不分发；smoke 用随机初始化；v0.1.0 Release 无附件</td>
+<td>AI Python 3.11+、NumPy/Torch（文档示例 Torch 2.8）；V2 ONNX，C++召回可选；网页服务另需 Python 3.12/Go 1.23+</td>
+<td><strong>5 / 3对 / 2组 / 支持</strong>，<code>guandan/engine/python_rules.py</code> 可查红桃配、5张序列和两种6张结构</td>
+<td>有信息状态、召回/策略接口及 HTTP 协议，能改造；无权重时只能随机网络/规则示例，不能声称得到已训练 DanKS</td>
+<td><a href="https://github.com/Calix-L/DanKS/blob/main/LICENSE">Apache-2.0</a>。工程参考价值高，但目前不满足“下载即得强策略”</td>
+</tr>
+<tr>
+<td><strong>NUAA比赛代码/模仿学习框架</strong>：<a href="https://github.com/LSTM-Kirigaya/NUAA-guandan">LSTM-Kirigaya/NUAA-guandan</a></td>
+<td>未确认有可直接部署的已训深度策略权重；<strong>EggPan等专家策略不需权重</strong>，仓库可用训练框架不等于已有训好网络</td>
+<td>Python、WebSocket，多进程本地平台；神经训练 Torch；启动脚本存在平台路径适配事项</td>
+<td>平台提供 actionList：5 / 3对 / 2组 / 配牌；专家通过候选选择，是否完整利用所有配牌需逐 bot 检查</td>
+<td><strong>能</strong>：如 <code>coach/EggPan/action.py: parse_AI(msg,pos)</code> 返回动作序号；需构造平台 message，<code>None</code> 时有随机回退；可作为成熟专家基准</td>
+<td>根 <a href="https://github.com/LSTM-Kirigaya/NUAA-guandan/blob/f6920868649c26536b3dc3fce8ecd1d4f7c755fa/LICENSE">MIT</a>（以实际默认分支文件为准）；内含其他队伍代码应逐来源确认。不是直接取得冠军深度学习模型</td>
+</tr>
+<tr>
+<td><strong>A2C 掼蛋项目</strong>：<a href="https://github.com/746505972/guandan">746505972/guandan</a></td>
+<td><strong>有</strong> <code>models/actor_ep1000.pth</code>、<code>master.pth</code> 等多个文件，已克隆；文件名不证明棋力</td>
+<td>Python、Torch≈2.6、NumPy≈1.26、Gym≈0.26、Cython，Streamlit；另有 FastAPI/Vue前端</td>
+<td><code>rule.py</code> 确认 <strong>5 / 3对 / 2组</strong>；<strong>逢人配不完整/未确认</strong>：<code>create_M.py</code> 有占位注释，而 <code>rule.py</code> 的对子/三张比较按自然 rank，未见通用替配处理；炸弹只允≤8张</td>
+<td>有训练/游戏后端可抽取 actor；其108维特征、自定义动作结构与当前规则差异大，完整历史建模未确认</td>
+<td><a href="https://github.com/746505972/guandan/blob/main/LICENSE">MIT</a>。无可信外部强度对照，规则有疑点，低优先级</td>
+</tr>
+<tr>
+<td><strong>guandan-arena / ScoreNet PPO</strong>：<a href="https://github.com/shef-wang/guandan-arena">shef-wang/guandan-arena</a></td>
+<td><strong>有</strong>：<code>public/scorenet/scorenet.onnx</code> 和训练目录 <code>.pt</code></td>
+<td>TypeScript/Node≥18、onnxruntime-web；Python≥3.11/Torch用于训练或 stdin 推理服务</td>
+<td><strong>5 / 3对 / 2组 / 支持</strong>，<code>src/game/rules.ts</code>；炸弹上限8，须与现有裁判核对</td>
+<td>能：<code>training/scorenet/serve_policy.py</code> 是 stdin/stdout 服务；TS侧负责状态/候选编码；要适配Python模拟输入</td>
+<td><a href="https://github.com/shef-wang/guandan-arena/blob/main/LICENSE">MIT</a>。作者公开承认当前成对对局不敌仓库最强启发式；不应当作强AI首选</td>
+</tr>
+<tr>
+<td><strong>DouZero 原版（排除项）</strong>：<a href="https://github.com/kwai/DouZero">kwai/DouZero</a></td>
+<td>有斗地主预训练方案，<strong>不是掼蛋权重</strong></td>
+<td>Python、Torch，DMC actor/learner</td>
+<td><strong>斗地主</strong>：3人、无红桃级牌逢人配；顺子/连对/飞机口径不同</td>
+<td>不能直接替换；需重写环境、特征、动作和奖励并重新训练</td>
+<td><a href="https://github.com/kwai/DouZero/blob/main/LICENSE">Apache-2.0</a>。DanZero式DMC是算法路线迁移，不是权重迁移</td>
+</tr>
+<tr>
+<td><strong>OpenGuanDan（平台，非强策略）</strong>：<a href="https://github.com/GameAI-NJUPT/OpenGuanDan">GameAI-NJUPT/OpenGuanDan</a></td>
+<td>无强策略权重</td>
+<td>本地Linux/Windows服务端、Java JDK17+、Python桥接、WebSocket JSON；含jar/可执行程序的发布快照</td>
+<td>平台规则/动作生成服务；本次未逐条验证核心二进制规则</td>
+<td>提供动作请求、裁判和合法动作，<strong>不提供能替代四家策略的已训练网络</strong></td>
+<td>本次根目录未见许可证；不要将“开放服务”自动当完整许可的策略源码</td>
+</tr>
+</tbody>
+</table>
+<p>说明：NUAA LICENSE 的实际可复查定位可用固定提交链接：<a href="https://github.com/LSTM-Kirigaya/NUAA-guandan/blob/f6920868649c26536b3dc3fce8ecd1d4f7c755fa/LICENSE">LICENSE</a>。</p>
+<h6>比赛开源来源与机构核查</h6>
+<p><strong>确实找到首届中国人工智能掼蛋算法大赛官方代码公示</strong>，不需要猜测 GitHub 仓库：</p>
+<ul>
+<li><a href="https://gameai.njupt.edu.cn/gameaicompetition/guandan_machine_code/index.html">南邮官方选手代码公示页</a>：本次 <code>curl -L</code> 返回 <strong>HTTP 200</strong>。列出20支参赛代码下载，含一等奖东南大学 lalala、二等奖复旦/南航、南邮等；这是比泛搜“掼蛋AI算法大赛”更直接的来源。</li>
+<li>实际GET验证三个 RAR：一等奖东南大学 <strong>67,375 B</strong>、二等奖南航鸡蛋灌饼 <strong>10,542 B</strong>、优胜奖南邮 <strong>6,062 B</strong>，均 <strong>HTTP 200</strong>，首字节 <code>526172211a070100</code>（RAR签名）。对应链接可从上述官方页面点击；原始验证URL列在附录。<strong>没有逐个解包审阅全部20队，也未确认归档内部许可证/权重。</strong></li>
+<li><a href="https://gameai.njupt.edu.cn/gameaicompetition/gameGD/index.html">南邮离线平台说明</a>给出4人、WebSocket+JSON、<code>ThreePair</code>/<code>TwoTrips</code> 等协议。比赛策略通常“给定 handCards、curRank、curAction、actionList、历史→返回候选编号”，与我们的需求可映射。</li>
+<li>DanLM 仓库 <code>baselines/</code> 收集16支比赛策略且声称修复了崩溃；<code>rlcard-guandan</code> 集成 base1..base8；NUAA 项目 <code>coach/</code> 含 EggPan、SEU、QAI等。**这些大多是专家/规则策略，胜在成熟可复用，不能因为来自比赛就称其深度模型。**二次收集版本的修复会改变实战结果，应固定commit。</li>
+<li><strong>上海交大、中科院：本次没有找到能由公开一手来源对应的“这些机构发布的冠军策略仓库+可下载最终权重”组合。</strong> 不把普通校内掼蛋新闻或科研机构名称硬配到仓库。已找到的明确发布来源是南邮平台、论文作者仓库和南航学生项目。</li>
+<li><a href="https://arxiv.org/abs/2210.17087">DanZero论文</a>说明DMC自博弈并对8个规则基准评估；<a href="https://arxiv.org/abs/2312.02561">DanZero+论文</a>及官方仓库给出后续研究路线；<a href="https://arxiv.org/abs/2402.13582">GuanZero论文</a>确实存在，但本次未找到可验证的官方完整仓库/权重入口，不列为可下载候选。</li>
+</ul>
+<h6>权重与运行验证的实际边界</h6>
+<h6># 已实际下载/检查</h6>
+<ol>
+<li>DanZero：<a href="https://raw.githubusercontent.com/Choysang/rlcard-guandan/main/guandan_rlcard/baselines/danzero/q_network.ckpt">权重直链</a>，<code>curl -L</code> <strong>200 / 5,368,401 B</strong>。<br />
+   - SHA256：<code>a6f132e50e205709c0efdb1b550d935c5bfc313b21726b0e70e300b6cd7ea1a3</code>。<br />
+   - pickle解包为12个NumPy数组：<code>(567,512), (512,),</code> 接4组 <code>(512,512),(512,),</code> 再 <code>(512,1),(1,)</code>。与源码567→5层512/Tanh→1的 Q 网络一致。<br />
+   - 在临时调研脚本中按同一矩阵/Tanh结构做3条合成输入前向，输出 <code>(3,1)</code> 且全有限，零输入Q约 <code>-0.3268005</code>。<strong>这是参数可读和前向结构检查，不是真实牌局推理/强度测试，也未验证NumPy与Torch数值完全等价。</strong></li>
+<li>PerfectDan：<a href="https://github.com/Choysang/rlcard-guandan/releases/download/v0.1.0/final_checkpoint.pt.perfectdan_final_checkpoint.pt.pt">Release权重直链</a>，<code>curl -L</code> <strong>200 / 73,039,243 B</strong>；<a href="https://api.github.com/repos/Choysang/rlcard-guandan/releases">Releases API</a>同样200并列出该附件。尚未加载真实局面测试。</li>
+<li>DanLM权重和ONNX、A2C项目多份<code>.pth</code>、arena的ONNX/<code>.pt</code> 均通过成功 <code>git clone --depth 1</code> 取得；这只能确认文件可获取，不能证明与当前Linux/规则兼容。</li>
+<li>本环境有NumPy，<strong>没有Torch和rlcard</strong>；为保持调研范围，没有安装/训练完整模型，也没有跑候选胜率榜。未将任何 README 棋力数字当成本次复测。</li>
+</ol>
+<h6># 容易误判的点</h6>
+<ul>
+<li><code>Danzero_plus/actor_torch/q_network.ckpt</code> 与 <code>wintest/danzero/q_network.ckpt</code> 说明有一个预训练基线，不说明完整PPO/最终版本模型齐全。评估脚本还有作者机器的checkpoint绝对路径。</li>
+<li><code>rlcard-guandan</code> 的 <code>danzero_plus</code>/<code>dmc</code> 能构造实例，不代表加载了训练权重。必须检查加载状态，不许用随机网络替换启发式后宣称升级。</li>
+<li>DanLM <code>.onnx</code> 可跨平台并不意味着整个策略可跨平台；状态encoder和动作映射同样是模型的一部分。</li>
+<li>DanKS的HTTP示例机器人和随机初始化smoke不是公开的生产强模型。</li>
+<li>DanLM、FableDan带非商业限制，只能称“源码/模型公开候选”，不能等同标准宽松开源许可。</li>
+</ul>
+<h6>针对当前模拟器的具体接入方案（未实施）</h6>
+<p>现有 <code>README.md</code> 描述：<code>level</code>、0..3座位、当前剩余手牌、开局领出、完整历史、剩余张数；策略应仅看自身手牌与公开信息。建议保留 <code>guandan_wr_bot.py</code> 的蒙特卡洛补全和裁判，接入策略层。</p>
+<ol>
+<li><strong>固定牌与动作编码</strong>：现有花色中文/符号转为 <code>S/H/C/D</code>、<code>T</code>、<code>BJ/RJ</code>；两副同面牌映射为计数，输出再映回可用物理副本。<code>straight/pairs3/plate/sf/full</code> 对应 <code>Straight/ThreePair/TwoTrips/StraightFlush/ThreeWithTwo</code>，不出对应PASS。逢人配需保留“物理红桃级牌”和“声明牌型/点数”，不能只靠最终点数还原。</li>
+<li><strong>状态适配</strong>：<code>DanzeroAgent.step(state)</code> 会调用 <code>parse</code>，要求 <code>actions</code>、<code>rank_list</code>、<code>play_team</code>、<code>greaterAction</code>、<code>remain_cards</code>、<code>pass_num</code>、<code>my_pass_num</code>、<code>trace</code>等；<code>prepare</code> 输出每合法动作一条567维特征。现有输入没有的字段要从完整历史按同样语义重建，不能凭空填零；原模型包含完整升级赛上下文，而当前模拟是单局，须定义开局/无进贡的上下文。</li>
+<li><strong>合法动作集合</strong>：现有自动枚举只取代表动作，未遍历全部主动替配/花色拆分；把它直接交给网络会限制网络能力。第一版可以保留当前集合做公平A/B，但正式版应补齐或使用经差分核对的候选生成器；同花顺当普通顺的声明也必须一致。</li>
+<li><strong>四座位与模拟分支隔离</strong>：每条 rollout 有四个独立公开信息视角。补全的对手牌只用于模拟发牌，不能进当前决策者特征；DanZero的“其他牌合计”可由全牌−自己−已出牌求得，并非知道每家暗牌。DanZero+等带 <code>others_hands</code> 的完美信息价值分支尤其需检查，不能把训练critic输入当actor输入。历史缓存/循环隐状态不能跨候选、跨seed串用。</li>
+<li><strong>推理常驻与批处理</strong>：一次加载权重，同一状态的所有候选打成批；多个rollout再考虑合批。不要每步启动Python、WebSocket服务器或重新读5MB权重。先测完整“特征生成+推理+动作映射”耗时，再决定Torch/NumPy/ONNX，不依据网络大小猜吞吐。</li>
+<li><strong>必须做的验证</strong>：先检验5张顺、3对、2组钢板、A低/高、级牌序列自然点数、配牌不配王、四王炸、6炸与同花顺、9/10炸、接风/有人出完、同牌型不同声明；再固定发牌种子做换座团队对抗，分别比较头游率/双上率与单步及整次建议耗时。论文的升级赛胜率不能当当前单局头游率。</li>
+</ol>
+<p>工程估计：DanZero适配与规则回归2–4人日；批量化和成对对战2–5人日。PerfectDan额外约1–3人日核对checkpoint/评估状态/循环状态，若发现结构不匹配另算。DanLM Linux重建encoder和模型代码属于更大复现任务；DanZero+/DanKS/FableDan还要取得或训练强权重，无法承诺几天交付强度。</p>
+<h6>URL实证记录与复查方法</h6>
+<p>下表仓库均经 GitHub REST <code>/repos/&lt;owner&gt;/&lt;repo&gt;</code> <strong>HTTP 200</strong> 和 <code>git clone --depth 1</code> <strong>退出码0</strong>（OpenGuanDan另外实际 <code>git ls-remote ... HEAD</code> 成功及clone成功）。不是仅根据搜索摘要填写。固定提交如下：</p>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>实际克隆提交</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AltmanD/guandan_mcc</td>
+<td><code>e816ca3af431678903d051365d7c19a6dd4ebdb8</code></td>
+</tr>
+<tr>
+<td>submit-paper/Danzero_plus</td>
+<td><code>e2b900b01096e0743de945f9963df35cd544f36d</code></td>
+</tr>
+<tr>
+<td>Choysang/rlcard-guandan</td>
+<td><code>6ebe65a14a0bfe6140df9f231e7bf4a340c94f34</code></td>
+</tr>
+<tr>
+<td>dashidhy/DanLM</td>
+<td><code>16ace5ada4db39086bb4c8ebb372ed16cb82fab1</code></td>
+</tr>
+<tr>
+<td>Calix-L/DanKS</td>
+<td><code>03364e21c1737b770e698afe985ff0aeb44becff</code></td>
+</tr>
+<tr>
+<td>lrx0716/FableDan</td>
+<td><code>7cc5e311b9860bc44f76c082d9c1b21fc8b2d3ec</code></td>
+</tr>
+<tr>
+<td>LSTM-Kirigaya/NUAA-guandan</td>
+<td><code>f6920868649c26536b3dc3fce8ecd1d4f7c755fa</code></td>
+</tr>
+<tr>
+<td>746505972/guandan</td>
+<td><code>7d37216369d8b003e94a2779c82f497a621f6f7b</code></td>
+</tr>
+<tr>
+<td>shef-wang/guandan-arena</td>
+<td><code>68f62d6478bb8f4d0578f835977f459d2b38f97c</code></td>
+</tr>
+<tr>
+<td>kwai/DouZero</td>
+<td><code>718a5c920bf3361e34178a38f3b80458e176b351</code></td>
+</tr>
+<tr>
+<td>GameAI-NJUPT/OpenGuanDan</td>
+<td><code>69f77baa457de6e476276b83b2da0be96050f9a1</code></td>
+</tr>
+</tbody>
+</table>
+<p>复查命令示例：</p>
+<pre><code class="language-bash">git ls-remote https://github.com/Choysang/rlcard-guandan.git HEAD
+curl -L -o /tmp/q_network.ckpt -w 'HTTP=%{http_code} bytes=%{size_download}\n' \
+  https://raw.githubusercontent.com/Choysang/rlcard-guandan/main/guandan_rlcard/baselines/danzero/q_network.ckpt
+curl -L https://api.github.com/repos/Choysang/rlcard-guandan/releases
+</code></pre>
+<p>本次已GET成功的官方归档（中文路径请求时由requests进行URL编码）：</p>
+<ul>
+<li><a href="https://gameai.njupt.edu.cn/Guandan_machine_codes/一等奖-东南大学-李菁-lalala-人机大赛.rar">一等奖东南大学 lalala</a></li>
+<li><a href="https://gameai.njupt.edu.cn/Guandan_machine_codes/二等奖-南航-孙海龙-鸡蛋灌饼-人机大赛.rar">二等奖南航鸡蛋灌饼</a></li>
+<li><a href="https://gameai.njupt.edu.cn/Guandan_machine_codes/优胜奖-南邮-李昕闻-南邮掼蛋ai-人机大赛.rar">优胜奖南邮掼蛋ai</a></li>
+</ul>
+<p>本次未找到足够证据的项目/机构归属、缺失权重、未实测性能均按未知处理；公开下载不自动表示所有内嵌第三方代码和权重均获相同许可。</p></div></html>

@@ -1,0 +1,230 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>32. 2026-10-16 涨幅差实盘证据：股先涨与债强是不同打法（时刻待核验）</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>32. 2026-10-16 涨幅差实盘证据：股先涨与债强是不同打法（时刻待核验）</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：黄金QMT<br />
+关键路径：<code>/workspace/trading/gold-linkage-auto/docs/daqmtguangda-rise-diff-evidence-20261016.md</code><br />
+核验说明：正文日期 10/16，无交付时分，不能证明晚于 10:40；暂作待核验候选。与已入库 29 的旁路优化方案不同，新增实盘价差方向证据。global-compare 与 mod-rationale 中“十四加债−股≥1%～2%”的旧建议已被本证据及 10/19 总评纠正，不另列旧版本。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/trading/gold-linkage-auto/docs/daqmtguangda-rise-diff-evidence-20261016.md</code></h3>
+<h5>涨幅差实盘证据（2026-10-16）</h5>
+<blockquote>
+<p>只读日志/复盘；未改策略源码。回应：实盘里「债涨幅−股涨幅」是正是负？能否支撑「≥2% 债强」或用户「&lt;0（股先涨）」？</p>
+</blockquote>
+<h6>1) 找到的日志文件</h6>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>日期</th>
+<th>大小</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>C:\\光大证券金阳光QMT实盘\\userdata\\log\\XtClient_FormulaOutput_20261012.log</code></td>
+<td>10/12</td>
+<td>2.55MB</td>
+<td>全日策略 print</td>
+</tr>
+<tr>
+<td>同上 <code>_20261013.log</code></td>
+<td>10/13</td>
+<td><strong>350MB</strong></td>
+<td>Cond13 刷屏日（已有 extract）</td>
+</tr>
+<tr>
+<td>同上 <code>_20261014.log</code></td>
+<td>10/14</td>
+<td>383KB</td>
+<td>午后才挂</td>
+</tr>
+<tr>
+<td>同上 <code>_20261015.log</code></td>
+<td>10/15</td>
+<td>319KB</td>
+<td>十三关；十四过窗</td>
+</tr>
+<tr>
+<td>同上 <code>_20261016.log</code></td>
+<td>10/16</td>
+<td><strong>0</strong></td>
+<td>策略未挂载</td>
+</tr>
+<tr>
+<td>Desktop <code>daqmtguangda\\logs\\recap_live_20261012.md</code> / <code>_20261013.md</code></td>
+<td>—</td>
+<td>5KB/4KB</td>
+<td>人工复盘</td>
+</tr>
+<tr>
+<td>Desktop <code>logs\\_recap_20261013_*.json</code></td>
+<td>10/13</td>
+<td>~16KB</td>
+<td>Cond13 轮次盈亏</td>
+</tr>
+<tr>
+<td>Desktop <code>logs\\_fomula_out_20261012/13_extract.txt</code></td>
+<td>—</td>
+<td>2.6MB/0.77MB</td>
+<td>早前摘录</td>
+</tr>
+<tr>
+<td>Desktop <code>cond14_data\\*</code> / <code>cond13_data\\buys_20261009.json</code></td>
+<td>10/09</td>
+<td>—</td>
+<td>干跑/回测 JSON</td>
+</tr>
+<tr>
+<td>box <code>gold-linkage-auto/docs/snippets/review_*.txt</code></td>
+<td>—</td>
+<td>—</td>
+<td>云复盘摘录</td>
+</tr>
+</tbody>
+</table>
+<h6>2) 核心结论（先说清楚）</h6>
+<ol>
+<li><strong>10/12–10/15 条件十四几乎没有成交买点</strong>，因此<strong>无法从十四实盘统计「债−股」正负与盈亏关系</strong>。</li>
+<li><strong>同文件 <code>DAQMTGUANGDA.py</code> 里，条件一/二/六/九 的「价差」明确定义为 <code>spread = 正股涨幅 − 转债涨幅</code></strong>，门槛 Cond1/2：<code>spread &gt; 0.8pp</code>（即 <strong>债−股 &lt; −0.8%</strong>）。这与用户理解一致，与「债强于股 ≥2%」是<strong>另一套打法</strong>。</li>
+<li><strong>条件十三日志只有绝对价 + 1 分钟正股涨速</strong>，<strong>没有</strong>日内涨幅差字段，无法用现有日志回测「债−股」。</li>
+<li><strong>条件十五设计</strong>是「正股开盘涨幅达标才买债」——也是<strong>股先动</strong>腿，不是债强于股。</li>
+</ol>
+<h6>3) 能算涨幅差的具体样例（条件九实盘命中）</h6>
+<p>价差日志格式：<code>正股xx(涨幅%) 转债yy(涨幅%) 价差zzpp</code>，其中 <strong>价差=股−债</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>转债</th>
+<th>正股涨幅</th>
+<th>转债涨幅</th>
+<th>价差(股−债)</th>
+<th>债−股</th>
+<th>动作</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10/12 09:21</td>
+<td>123241.SZ</td>
+<td>−0.29%</td>
+<td>−15.30%</td>
+<td><strong>+15.01pp</strong></td>
+<td><strong>−15.01%</strong></td>
+<td>BUY 条件九</td>
+<td>债远弱于股</td>
+</tr>
+<tr>
+<td>10/12 09:25</td>
+<td>123243.SZ</td>
+<td>−0.05%</td>
+<td>−2.04%</td>
+<td><strong>+1.99pp</strong></td>
+<td><strong>−1.99%</strong></td>
+<td>BUY 条件九 @215.986×10</td>
+<td>复盘主结论买入</td>
+</tr>
+<tr>
+<td>10/13 09:21</td>
+<td>123235.SZ</td>
+<td><strong>+3.45%</strong></td>
+<td>−14.83%</td>
+<td><strong>+18.28pp</strong></td>
+<td><strong>−18.28%</strong></td>
+<td>BUY 条件九 @115.735×10</td>
+<td>股先大涨、债滞后</td>
+</tr>
+</tbody>
+</table>
+<p>→ 三笔条件九命中全部是 <strong>债涨幅−股涨幅 ≪ 0</strong>（股相对更强 / 债相对滞后）。<br />
+→ 这不是「债强≥2%」样本，而是「股领涨、债跟涨预期」样本。</p>
+<h6>4) 条件十四（10/12–15）— 无成交，涨幅差不可统计</h6>
+<table>
+<thead>
+<tr>
+<th>日期</th>
+<th>十四结果</th>
+<th>原因（日志）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10/12</td>
+<td><strong>未买</strong></td>
+<td>09:25:18 才算完热度榜，已过 9:24:57</td>
+</tr>
+<tr>
+<td>10/13</td>
+<td><strong>未买</strong> empty_picks</td>
+<td>溢价&gt;50% / 前日额&lt;4亿 / 剩余年限=-1</td>
+</tr>
+<tr>
+<td>10/14</td>
+<td><strong>未买</strong></td>
+<td>14:13 才挂载，直接「已过9:24:57」</td>
+</tr>
+<tr>
+<td>10/15</td>
+<td>signals=2 orders=0</td>
+<td>09:27 才完整跑到预留，仍「已过窗」；有信号无委托</td>
+</tr>
+<tr>
+<td>10/16</td>
+<td>Output=0</td>
+<td>策略未挂载</td>
+</tr>
+</tbody>
+</table>
+<p>Cond14 过筛字段：<strong>热板 + 剩余≤6亿 + 溢价≤50% + 前日额≥4亿</strong>；源码 <strong>无</strong> <code>债−股</code> / <code>涨幅差</code> 过滤。</p>
+<h6>5) 条件十三 — 有大量买卖，但缺涨幅差字段</h6>
+<ul>
+<li>10/12：25 轮，估算约 <strong>−189 元</strong>（挂单价口径）</li>
+<li>10/13：58 轮，成交估算约 <strong>−196 元</strong>；账户 total 7078.78→7019.11</li>
+<li>买入日志形如：<code>pending_buy px=189.705 vol=10 … 扫单前正股=55.020</code><br />
+<strong>只有正股绝对价，没有昨收，也没有转债当日涨幅%</strong> → <strong>不能算债−股</strong>。</li>
+<li>选标用的是 <strong>1m 正股涨速 ≥0.3%</strong>（10/14 日志反复出现），不是日涨幅差。</li>
+</ul>
+<h6>6) 源码里两套「差」不要混</h6>
+<table>
+<thead>
+<tr>
+<th>逻辑</th>
+<th>定义</th>
+<th>本策略用途</th>
+<th>用户直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>价差 spread</strong></td>
+<td><strong>股涨幅 − 债涨幅</strong> &gt; 0.8pp</td>
+<td>Cond1/2/6/9 买入；债滞后、等跟涨</td>
+<td>用户说的「债−股 &lt; 0」</td>
+</tr>
+<tr>
+<td><strong>溢价回归 unwind</strong></td>
+<td><strong>债涨幅 − 股涨幅</strong> &gt; 1.5pp</td>
+<td>部分退出/收敛</td>
+<td>债追上股后兑现</td>
+</tr>
+<tr>
+<td><strong>外部「龙头债」叙事</strong></td>
+<td><strong>债 − 股 ≥ 1%～2%</strong></td>
+<td><strong>不在</strong> Cond1–9/14 现过滤里</td>
+<td>与本仓源码方向相反</td>
+</tr>
+</tbody>
+</table>
+<h6>7) 缺什么才能正式回测涨幅差</h6>
+<p>要对十四/十三做「债−股」回测，日志至少还要：<br />
+- 买入时刻的 <strong>转债昨收、正股昨收</strong>（或直接打出 <code>stk_rise%</code>/<code>cb_rise%</code>）<br />
+- 或落盘 tick 快照含 preclose</p>
+<p>现状：Cond9 已打出双涨幅+价差；<strong>Cond13/14 未打</strong>。建议若改源码，只在买入日志加一行 <code>stk_rise/cb_rise/spread</code>，<strong>先观测、不要先加过滤</strong>（用户已说十四不加涨幅差过滤）。</p>
+<h6>8) 计数摘要</h6>
+<ul>
+<li>Cond14 成交买：10/12–15 <strong>0</strong></li>
+<li>Cond13 闭环：10/12 <strong>25</strong>；10/13 <strong>58</strong>（主亏）</li>
+<li>Cond9 带完整涨幅差的命中样本：至少 <strong>3</strong>（上表），全部 <strong>债−股 为负</strong></li>
+</ul></div></html>

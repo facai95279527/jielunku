@@ -1,0 +1,76 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>50. 2026-10-25 家庭视频后期流水线完成与合成自测</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>50. 2026-10-25 家庭视频后期流水线完成与合成自测</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：其他<br />
+关键路径：<code>/workspace/video/pipeline/README.md</code>；<code>/workspace/video/pipeline/codex_out.txt</code><br />
+核验说明：日期按 mtime 10/25。codex_out.txt 是本地 Codex 完成回执，不是有数据库证据的 Grok 聊天；全文放在“原文件”区，发送状态与来源助手留缺。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/video/pipeline/README.md</code></h3>
+<h5>家庭视频后期流水线</h5>
+<p>仅依赖 Bash、ffmpeg（含 libx264）、ffprobe 和 Python 3 标准库，不安装软件。脚本可从任意目录调用；probe.txt 和 contact.jpg 写入调用时的当前目录。输出文件会覆盖已有同名输出，但禁止覆盖输入。</p>
+<p>家庭视频剪得保守，保留停顿、呼吸、笑声和自然环境声音，不加大量信息动效。先看内容再决定取舍，BGM 不宜盖过家人讲话。</p>
+<h6>工作流程</h6>
+<ol>
+<li><code>./probe.sh "原始素材一.mp4" "原始素材二.mp4"</code>：查看当前目录的 probe.txt，包含时长、分辨率、fps 和所有音轨信息。</li>
+<li>参考 plan.txt 写剪辑清单。当前附带的是合成测试素材示例，正式剪辑请替换。</li>
+<li><code>./preview.sh plan.txt preview.mp4</code>：仅渲染前五个镜头，给用户审看。不足五个则全部渲染。</li>
+<li>用户通过样片后，执行 <code>./render.sh plan.txt final.mp4</code> 渲染全片。脚本不会自动从样片进入正式渲染。</li>
+<li>可选 <code>./music.sh final.mp4 "背景音乐.mp3" final_music.mp4</code>。背景音乐循环补足，基础音量为 15%，有人声时 sidechaincompress 自动压低；音乐首尾各 1.5 秒淡入淡出。短于 3 秒时淡化各占一半，原声不做首尾淡化。只传视频与输出：<code>./music.sh final.mp4 final_copy.mp4</code>，则跳过 BGM，复制音视频流。</li>
+<li><code>./check.sh final_music.mp4</code>：在 10%/25%/50%/75%/95% 抽帧，拼成当前目录 contact.jpg，打印时长、首个音视频流时长差与起点差。超过 0.1 秒报警且返回状态码 2；无音轨会提示。仍需人工听看，检查内容、响度及口型同步。</li>
+</ol>
+<h6>plan 格式</h6>
+<p>每个有效行：<code>源文件|开始秒|结束秒|转场(fade/cut)|备注</code>。空行、以 # 开头的行忽略，支持带空格的路径；路径相对于 plan 所在目录，绝对路径也支持。文件名不能含 <code>|</code> 或换行。开始、结束为源视频时间轴上的秒数，结束不含在片段内，不能越过源文件时长。</p>
+<p>转场字段为空默认 fade，表示<strong>本镜头到下一个镜头</strong>的转场；最后一行转场忽略。fade 默认交叉淡化 0.3 秒，画面与声音同步淡化；cut 为硬切。全片时长等于各片段时长之和减去淡化重叠。短镜头的淡化自动缩到相邻镜头较短者的一半并向下按帧取整；不足两帧的镜头请用 cut。</p>
+<p>样片和成片均为 540×960、30 fps、H.264 Main、目标视频码率约 700 kbit/s、AAC 96 kbit/s、48 kHz 双声道，支持 faststart，像素宽高比 setsar=1。编码内容可能使实际平均码率低于目标值。横片保留完整前景，用放大模糊背景填充；竖片同样保持比例。统一帧率只补丢帧，不变速，片段长度四舍五入到最近一帧（误差最多约 0.017 秒）。</p>
+<p>截取首个视频流和首个音轨，音视频使用同一起点与片段时长。无音轨素材补静音，音轨不足片段时长时尾部补静音。所有映射都明确指定首个流（直接读取画面使用 <code>-map 0:v:0</code>，复杂滤镜中使用 <code>[0:v:0]</code> 后映射输出标签），不携带字幕、封面之外的额外视频、数据流或其他音轨。请在 probe 后确认首个视频流就是目标画面。</p>
+<p>中间文件使用临时目录保存无损 FFV1/PCM，结束时自动清理。长片会占用较多临时磁盘；可用 <code>TMPDIR=/有足够空间的目录 ./render.sh plan.txt final.mp4</code> 调整位置。渲染异常不会自动删除已有的部分输出，需重新执行。</p>
+<h6>合成自测</h6>
+<p><code>./tests/selftest.sh</code> 生成横屏与竖屏 testsrc+sine 测试素材，执行 probe、preview、render、music 和 check，并用 ffprobe 验证前五镜头/完整六镜头的时长、编码参数及音视频时长差。测试结果保存在 tests/，contact.jpg 和 probe.txt 保存在当前目录。</p>
+<h3>原文件全文：<code>/workspace/video/pipeline/codex_out.txt</code></h3>
+<p>已在当前目录完成，无需安装新依赖。</p>
+<p>文件清单：</p>
+<ul>
+<li><code>probe.sh</code>、<code>preview.sh</code>、<code>render.sh</code>、<code>music.sh</code>、<code>check.sh</code></li>
+<li><code>pipeline.py</code>：共用实现</li>
+<li><a href="/workspace/video/pipeline/plan.txt">plan.txt</a>：六镜头示例</li>
+<li><a href="/workspace/video/pipeline/README.md">README.md</a>：中文流程与参数说明</li>
+<li><code>tests/selftest.sh</code>：可重复自测</li>
+<li><code>tests/</code>：合成素材、样片、成片及混音结果</li>
+<li><code>probe.txt</code>、<a href="/workspace/video/pipeline/contact.jpg">contact.jpg</a>：探测和抽帧结果</li>
+</ul>
+<p>自测全部通过：</p>
+<table>
+<thead>
+<tr>
+<th>测试</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>preview 前五镜头</td>
+<td>4.100 秒</td>
+</tr>
+<tr>
+<td>render 全六镜头，混合 fade/cut</td>
+<td>5.100 秒</td>
+</tr>
+<tr>
+<td>BGM 混音 / 跳过 BGM</td>
+<td>均通过</td>
+</tr>
+<tr>
+<td>单镜头、无音轨补静音</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>check 音视频时长差</td>
+<td>均为 0.000 秒</td>
+</tr>
+<tr>
+<td>编码参数</td>
+<td>H.264 Main、540×960、AAC</td>
+</tr>
+</tbody>
+</table>
+<p>详细记录见 <a href="/workspace/video/pipeline/tests/selftest.log">selftest.log</a>。正式使用前，将示例 plan 替换为家庭视频的剪辑清单。</p></div></html>

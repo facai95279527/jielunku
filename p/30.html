@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>30. 2026-10-16 条件十六完成开发与离线测试（29 项通过；不等于当前实盘状态）</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>30. 2026-10-16 条件十六完成开发与离线测试（29 项通过；不等于当前实盘状态）</h1><div class="detail"><p>来源助手：bot<br />
+项目：黄金QMT<br />
+关键路径：<code>/workspace/trading/gold-linkage-auto/qmt_strategy/cond16-spec.md</code>；<code>/home/box/agent-data/agents/551142a8-df5f-4b70-953d-bbb955708afd/voice-calls/call-0453802b-d068-489a-a92c-d4fff72e396e.json</code><br />
+核验说明：日期与助手由语音记录确认。此处保留开发交付和测试结果，不沿用通话中多次变动的占位版、编码修复及运行开关结论；后续运行状态以 10/22 复盘为较新证据。说明文件是磁盘现存版本，不能证明与当时发送版本完全相同。</p>
+<h3>聊天原文</h3>
+<p>（语音逐字记录，非文字消息；2026-10-16 13:18:25 UTC+8；turn <code>turn-1968046a-076d-4135-8eb5-1e3564865606</code>。以下为完整 assistant 发言。）</p>
+<p>对，条件十六已经改完了， 离线测试 29 项全部通过，是模拟模式，没有下真单。改完时间是 13:11:48，测试 13:13:54 开始跑的。</p>
+<p>（语音逐字记录，非文字消息；2026-10-16 13:19:11 UTC+8；turn <code>turn-251ca750-36b6-4dfc-9236-971d5e9d27dd</code>。以下为完整 assistant 发言。）</p>
+<p>刚有回执：离线测试彻底收尾， 二十九项全过、零报错。新文件已经落好，但 QMT 里还没切换，云端跑的仍是旧主程序。要不要现在切过去？</p>
+<h3>原文件全文：<code>/workspace/trading/gold-linkage-auto/qmt_strategy/cond16-spec.md</code></h3>
+<h5>条件十六「竞价抢筹龙头债」实现说明（DAQMTGUANGDA_c16.py）</h5>
+<p>线上文件 DAQMTGUANGDA.py 未改动。新文件 = 原文件 + 条件十六段（插在 <code># ===== EMBEDDED_JSON_START =====</code> 之前）+ 少量挂钩。<br />
+默认 <code>COND16_ENABLED=True</code>、<code>COND16_LIVE=False</code>（SIM：不调 passorder，按行情模拟成交，只写日志/CSV）、<code>COND16_PM_ENABLED=False</code>。</p>
+<h6>时序</h6>
+<table>
+<thead>
+<tr>
+<th>时刻</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9:00~9:24:30（30s 心跳）</td>
+<td>预选池：剩余≤6亿、溢价≤50%（基本面文件）；昨日涨幅（本引擎昨日 15:01 快照 cb_rise_*.json → QMT 日K → unknown）</td>
+</tr>
+<tr>
+<td>9:24:59.550 沪 / .700 深（50ms 主轮询）</td>
+<td>预选池股债毫秒锚（自采；缺失时退回主缓存同刻锚）</td>
+</tr>
+<tr>
+<td>9:25:05</td>
+<td>官方竞价额(_official_cb_auction_yuan) 排序取前5冻结；龙头判定；保留 Top1（COND16_MAX_PICKS，最多2）</td>
+</tr>
+<tr>
+<td>9:25:05~9:30:05</td>
+<td>破锚：股债都破=FULL 60%；只债破=HALF_CB 30%；只股破=HALF_STK 30%；都不破=放弃</td>
+</tr>
+<tr>
+<td>下单</td>
+<td>限价=现价×1.01，且≤昨收×1.12；按10张取整，&lt;10张跳过；每日1笔竞价单</td>
+</tr>
+<tr>
+<td>买单超时</td>
+<td>3s 未全成撤单不重挂。竞价期(9:25~9:30)挂出的单不撮合，计时从 max(下单时刻, 9:30:00) 起（下午单从 13:00:00 起）；9:30:02 全撤买单逻辑已豁免 C16</td>
+</tr>
+<tr>
+<td>9:30~15:00</td>
+<td>持仓管理（只在连续竞价时段判断）</td>
+</tr>
+<tr>
+<td>14:55</td>
+<td>尾盘清仓 EOD（COND16_EOD_CLEAR_ENABLED / COND16_EOD_CLEAR_SEC）</td>
+</tr>
+<tr>
+<td>≥15:01</td>
+<td>收盘涨幅快照（供次日择时门/已验证龙头）；未平仓按最新价估值写 OPEN 行；当日汇总</td>
+</tr>
+</tbody>
+</table>
+<p>龙头规则：差(债开涨−股开涨)≥2pp → SPREAD；否则股债开盘都≥+5% → DOUBLE_HIGH；否则 差≥1pp 且昨日转债涨≥10% → VERIFIED。</p>
+<h6>卖出（优先级从高到低，每 200ms 判断一次）</h6>
+<ol>
+<li>STOP_1.5：现价 ≤ 成本×(1−1.5%)</li>
+<li>ANCHOR_LOSS：现价 &lt; 债锚 持续 30s（下午单用 13:00 重置后的锚）</li>
+<li>TIME_10M：成交满 10 分钟时检查一次；期间最高价从未到 +2% 且现价 &lt; 成本 → 清仓</li>
+<li>TP_ALL_DD：峰值 ≥ 成本×1.04 且 现价 ≤ 峰值×(1−0.6%) → 清仓</li>
+<li>TP_HALF_DD：峰值 ≥ 成本×1.02 且 现价 ≤ 峰值×(1−0.6%) → 卖一半（仅一次；向下取10张整数）。拆不出10张（如持仓10张）→ COND16_TP1_UNSPLIT_SELL_ALL=True 全卖</li>
+<li>BE_STOP：半仓卖出成交后（COND16_BE_AFTER_HALF=True），现价 ≤ 成本 → 清剩余</li>
+<li>EOD：14:55 起清仓</li>
+</ol>
+<p>两段同一回撤同时满足（峰值已≥+4%） → 直接 TP_ALL_DD 一次清仓。原固定5%止盈、旧移动止盈已删除（本条件内不存在）。<br />
+峰值从成交价起算。卖单限价=现价×0.99，3s 未成交撤单按最新价重挂同一腿。</p>
+<h6>择时门（不满足则当天不买，写 GATE/BUY_SKIP 行）</h6>
+<ul>
+<li>昨日转债涨幅前5均值 &lt; 5% → 关；拿不到数据 → <code>unchecked</code> 放行</li>
+<li>当日亏损 ≥3%（相对 g_pre925_total_asset_baseline，缺失则 g_daily_loss_baseline）→ 关；拿不到 → <code>unchecked</code> 放行</li>
+</ul>
+<h6>下午路径（测试开关 COND16_PM_ENABLED，仅条件十六）</h6>
+<ul>
+<li>11:29:45~11:30:03 每 200ms 采样预选池（COND16_PM_UNIVERSE="PREPOOL"，可改 "POOL5"）。取 11:29:57~11:30:00 区间最后一笔（优先 tick 自带 timetag）。</li>
+<li>信号：该笔是上涨跳（价 &gt; 前一笔成交价）且 单笔成交额增量 ≥ COND16_PM_MIN_TICK_AMT_YUAN=200万；&lt;200万 写 PM_REJECT。按单笔额排序取 1 只（COND16_PM_MAX_TRADES）。</li>
+<li>11:29:59 价只是信号价（pm_signal_px）。13:00:00 挂买（限价=现价×1.01，仓位 COND16_PM_FRAC=30%），13:01 前没挂出去放弃。</li>
+<li>COND16_PM_ANCHOR_RESET_AT_OPEN=True：13:00 后首笔有效成交（最新价&gt;0 且成交量较午休快照增加）重置股/债锚 → pm_reset_anchor_px，pm_reset_src=first_trade_after_1300；锚下30秒用重置锚；锚重置前不判锚下。</li>
+<li>成本=成交价，峰值从成交价起算（SIM 下单子等首笔真实成交才模拟成交）。</li>
+<li>补跑（13:00:05 之后才第一次检查到该单，如重启）：先查 QMT 分笔历史 13:00~13:05 首笔 → catchup_tick_history；否则用当前价 → catchup_current_px。</li>
+</ul>
+<h6>日志（ROOT_DIR/cond16_data/）</h6>
+<ul>
+<li><code>cond16_trades_YYYYMMDD.csv</code> + 累计 <code>cond16_trades_all.csv</code>：每个回合一行，utf-8-sig；字段见 <code>_C16_TRADE_FIELDS</code>（含 pm_signal_px / pm_reset_anchor_px / pm_reset_src、sell1/sell2 的 time/px/vol/reason/tp_type/peak_px/dd_pct/trigger_px、mfe/mae、pnl、估算费用、净盈亏）。超过2腿时第2腿起合并进 sell2 并在 note 注明。</li>
+<li><code>cond16_signals_YYYYMMDD.csv</code>：POOL（前5每只含通过/未过原因）、GATE、TRIGGER、BUY_SKIP、BUY_UNFILLED、GIVEUP、PM_SIGNAL、PM_REJECT。</li>
+<li><code>cond16_summary_YYYYMMDD.json</code> + 日志行：n_trades、win_rate、avg_pnl_pct、total_pnl_yuan、按信号/按退出原因分组。</li>
+<li><code>cond16_state_YYYYMMDD.json</code>：重启恢复；<code>cb_rise_YYYYMMDD.json</code>：收盘涨幅快照。</li>
+<li>日志前缀 <code>[条件十六][COND16]</code>，只在事件发生时打印。</li>
+</ul>
+<h6>拿不到的数据 / 处理方式</h6>
+<ul>
+<li>强赎临近：基本面文件无该字段 → 不检查，signals 里 redeem_check=unchecked。</li>
+<li>昨日涨幅 / 前5均值：首日没有本地快照时用 QMT 日K（get_market_data_ex 1d，本地数据）；都拿不到 → unknown/unchecked 放行；VERIFIED 规则判不了记 unknown。</li>
+<li>无新网络调用、无新 import，Python 3.6 语法，%格式化。</li>
+</ul>
+<h6>与其它条件的关系</h6>
+<ul>
+<li>条件十六不受 CONDS_BEFORE_14_ENABLED 门控。买前检查 C11~C15/主策略是否占用该券，占用则 BUY_SKIP。</li>
+<li>只有 COND16_LIVE=True 且条件十六有真实持仓/在途单时，其它引擎和主策略才会跳过该券；SIM 模式下其它条件行为完全不变。</li>
+<li>回报按 remark 前缀 "C16|" 路由给条件十六；9:30:02 撤全部买单的逻辑跳过 C16 单。</li>
+</ul>
+<h6>用户操作</h6>
+<ol>
+<li>QMT 模型里把策略文件指向 <code>DAQMTGUANGDA_c16.py</code>（线上原文件不动，可随时切回）。</li>
+<li>先以 SIM 跑若干天看 cond16_data 日志；稳定后改 <code>COND16_LIVE = True</code>。下午路径需要时改 <code>COND16_PM_ENABLED = True</code>。</li>
+</ol></div></html>

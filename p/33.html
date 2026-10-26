@@ -1,0 +1,353 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>33. 2026-10-19 DAQMTGUANGDA_c16 与用户模式的差距及总评</title><style>body{font-family:system-ui,-apple-system,sans-serif;max-width:720px;margin:auto;padding:16px;background:#f5f5f7;color:#111}a{color:#0a66c2;text-decoration:none}.c{display:block;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;box-shadow:0 1px 3px #0001}.c h2{font-size:16px;margin:0;line-height:1.4;color:#111}.meta{color:#666;font-size:13px;margin:8px 0 0}.detail{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px #0001;word-break:break-word;line-height:1.7;overflow-x:auto}.detail h3{font-size:16px;margin:18px 0 8px;padding-top:10px;border-top:1px solid #eee}.detail h3:first-child{border-top:0;margin-top:0;padding-top:0}.detail h4,.detail h5,.detail h6{font-size:15px;margin:14px 0 6px}.detail pre{background:#f3f3f3;padding:10px;border-radius:8px;overflow-x:auto;white-space:pre-wrap}.detail code{background:#f3f3f3;padding:1px 4px;border-radius:4px;font-size:13px}.detail table{border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}.detail td,.detail th{border:1px solid #ddd;padding:4px 6px}.detail img{max-width:100%}.back{display:inline-block;margin-bottom:12px}h1{font-size:22px}.sub{color:#666}</style><a class="back" href="/jielunku/">← 返回结论库</a><h1>33. 2026-10-19 DAQMTGUANGDA_c16 与用户模式的差距及总评</h1><div class="detail"><p>注：原话未在聊天记录中找到，以下为交付文件原文。<br />
+来源助手：待核验（消息库为空，无法确认来源助手）<br />
+项目：黄金QMT<br />
+关键路径：<code>/workspace/daqmt-review/gap_report_20261019.md</code><br />
+核验说明：日期来自标题。保留 10/19 的结构评审；它记录的 LIVE=False 等开关只是所查源码快照，不是 10/22 的运行状态。发送记录与来源助手缺失。</p>
+<h3>聊天原文</h3>
+<p>【缺失】指定数据库没有聊天消息，无法逐字复制发给用户的完成消息。以下文件正文不冒充聊天原话。</p>
+<h3>原文件全文：<code>/workspace/daqmt-review/gap_report_20261019.md</code></h3>
+<h5>DAQMTGUANGDA_c16 差距与总评（2026-10-19）</h5>
+<blockquote>
+<p>源码：<code>DAQMTGUANGDA_c16.py</code>（~1.4 万行，UTF-8 副本核对）<br />
+对照：用户口头交易模式 + 结论库 §29 优化方案 / global-compare / rise-diff<br />
+<strong>非投资建议</strong>；不编造历史收益。</p>
+</blockquote>
+<hr />
+<h6>最大错位（先看）</h6>
+<table>
+<thead>
+<tr>
+<th>你要的</th>
+<th>代码现状</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>统一：峰值回撤 <strong>0.6%</strong> 止盈；卖半仓后剩余 <strong>保本</strong></td>
+<td><strong>仅 Cond16</strong> 完整（TP1/TP2=0.6% + <code>BE_AFTER_HALF</code>）。<strong>Cond14</strong> 是全仓卖、回撤 <strong>0.8%</strong>、无半仓保本。<strong>Cond15</strong> 是武装后全仓回撤 <strong>0.6%</strong>、<strong>无半仓/无保本</strong></td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>Cond14 哲学 <strong>差&lt;0</strong>（正股先涨、债跟涨预期）；<strong>拒绝</strong>把「债−股≥2%」加进十四</td>
+<td>十四<strong>无</strong>涨幅差过滤（热板+剩余≤6亿+溢价≤50%+前日额≥4亿）；与 Cond1/2/9「股−债价差」同族。<strong>未</strong>误加债强过滤 ✓</td>
+<td>中（哲学一致，但十四本身也没强制「股先涨」）</td>
+</tr>
+<tr>
+<td>~<strong>7k</strong> 小资金适配</td>
+<td>Cond14 固定 <strong>10 张×最多 16 笔</strong>；预留下限 <strong>8000 元</strong>（已超账户）；Cond15 金额 <strong>(5000,10000]</strong> 下限偏紧；Cond16 按可用×60%/30% 较合理但 <strong>LIVE=False</strong></td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>只跑 14/15/16</td>
+<td><code>CONDS_BEFORE_14_ENABLED=False</code>；11/12 单独 False；16 启用但模拟 ✓</td>
+<td>一致</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h6>A. 与你说过的交易模式对照</h6>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>你的偏好</th>
+<th>代码现状</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~7k / 账号 22050727</td>
+<td>账号白名单正确；仓位未按 7k 缩放</td>
+<td><strong>偏差</strong>：预留/手数按「大账户」写</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Cond14：差&lt;0，不要债−股≥2% 开仓滤</td>
+<td>无涨幅差滤；选板按正股涨幅排序买入</td>
+<td><strong>哲学未踩雷</strong>；也未显式约束差&lt;0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>止盈：峰回撤 <strong>0.6%</strong>；半仓后剩余 <strong>成本保本</strong></td>
+<td>14：止损1% / 峰回撤<strong>0.8%</strong> / 板回落0.8%，<strong>全仓</strong>；15：止损2% / 武装2%后回撤<strong>0.6%</strong>，<strong>全仓</strong>；16：TP1 武装2%回撤0.6%卖半 + 保本 + TP2 武装4%回撤0.6%</td>
+<td><strong>仅 16 对齐</strong>；14/15 退出链不统一</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Cond15：正股开盘确认；金额(5000,10000]；ARM2%→PULLBACK0.6%；止损2%；14:50 清</td>
+<td>与参数表一致；pairs 仅 2 对硬编码</td>
+<td><strong>逻辑一致</strong>；池窄、金额下限卡 7k</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cond16：竞价抢筹；LIVE；AM+PM；cond16_data 日志</td>
+<td><code>ENABLED=True</code>，<strong><code>LIVE=False</code></strong>，<strong><code>PM_ENABLED=False</code></strong>；CSV 回合日志齐全</td>
+<td><strong>半对齐</strong>：工程最完整，实盘未开</td>
+</tr>
+<tr>
+<td>6</td>
+<td>一至十三关</td>
+<td><code>CONDS_BEFORE_14=False</code></td>
+<td><strong>一致</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>9:15 前挂载；勿 QMT Save</td>
+<td>运维约束（非代码）；十四死钉 <strong>9:24:57 一秒</strong></td>
+<td>窗极窄，晚挂=全日零</td>
+</tr>
+<tr>
+<td>8</td>
+<td>早盘窗+正股确认，非盘中刷单</td>
+<td>生产态关十三 ✓</td>
+<td><strong>定位一致</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cond14/15/16 关键参数摘录（事实）</strong></p>
+<ul>
+<li><strong>十四</strong>：<code>BUY_VOL=10</code>，<code>MAX_BUYS=16</code>，<code>STOP=1%</code>，<code>PEAK_GIVEBACK=0.8%</code>，<code>SECTOR_GIVEBACK=0.8%</code>，<code>CASH_HOLD_MIN=8000</code>，买窗=<code>9:24:57</code> only  </li>
+<li><strong>十五</strong>：pairs <code>(605058→111024≥2%)、(688300→118064≥1%)</code>；<code>MIN/MAX_YUAN=5000/10000</code>；<code>ARM=2%</code>，<code>PULLBACK=0.6%</code>，<code>STOP=2%</code>，<code>14:50</code> 清  </li>
+<li><strong>十六</strong>：龙头差≥2pp / 双高+5% / 验证龙头；FULL60%/HALF30%；止损1.5%；TP1/TP2 回撤0.6%；半仓保本；14:55 清；日亏门 3%；SIM 默认  </li>
+</ul>
+<hr />
+<h6>B. 与做得好的量化团队的详细差距</h6>
+<h6># 1. 研究 / 信号层</h6>
+<table>
+<thead>
+<tr>
+<th>差距</th>
+<th>为何对你重要</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cond14 无样本外/无「过筛→成交→盈亏」闭环统计（10/12–15 几乎 0 成交）</td>
+<td>不知道热板+四过滤是否正期望</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>Cond15 仅 2 对硬编码，非可扫描池</td>
+<td>正股确认腿几乎天天空转</td>
+<td>中</td>
+</tr>
+<tr>
+<td>Cond16「债−股≥2%」与 Cond14「股先涨」是两套叙事，同文件并存未写清适用日</td>
+<td>易混打法、复盘归因乱</td>
+<td>中</td>
+</tr>
+<tr>
+<td>Cond1–13 大量因子仍在文件里但生产关</td>
+<td>维护成本高，易误开十三（历史 −60 日）</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<h6># 2. 执行层</h6>
+<table>
+<thead>
+<tr>
+<th>差距</th>
+<th>为何对你重要</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>十四买窗 <strong>1 秒</strong>；热度拉取晚则整日错过</td>
+<td>小资金主引擎稳定性差</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>固定 10 张 + 拒单/重挂；无统一「单券拒单上限→当日拉黑」绑在 14/15</td>
+<td>7k 上摩擦吞噬期望</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>竞价毫秒锚（16）工程好，但 LIVE 关；十四无同级成交仿真</td>
+<td>实盘与 SIM 不可比</td>
+<td>中</td>
+</tr>
+<tr>
+<td>主轮询 50ms 够用；依赖多路 <code>run_time</code>，无独立延迟监控</td>
+<td>竞价窗偶发抖动难察觉</td>
+<td>低</td>
+</tr>
+</tbody>
+</table>
+<h6># 3. 风控 / 资金层</h6>
+<table>
+<thead>
+<tr>
+<th>差距</th>
+<th>为何对你重要</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>十四预留 <code>max(8000, 16×2800)</code>，账户 ~7k <strong>数学上偏大</strong></td>
+<td>挤占十五/十六可用，或预留失败后乱序抢买</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td><code>MAX_BUYS=16</code> 与「同时最多 1 只进攻」纪律冲突</td>
+<td>过筛多时会连环挂买</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>全局日亏熔断 <strong>1.5%</strong> 存在；十六另有门 3%；十四/十五未单独「日笔数上限」</td>
+<td>多引擎同日叠加仍可能超预期回撤</td>
+<td>中</td>
+</tr>
+<tr>
+<td>无「十四+十五+十六」总并发仓位帽</td>
+<td>7k 双引擎撞车会爆拒单</td>
+<td><strong>高</strong></td>
+</tr>
+</tbody>
+</table>
+<h6># 4. 退出层</h6>
+<table>
+<thead>
+<tr>
+<th>差距</th>
+<th>为何对你重要</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>你选定的 0.6%+半仓保本未在 14/15 落地</strong></td>
+<td>同一账户三套卖法，复盘无法比期望</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>十四 0.8% 全仓 vs 十五 0.6% 全仓 vs 十六分段</td>
+<td>R:R 与持仓结构不一致</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>十一统一退出链已关；十四/十五/十六各自管卖</td>
+<td>可接受（生产态），但缺「跨引擎兜底」文档化</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<h6># 5. 数据与复盘层</h6>
+<table>
+<thead>
+<tr>
+<th>差距</th>
+<th>为何对你重要</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>仅 Cond16</strong> 有逐笔 CSV（含费用估计、MFE/MAE）</td>
+<td>十四/十五无法费用后净利归因</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>十四有 heat/sector_trace JSON，无成交回合表</td>
+<td>有信号无委托日说不清</td>
+<td>中</td>
+</tr>
+<tr>
+<td>SELFCHECK 仍大量检查已暂停的 1–13 阈值</td>
+<td>启动噪音，掩盖 14/15/16 真问题</td>
+<td>低</td>
+</tr>
+</tbody>
+</table>
+<h6># 6. 工程层</h6>
+<table>
+<thead>
+<tr>
+<th>差距</th>
+<th>为何对你重要</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~1.4 万行单体；1–13 死代码与 14–16 活代码缠在一起</td>
+<td>改一个退出参数成本高、易误触加密包/Save</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>配置几乎全是文件顶常数，无外置 profile（7k-prod / sim）</td>
+<td>换环境靠改源码</td>
+<td>中</td>
+</tr>
+<tr>
+<td>无内嵌回测/撮合 harness（十六有 SIM 记账算半套）</td>
+<td>参数只能实盘试</td>
+<td><strong>高</strong></td>
+</tr>
+<tr>
+<td>监控靠日志；无「未在 9:15 前挂载」强告警</td>
+<td>历史多次空窗</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h6>C. 需要优化的清单（按优先级）</h6>
+<h6># P0 — 立刻可改参数 / 小改逻辑（对齐 7k + 你的退出偏好）</h6>
+<ol>
+<li>
+<p><strong>Cond14 仓位与预留降到 7k</strong><br />
+   - 改什么：<code>COND14_MAX_BUYS</code> → <strong>1（最多 2）</strong>；<code>COND14_CASH_HOLD_MIN_YUAN</code> → <strong>≤3000</strong>；<code>COND14_CASH_HOLD_PER_LOT_YUAN</code> 按真实价；去掉 16×2800 虚占。<br />
+   - 为什么：当前预留下限 8000 &gt; 账户，主引擎与十五抢现金。<br />
+   - 类型：<strong>立刻可改参数</strong>。</p>
+</li>
+<li>
+<p><strong>Cond14 退出对齐你的规则</strong><br />
+   - 改什么：<code>COND14_PEAK_GIVEBACK</code> <strong>0.008→0.006</strong>；增加「盈利武装后可卖半仓 + 剩余成本保本」（移植 Cond16 <code>TP1</code>/<code>BE_AFTER_HALF</code> 模式；10 张时半仓不足则按 <code>UNSPLIT_SELL_ALL</code> 全卖）。<br />
+   - 为什么：你明确只要 0.6%+半仓保本，十四是主引擎却仍是 0.8% 全仓。<br />
+   - 类型：参数立刻可改；半仓保本 = <strong>需小段新开发</strong>（可抄十六）。</p>
+</li>
+<li>
+<p><strong>Cond15 退出补半仓保本 + 金额适配 7k</strong><br />
+   - 改什么：卖出从「全仓回撤」改为与十六同构；<code>COND15_MIN_YUAN</code> <strong>5000→约 2000～2500</strong>（或按 avail 缩放），<code>MAX_YUAN</code> 不超过可用现金。<br />
+   - 为什么：下限 5000 在 7k 上经常买不起/只够一腿。<br />
+   - 类型：金额=参数；半仓=<strong>新开发</strong>。</p>
+</li>
+<li>
+<p><strong>跨引擎并发帽</strong><br />
+   - 改什么：全局「同时持仓 Cond14+15+16 ≤1 只债」或「当日新开合计 ≤2 笔」。<br />
+   - 为什么：三引擎都 True 时 7k 会互抢。<br />
+   - 类型：<strong>需新开发</strong>（闸门函数）。</p>
+</li>
+</ol>
+<h6># P1 — 信号与执行质量</h6>
+<ol start="5">
+<li><strong>Cond14 买窗容错</strong>：保留 9:24:57 主拍，增加极短补窗或「热度未就绪则跳过并打 ERROR 告警」，避免 silent miss。  </li>
+<li><strong>Cond14 买入日志强制打出</strong> <code>stk_rise/cb_rise/spread</code>（先观测差&lt;0 分布，<strong>不要</strong>加债−股≥2% 滤——你已拒绝）。  </li>
+<li><strong>Cond15 池外置</strong>：pairs 改配置文件/列表，避免只押两对。  </li>
+<li><strong>Cond16</strong>：SIM 跑满 ≥5 个完整早盘后再考虑 <code>LIVE=True</code>；PM 默认继续关。  </li>
+<li><strong>拒单熔断</strong>：单券拒单 N 次 → 当日停该券；全局拒单风暴 → 停新开（十四/十五对齐十六门控思路）。</li>
+</ol>
+<h6># P2 — 工程与复盘（团队级）</h6>
+<ol start="10">
+<li><strong>十四/十五回合 CSV</strong>（字段对齐 <code>_C16_TRADE_FIELDS</code> 精简版：费用、MFE/MAE、退出原因）。  </li>
+<li><strong>拆模块或至少 profile</strong>：<code>prod_7k.yaml</code> 只暴露 14/15/16 开关与退出参数；1–13 打成明确 <code>DEPRECATED</code> 区。  </li>
+<li><strong>SELFCHECK 重写</strong>：只验账号、14/15/16 启用态、预留≤avail、买窗时钟、LIVE 标志。  </li>
+<li><strong>挂载告警</strong>：8:50 未 init → 推送（你现有多 bot 体系可接）。  </li>
+<li><strong>禁止</strong>在未开十一、无日轮次上限时重开十三（结论库已定性负期望）。</li>
+</ol>
+<hr />
+<h6>D. 整份策略总评</h6>
+<p><strong>定位拟合</strong>：作为 ~7k「早盘窗口 + 正股确认」可转债 T0，方向选对了——生产态关掉一至十三、主看十四/十五，并加十六做竞价龙头腿，比「十三刷板」更接近国内短线债的成熟叙事。账号锁定、日亏熔断、卖前柜台可卖钳制、Cond16 的毫秒锚与完整交易 CSV，说明作者在执行与记账上并不业余。</p>
+<p><strong>值得保留的强项</strong>：① Cond16 的选池→破锚→分段止盈/半仓保本→费用字段，是全文件最接近「可研究」的一块；② Cond14 热板+剩余/溢价/前日额过滤骨架可用；③ Cond15「正股开盘确认再买」与你的差&lt;0 哲学同族；④ <code>CONDS_BEFORE_14=False</code> 总闸避免再踏 10/13 类摩擦坑；⑤ 拒单侧别、pending 占位、持仓隔离等实盘补丁有血泪痕迹，应保留。</p>
+<p><strong>结构弱点</strong>：约 1.4 万行单体里，Cond1–13（含十一 Kelly、十二选池、十三抢板）在生产态基本是死代码，却仍占启动自检与认知负担；活着的 14/15/16 <strong>三套退出、三套仓位、两套复盘粒度</strong>，没有统一的「7k 资金剖面上的一条退出宪法」。十四预留与 <code>MAX_BUYS=16</code> 按大账户设计，和真实本金冲突；十五金额下限与硬编码 pairs 使卫星腿经常空转；十六最强却默认 SIM。研究层缺少十四/十五费用后期望；工程层缺少外置配置与回测撮合——这是个人实盘脚本到「精品小团队量化」之间的典型断层。</p>
+<p><strong>现实坐标</strong>：高于「只会手动扫板、无日志」的业余盘；接近「有纪律的个人/小作坊 QMT 短线」；距「强精品量化台」（统一风控账本、自适应仓位、样本外研究、执行 SLA、模块化发布）仍差：<strong>资金层自适应、退出规则统一、活代码瘦身、可复现的回合级归因</strong> 四步。</p>
+<p><strong>一句话总评</strong>：骨架对、赛道对，当前最大风险不是「缺一个神秘因子」，而是 <strong>7k 账户上仍按「多笔固定 10 张 + 不统一的 0.8%/全仓退出」在跑</strong>，且真正对齐你偏好的 0.6%+半仓保本几乎只存在于尚未 LIVE 的 Cond16——先把十四/十五的仓位与退出改到与十六同宪法，再谈信号增强。</p>
+<hr />
+<p><em>依据：源码常数与 <code>_manage_slot</code>/<code>Cond15</code>/<code>Cond16</code> 卖出分支；结论库 §29、global-compare、rise-diff。</em></p></div></html>
